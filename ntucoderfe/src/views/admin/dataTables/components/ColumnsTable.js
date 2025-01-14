@@ -11,6 +11,7 @@ import {
   Thead,
   Tr,
   useColorModeValue,
+  Button
 } from '@chakra-ui/react';
 import * as React from 'react';
 
@@ -24,8 +25,9 @@ import {
 
 // Custom components
 import Card from 'components/card/Card';
-import Menu from 'components/menu/MainMenu';
 import SwitchField from "components/fields/SwitchField";
+import { BiSolidDetail } from "react-icons/bi";
+import {MdAdd, MdEdit,MdDelete } from "react-icons/md";
 const columnHelper = createColumnHelper();
 
 // const columns = columnsDataCheck;
@@ -34,6 +36,7 @@ export default function ColumnTable(props) {
   const [sorting, setSorting] = React.useState([]);
   const textColor = useColorModeValue('secondaryGray.900', 'white');
   const borderColor = useColorModeValue('gray.200', 'whiteAlpha.100');
+  
   let defaultData = tableData;
   const columns = [
     columnHelper.accessor('name', {
@@ -119,17 +122,8 @@ export default function ColumnTable(props) {
           fontSize={{ sm: '10px', lg: '12px' }}
           color="gray.400"
         >
-          NOTIFICATIONS
+          STATUS
         </Text>
-      ),
-      cell: () => (
-        <SwitchField
-          isChecked={true}
-          reversed={true}
-          fontSize="sm"
-          mb="20px"
-          id="1"
-        />
       ),
       cell: (info) => {
         const isChecked = info.getValue(); 
@@ -143,7 +137,26 @@ export default function ColumnTable(props) {
         );
       },
     }),
-    
+    columnHelper.accessor('action', {
+      id: 'action',
+      header: () => (
+        <Text>
+        </Text>
+      ),
+      cell: (info) => (
+        <Flex gap={4} justify="center" align="center">
+          <Button variant="solid" size="sm" colorScheme="yellow" borderRadius="md" minW="auto">
+          <MdEdit size="18" />
+          </Button>
+          <Button variant="solid" size="sm" colorScheme="facebook" borderRadius="md" minW="auto">
+          <BiSolidDetail size="18" />
+          </Button>
+          <Button variant="solid" size="sm" colorScheme="red" borderRadius="md" minW="auto">
+          <MdDelete size="18" />
+          </Button>
+        </Flex>
+      ),
+    }),    
   ];
   const [data, setData] = React.useState(() => [...defaultData]);
   const table = useReactTable({
@@ -172,12 +185,14 @@ export default function ColumnTable(props) {
           fontWeight="700"
           lineHeight="100%"
         >
-          4-Columns Table
+          Table name
         </Text>
-        <Menu />
+        <Button variant="solid" size="lg" colorScheme="green" borderRadius="md">
+          Thêm<MdAdd size="25"/>
+        </Button>
       </Flex>
       <Box>
-        <Table variant="simple" color="gray.500" mb="24px" mt="12px">
+        <Table variant="simple" color="gray.500" mb="24px" mt="12px" tableLayout="auto">
           <Thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <Tr key={headerGroup.id}>
@@ -224,7 +239,7 @@ export default function ColumnTable(props) {
                         <Td
                           key={cell.id}
                           fontSize={{ sm: '14px' }}
-                          minW={{ sm: '150px', md: '200px', lg: 'auto' }}
+                          minW={{ sm: '150px', md: '200px', lg:'auto'}}
                           borderColor="transparent"
                         >
                           {flexRender(

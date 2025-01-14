@@ -14,10 +14,6 @@ export const columnsDataColumns = [
   {
     Header: "DATE",
     accessor: "date",
-  },
-  {
-    Header: "STATUS",
-    accessor: "status",
-  },
+  }
 ];
 
