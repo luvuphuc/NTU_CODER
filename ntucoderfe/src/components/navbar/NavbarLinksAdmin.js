@@ -119,7 +119,7 @@ export default function HeaderLinks(props) {
             </Text>
           </Flex>
           <Flex flexDirection="column">
-            <MenuItem
+            {/* <MenuItem
               _hover={{ bg: 'none' }}
               _focus={{ bg: 'none' }}
               px="0"
@@ -136,7 +136,7 @@ export default function HeaderLinks(props) {
               mb="10px"
             >
               <ItemContent info="Horizon Design System Free" />
-            </MenuItem>
+            </MenuItem> */}
           </Flex>
         </MenuList>
       </Menu>

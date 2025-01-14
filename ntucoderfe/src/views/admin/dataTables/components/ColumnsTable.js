@@ -25,7 +25,7 @@ import {
 // Custom components
 import Card from 'components/card/Card';
 import Menu from 'components/menu/MainMenu';
-
+import SwitchField from "components/fields/SwitchField";
 const columnHelper = createColumnHelper();
 
 // const columns = columnsDataCheck;
@@ -110,6 +110,40 @@ export default function ColumnTable(props) {
         </Text>
       ),
     }),
+    columnHelper.accessor('status', {
+      id: 'status',
+      header: () => (
+        <Text
+          justifyContent="space-between"
+          align="center"
+          fontSize={{ sm: '10px', lg: '12px' }}
+          color="gray.400"
+        >
+          NOTIFICATIONS
+        </Text>
+      ),
+      cell: () => (
+        <SwitchField
+          isChecked={true}
+          reversed={true}
+          fontSize="sm"
+          mb="20px"
+          id="1"
+        />
+      ),
+      cell: (info) => {
+        const isChecked = info.getValue(); 
+        return (
+          <SwitchField
+            isChecked={isChecked}
+            reversed={true}
+            fontSize="sm"
+            id={`switch-${info.row.id}`} 
+          />
+        );
+      },
+    }),
+    
   ];
   const [data, setData] = React.useState(() => [...defaultData]);
   const table = useReactTable({
