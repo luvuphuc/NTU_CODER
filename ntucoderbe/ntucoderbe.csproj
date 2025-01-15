@@ -20,10 +20,9 @@
   <ItemGroup>
     <Folder Include="Controllers\" />
     <Folder Include="Infrashtructure\Extensions\" />
-    <Folder Include="Infrashtructure\Helpers\" />
     <Folder Include="Infrashtructure\Services\" />
     <Folder Include="Infrashtructure\Repositories\" />
-    <Folder Include="DTOs\" />
+    <Folder Include="Migrations\" />
     <Folder Include="Validator\" />
   </ItemGroup>
 

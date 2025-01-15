@@ -51,13 +51,13 @@ namespace ntucoderbe.Migrations
                 name: "Roles",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    RoleID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Roles", x => x.Id);
+                    table.PrimaryKey("PK_Roles", x => x.RoleID);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -82,7 +82,7 @@ namespace ntucoderbe.Migrations
                         name: "FK_Accounts_Roles_RoleID",
                         column: x => x.RoleID,
                         principalTable: "Roles",
-                        principalColumn: "Id",
+                        principalColumn: "RoleID",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");

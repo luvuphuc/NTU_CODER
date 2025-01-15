@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 #pragma warning disable CS8618 // Non-nullable field
 namespace ntucoderbe.Models.ERD
@@ -31,8 +29,6 @@ namespace ntucoderbe.Models.ERD
         public int TestCompilerID { get; set; }
         public virtual Compiler Compiler { get; set; }
         public virtual Coder Coder { get; set; }
-
-        // Navigation properties
         public virtual ICollection<TestCase> TestCases { get; set; } = new HashSet<TestCase>();
         public virtual ICollection<Solved> Solveds { get; set; } = new HashSet<Solved>();
         public virtual ICollection<ProblemCategory> ProblemCategories { get; set; } = new HashSet<ProblemCategory>();

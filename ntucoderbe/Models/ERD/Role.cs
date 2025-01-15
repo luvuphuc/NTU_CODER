@@ -11,7 +11,7 @@ namespace ntucoderbe.Models.ERD
             Accounts = new HashSet<Account>();
         }
         [Key]
-        public int Id { get; set; }
+        public int RoleID { get; set; }
         [Required]
         public RoleEnum Name { get; set; }
         [JsonIgnore]

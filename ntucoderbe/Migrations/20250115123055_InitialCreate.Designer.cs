@@ -11,7 +11,7 @@ using ntucoderbe.Models;
 namespace ntucoderbe.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250115072138_InitialCreate")]
+    [Migration("20250115123055_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -453,14 +453,14 @@ namespace ntucoderbe.Migrations
 
             modelBuilder.Entity("ntucoderbe.Models.ERD.Role", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("RoleID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     b.Property<int>("Name")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("RoleID");
 
                     b.ToTable("Roles");
                 });

@@ -450,14 +450,14 @@ namespace ntucoderbe.Migrations
 
             modelBuilder.Entity("ntucoderbe.Models.ERD.Role", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("RoleID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     b.Property<int>("Name")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("RoleID");
 
                     b.ToTable("Roles");
                 });
