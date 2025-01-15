@@ -1,7 +1,48 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\migrations\\20250115072138_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:migrations\\20250115072138_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\migrations\\applicationdbcontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:migrations\\applicationdbcontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\models\\erd\\coder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:models\\erd\\coder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\models\\erd\\account.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:models\\erd\\account.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\models\\erd\\problemcategory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:models\\erd\\problemcategory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\models\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:models\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\models\\erd\\favourite.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:models\\erd\\favourite.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\models\\erd\\solved.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:models\\erd\\solved.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,11 +50,141 @@
       "DocumentGroups": [
         {
           "DockedWidth": 631,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 1,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ApplicationDbContextModelSnapshot.cs",
+              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Migrations\\ApplicationDbContextModelSnapshot.cs",
+              "RelativeDocumentMoniker": "Migrations\\ApplicationDbContextModelSnapshot.cs",
+              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Migrations\\ApplicationDbContextModelSnapshot.cs",
+              "RelativeToolTip": "Migrations\\ApplicationDbContextModelSnapshot.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-15T07:21:50.33Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "20250115072138_InitialCreate.cs",
+              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Migrations\\20250115072138_InitialCreate.cs",
+              "RelativeDocumentMoniker": "Migrations\\20250115072138_InitialCreate.cs",
+              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Migrations\\20250115072138_InitialCreate.cs",
+              "RelativeToolTip": "Migrations\\20250115072138_InitialCreate.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-15T07:21:49.171Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Coder.cs",
+              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Models\\ERD\\Coder.cs",
+              "RelativeDocumentMoniker": "Models\\ERD\\Coder.cs",
+              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Models\\ERD\\Coder.cs",
+              "RelativeToolTip": "Models\\ERD\\Coder.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-15T07:21:23.442Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Account.cs",
+              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Models\\ERD\\Account.cs",
+              "RelativeDocumentMoniker": "Models\\ERD\\Account.cs",
+              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Models\\ERD\\Account.cs",
+              "RelativeToolTip": "Models\\ERD\\Account.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-15T07:21:19.811Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ProblemCategory.cs",
+              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Models\\ERD\\ProblemCategory.cs",
+              "RelativeDocumentMoniker": "Models\\ERD\\ProblemCategory.cs",
+              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Models\\ERD\\ProblemCategory.cs",
+              "RelativeToolTip": "Models\\ERD\\ProblemCategory.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAxwAUAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-15T07:20:39.738Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Solved.cs",
+              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Models\\ERD\\Solved.cs",
+              "RelativeDocumentMoniker": "Models\\ERD\\Solved.cs",
+              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Models\\ERD\\Solved.cs",
+              "RelativeToolTip": "Models\\ERD\\Solved.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-15T07:20:25.536Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Favourite.cs",
+              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Models\\ERD\\Favourite.cs",
+              "RelativeDocumentMoniker": "Models\\ERD\\Favourite.cs",
+              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Models\\ERD\\Favourite.cs",
+              "RelativeToolTip": "Models\\ERD\\Favourite.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-15T07:18:23.157Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-15T07:00:51.788Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Models\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "Models\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Models\\ApplicationDbContext.cs",
+              "RelativeToolTip": "Models\\ApplicationDbContext.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAA9wCEAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-15T06:55:37.802Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-01-15T06:54:12.802Z",
+              "EditorCaption": ""
             }
           ]
         }

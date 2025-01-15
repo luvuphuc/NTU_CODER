@@ -3,8 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\infrashtructure\\middlewares\\exceptionhandlingmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:infrashtructure\\middlewares\\exceptionhandlingmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\models\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:models\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -23,14 +31,40 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "ExceptionHandlingMiddleware.cs",
-              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Infrashtructure\\Middlewares\\ExceptionHandlingMiddleware.cs",
-              "RelativeDocumentMoniker": "Infrashtructure\\Middlewares\\ExceptionHandlingMiddleware.cs",
-              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Infrashtructure\\Middlewares\\ExceptionHandlingMiddleware.cs",
-              "RelativeToolTip": "Infrashtructure\\Middlewares\\ExceptionHandlingMiddleware.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAcAAAAkAAAAAAAAAA==",
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-14T12:26:52.778Z",
+              "WhenOpened": "2025-01-15T07:00:51.788Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Models\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "Models\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Models\\ApplicationDbContext.cs",
+              "RelativeToolTip": "Models\\ApplicationDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-15T06:55:37.802Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-01-15T06:54:12.802Z",
               "EditorCaption": ""
             }
           ]
