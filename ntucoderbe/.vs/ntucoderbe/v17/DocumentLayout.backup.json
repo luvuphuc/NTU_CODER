@@ -3,16 +3,20 @@
   "WorkspaceRootPath": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\controllers\\codercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:controllers\\codercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\infrashtructure\\repositories\\coderrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:infrashtructure\\repositories\\coderrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\models\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:models\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\infrashtructure\\repositories\\rolerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:infrashtructure\\repositories\\rolerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|c:\\users\\vu phuc\\documents\\code\\datn\\ntucoderbe\\dtos\\coderdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F1D5073C-417C-4110-B452-9AC052A72D71}|ntucoderbe.csproj|solutionrelative:dtos\\coderdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -31,40 +35,53 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Program.cs",
-              "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Program.cs",
-              "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAUAAAAAAAAAA==",
+              "Title": "CoderController.cs",
+              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Controllers\\CoderController.cs",
+              "RelativeDocumentMoniker": "Controllers\\CoderController.cs",
+              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Controllers\\CoderController.cs",
+              "RelativeToolTip": "Controllers\\CoderController.cs",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAgwF4AAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-15T07:00:51.788Z",
+              "WhenOpened": "2025-01-17T21:59:10.459Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "CoderDTO.cs",
+              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\DTOs\\CoderDTO.cs",
+              "RelativeDocumentMoniker": "DTOs\\CoderDTO.cs",
+              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\DTOs\\CoderDTO.cs",
+              "RelativeToolTip": "DTOs\\CoderDTO.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAkwB4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-17T21:49:33.84Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "ApplicationDbContext.cs",
-              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Models\\ApplicationDbContext.cs",
-              "RelativeDocumentMoniker": "Models\\ApplicationDbContext.cs",
-              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Models\\ApplicationDbContext.cs",
-              "RelativeToolTip": "Models\\ApplicationDbContext.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAcAAAAAAAAAA==",
+              "Title": "RoleRepository.cs",
+              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Infrashtructure\\Repositories\\RoleRepository.cs",
+              "RelativeDocumentMoniker": "Infrashtructure\\Repositories\\RoleRepository.cs",
+              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Infrashtructure\\Repositories\\RoleRepository.cs",
+              "RelativeToolTip": "Infrashtructure\\Repositories\\RoleRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-15T06:55:37.802Z",
+              "WhenOpened": "2025-01-17T21:47:17.024Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\appsettings.json",
-              "RelativeDocumentMoniker": "appsettings.json",
-              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\appsettings.json",
-              "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAWAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-01-15T06:54:12.802Z",
+              "Title": "CoderRepository.cs",
+              "DocumentMoniker": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Infrashtructure\\Repositories\\CoderRepository.cs",
+              "RelativeDocumentMoniker": "Infrashtructure\\Repositories\\CoderRepository.cs",
+              "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Infrashtructure\\Repositories\\CoderRepository.cs",
+              "RelativeToolTip": "Infrashtructure\\Repositories\\CoderRepository.cs",
+              "ViewState": "AgIAAIIAAAAAAAAAAAAYwIsAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-17T21:46:01.137Z",
               "EditorCaption": ""
             }
           ]

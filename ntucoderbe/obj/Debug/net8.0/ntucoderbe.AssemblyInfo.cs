@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ntucoderbe")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ece0bbecee089b0dd5176db3a0b9044b68e8b3dc")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+caff15887762837761f6710567805fc9bd86799c")]
 [assembly: System.Reflection.AssemblyProductAttribute("ntucoderbe")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ntucoderbe")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

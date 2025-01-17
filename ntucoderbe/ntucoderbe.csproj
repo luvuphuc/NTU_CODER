@@ -13,17 +13,14 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
     <PackageReference Include="MySql.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
     <Folder Include="Infrashtructure\Extensions\" />
-    <Folder Include="Infrashtructure\Services\" />
-    <Folder Include="Infrashtructure\Repositories\" />
     <Folder Include="Migrations\" />
-    <Folder Include="Validator\" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ntucoderbe.Infrashtructure.Enums;
 using ntucoderbe.Models.ERD;
 
 namespace ntucoderbe.Models
@@ -33,6 +34,15 @@ namespace ntucoderbe.Models
                 .HasKey(s => new { s.CoderID, s.ProblemID });
             modelBuilder.Entity<ProblemCategory>()
                 .HasKey(pc => new { pc.ProblemID, pc.CategoryID });
+            modelBuilder.Entity<Role>().HasData(
+            Enum.GetValues(typeof(RoleEnum))
+                .Cast<RoleEnum>()
+                .Select(e => new Role
+                {
+                    RoleID = (int)e,
+                    Name = e.ToString()
+                })
+        );
         }
 
     }

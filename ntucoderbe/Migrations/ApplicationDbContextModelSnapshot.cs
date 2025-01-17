@@ -454,12 +454,30 @@ namespace ntucoderbe.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("Name")
-                        .HasColumnType("int");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.HasKey("RoleID");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            RoleID = 1,
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            RoleID = 2,
+                            Name = "User"
+                        },
+                        new
+                        {
+                            RoleID = 3,
+                            Name = "Manager"
+                        });
                 });
 
             modelBuilder.Entity("ntucoderbe.Models.ERD.Solved", b =>

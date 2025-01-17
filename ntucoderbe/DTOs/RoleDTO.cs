@@ -5,6 +5,6 @@ namespace ntucoderbe.DTOs
     public class RoleDTO
     {
         public int RoleID { get; set; }
-        public RoleEnum Name { get; set; }
+        public string Name { get; set; }
     }
 }

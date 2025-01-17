@@ -13,7 +13,7 @@ namespace ntucoderbe.Models.ERD
         [Key]
         public int RoleID { get; set; }
         [Required]
-        public RoleEnum Name { get; set; }
+        public string Name { get; set; }
         [JsonIgnore]
         public virtual ICollection<Account> Accounts { get; set; }
     }
