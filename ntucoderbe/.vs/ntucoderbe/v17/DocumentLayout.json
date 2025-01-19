@@ -42,8 +42,7 @@
               "RelativeToolTip": "Controllers\\CoderController.cs",
               "ViewState": "AgIAADMAAAAAAAAAAAAYwE8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-17T21:59:10.459Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-01-17T21:59:10.459Z"
             },
             {
               "$type": "Document",
@@ -55,8 +54,7 @@
               "RelativeToolTip": "DTOs\\CoderDTO.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAAAkwB4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-17T21:49:33.84Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-01-17T21:49:33.84Z"
             },
             {
               "$type": "Document",
@@ -68,8 +66,7 @@
               "RelativeToolTip": "Infrashtructure\\Repositories\\RoleRepository.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-17T21:47:17.024Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-01-17T21:47:17.024Z"
             },
             {
               "$type": "Document",
@@ -79,7 +76,7 @@
               "RelativeDocumentMoniker": "Infrashtructure\\Repositories\\CoderRepository.cs",
               "ToolTip": "C:\\Users\\Vu Phuc\\Documents\\Code\\DATN\\ntucoderbe\\Infrashtructure\\Repositories\\CoderRepository.cs",
               "RelativeToolTip": "Infrashtructure\\Repositories\\CoderRepository.cs",
-              "ViewState": "AgIAAJkAAAAAAAAAAAAgwLgAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAJkAAAAAAAAAAAAgwKoAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-01-17T21:46:01.137Z",
               "EditorCaption": ""
