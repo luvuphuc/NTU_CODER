@@ -71,7 +71,7 @@ namespace ntucoderbe.Controllers
             }
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCoder(int id, [FromBody] CreateCoderDTO dto)
+        public async Task<IActionResult> UpdateCoder(int id, [FromBody] CoderDetailDTO dto)
         {
             if (dto == null)
             {
@@ -96,6 +96,36 @@ namespace ntucoderbe.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCoder(int id)
+        {
+            try
+            {
+                var isDeleted = await _coderService.DeleteCoderAsync(id);
 
+                if (isDeleted)
+                {
+                    return Ok(new
+                    {
+                        Message = "Xóa coder thành công."
+                    });
+                }
+                else
+                {
+                    return NotFound(new
+                    {
+                        Message = "Không tìm thấy coder với ID được cung cấp."
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Message = "Có lỗi xảy ra khi xóa coder.",
+                    Error = ex.Message
+                });
+            }
+        }
     }
 }
