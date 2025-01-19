@@ -18,7 +18,7 @@ namespace ntucoderbe.Infrashtructure.Services
             return await _coderRepository.CreateCoderAsync(dto);
         }
 
-        public async Task<CoderDTO> DeleteCoderAsync(int id)
+        public async Task<bool> DeleteCoderAsync(int id)
         {
             return await _coderRepository.DeleteCoderAsync(id);
         }
@@ -33,7 +33,7 @@ namespace ntucoderbe.Infrashtructure.Services
             return await _coderRepository.GetCoderByIdAsync(id);
         }
 
-        public async Task<CoderDTO> UpdateCoderAsync(int id, CreateCoderDTO dto)
+        public async Task<CoderDetailDTO> UpdateCoderAsync(int id, CoderDetailDTO dto)
         {
             return await _coderRepository.UpdateCoderAsync(id, dto);
         }

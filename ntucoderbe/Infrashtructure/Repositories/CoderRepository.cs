@@ -104,11 +104,23 @@ namespace ntucoderbe.Infrashtructure.Repositories
             return dto;
         }
 
-        public Task<CoderDTO> DeleteCoderAsync(int id)
+        public async Task<bool> DeleteCoderAsync(int id)
         {
-            throw new NotImplementedException();
+            var coder = await _context.Coders
+                .Include(c => c.Account)
+                .FirstOrDefaultAsync(c => c.CoderID == id);
+            if (coder == null)
+            {
+                return false;
+            }
+            _context.Coders.Remove(coder);
+            if (coder.Account != null)
+            {
+                _context.Accounts.Remove(coder.Account);
+            }
+            await _context.SaveChangesAsync();
+            return true;
         }
-
 
         public async Task<CoderDTO> GetCoderByIdAsync(int id)
         {
@@ -137,50 +149,59 @@ namespace ntucoderbe.Infrashtructure.Repositories
             };
         }
 
-        public async Task<CoderDTO> UpdateCoderAsync(int id, CreateCoderDTO dto)
+        public async Task<CoderDetailDTO> UpdateCoderAsync(int id, CoderDetailDTO dto)
         {
+
             var existing = await _context.Coders.FindAsync(id);
             if (existing == null)
             {
                 throw new KeyNotFoundException("Không tìm thấy.");
             }
-            if (await CheckEmailExist(dto.CoderEmail!) && dto.CoderEmail != existing.CoderEmail)
+            var validator = new CoderValidator(true);
+            var validationResult = await validator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
             {
-                throw new InvalidOperationException("Email đã tồn tại.");
+                throw new ValidationException(validationResult.Errors);
+            }
+            if (dto.CoderName != null)
+            {
+                existing.CoderName = dto.CoderName;
+            }
+            if (dto.Avatar != null)
+            {
+                existing.Avatar = dto.Avatar;
+            }
+            if (dto.Description != null)
+            {
+                existing.Description = dto.Description;
+            }
+            if (dto.Gender.HasValue)
+            {
+                existing.Gender = dto.Gender.Value;
+            }
+            if (dto.PhoneNumber != null)
+            {
+                existing.PhoneNumber = dto.PhoneNumber;
             }
 
-            if (await CheckUserExist(dto.UserName!) && dto.UserName != existing.Account.UserName)
-            {
-                throw new InvalidOperationException("Tên đăng nhập đã tồn tại.");
-            }
-
-            existing.CoderName = dto.CoderName!;
-            existing.CoderEmail = dto.CoderEmail!;
-            existing.PhoneNumber = dto.PhoneNumber;
             existing.UpdatedAt = DateTime.UtcNow;
             existing.UpdatedBy = "admin";
 
             _context.Coders.Update(existing);
             await _context.SaveChangesAsync();
-            var account = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountID == existing.CoderID);
-            if (account != null && (dto.UserName != account.UserName || dto.Password != account.Password))
-            {
-                var salt = PasswordHelper.GenerateSalt();
-                var hashedPassword = HashPassword(dto.Password!, salt);
-                account.UserName = dto.UserName!;
-                account.Password = hashedPassword;
-                account.SaltMD5 = salt;
-                _context.Accounts.Update(account);
-                await _context.SaveChangesAsync();
-            }
 
-            return new CoderDTO
+            return new CoderDetailDTO
             {
                 CoderID = existing.CoderID,
-                UserName = existing.Account.UserName,
                 CoderName = existing.CoderName,
-                CoderEmail = existing.CoderEmail,
-                PhoneNumber = existing.PhoneNumber
+                Avatar = existing.Avatar,
+                Description = existing.Description,
+                Gender = existing.Gender,
+                PhoneNumber = existing.PhoneNumber,
+                CreatedAt = existing.CreatedAt,
+                CreatedBy = existing.CreatedBy,
+                UpdatedAt = existing.UpdatedAt,
+                UpdatedBy = existing.UpdatedBy
             };
         }
         public async Task<bool> CheckEmailExist(string email)

@@ -8,7 +8,7 @@ namespace ntucoderbe.Infrashtructure.Services
         Task<CreateCoderDTO> CreateCoderAsync(CreateCoderDTO dto);
         Task<PagedResponse<CoderDTO>> GetAllCoderAsync(QueryObject query, string? sortField = null, bool ascending = true);
         Task<CoderDTO> GetCoderByIdAsync(int id);
-        Task<CoderDTO> UpdateCoderAsync(int id, CreateCoderDTO dto);
-        Task<CoderDTO> DeleteCoderAsync(int id);
+        Task<CoderDetailDTO> UpdateCoderAsync(int id, CoderDetailDTO dto);
+        Task<bool> DeleteCoderAsync(int id);
     }
 }
