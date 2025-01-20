@@ -377,6 +377,9 @@ MigrationBackup/
 
 #other
 ntucoderfe/node_modules/
+ntucoderbe/.vs/
+ntucoderbe/bin/
+ntucoderbe/obj/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
