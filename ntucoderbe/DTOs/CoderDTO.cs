@@ -6,7 +6,6 @@ namespace ntucoderbe.DTOs
 {
     public class CoderDTO
     {
-        [JsonIgnore]
         public int CoderID { get; set; }
         public string? UserName { get; set; }
         public string? CoderName { get; set; }
