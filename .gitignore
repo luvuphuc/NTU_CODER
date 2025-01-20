@@ -404,3 +404,8 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+ntucoderbe/.vs/ntucoderbe/v17/.suo
+*.json
+/ntucoderbe/.vs
+/ntucoderbe/bin
+/ntucoderbe/obj
