@@ -9,7 +9,6 @@ namespace ntucoderbe.Validator
         {
             if (!isUpdate)
             {
-                // Create validation
                 RuleFor(coder => coder.UserName)
                     .Cascade(CascadeMode.Stop)
                     .NotEmpty().WithMessage("Tên đăng nhập không được để trống.")

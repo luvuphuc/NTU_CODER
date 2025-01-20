@@ -8,7 +8,7 @@ import {
 } from 'react-icons/md';
 
 // Admin Imports
-import DataTables from 'views/admin/dataTables';
+import DataTables from 'views/admin/coder';
 
 
 const routes = [

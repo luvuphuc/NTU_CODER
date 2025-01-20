@@ -376,7 +376,7 @@ MigrationBackup/
 .ionide/
 
 #other
-front-end/node_modules/
+ntucoderfe/node_modules/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 

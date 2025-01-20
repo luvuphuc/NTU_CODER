@@ -15,6 +15,15 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<ICoderRepository, CoderRepository>();
 builder.Services.AddScoped<ICoderService, CoderService>();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowMyOrigin", builder =>
+    {
+        builder.WithOrigins("http://localhost:3000")
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+    });
+});
 //check connectionstring
 var conString = builder.Configuration.GetConnectionString("DefaultConnection") ??
      throw new InvalidOperationException("Connection string 'DefaultConnection'" +
@@ -30,7 +39,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors("AllowMyOrigin");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
