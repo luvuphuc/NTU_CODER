@@ -6,9 +6,10 @@ import Navbar from 'components/navbar/NavbarAdmin.js';
 import Sidebar from 'components/sidebar/Sidebar.js';
 import { SidebarContext } from 'contexts/SidebarContext';
 import React, { useState } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes,Outlet } from 'react-router-dom';
 import routes from 'routes.js';
-
+import CreateCoder from 'views/admin/coder/components/Create';
+import CoderIndex from 'views/admin/coder';
 // Custom Chakra theme
 export default function Dashboard(props) {
   const { ...rest } = props;
@@ -92,16 +93,19 @@ export default function Dashboard(props) {
     return routes.map((route, key) => {
       if (route.layout === '/admin') {
         return (
-          <Route path={`${route.path}`} element={route.component} key={key} />
+          <Route path={route.path} element={route.component} key={key}>
+            {route.items &&
+              route.items.map((item, itemKey) => (
+                <Route path={item.path} element={item.component} key={itemKey} />
+              ))}
+          </Route>
         );
       }
-      if (route.collapse) {
-        return getRoutes(route.items);
-      } else {
-        return null;
-      }
+      return null;
     });
   };
+  
+  
   document.documentElement.dir = 'ltr';
   const { onOpen } = useDisclosure();
   document.documentElement.dir = 'ltr';
@@ -133,7 +137,7 @@ export default function Dashboard(props) {
               <Box>
                 <Navbar
                   onOpen={onOpen}
-                  logoText={'Horizon UI Dashboard PRO'}
+                  logoText={'NTU Coder'}
                   brandText={getActiveRoute(routes)}
                   secondary={getActiveNavbar(routes)}
                   message={getActiveNavbarText(routes)}
@@ -153,10 +157,9 @@ export default function Dashboard(props) {
               >
                 <Routes>
                   {getRoutes(routes)}
-                  <Route
-                    path="/"
-                    element={<Navigate to="/admin/default" replace />}
-                  />
+                  <Route path="/coder" element={<CoderIndex />} />
+                    <Route path="/coder/create" element={<CreateCoder />} />
+                  <Route path="/" element={<Navigate to="/admin/default" replace />} />
                 </Routes>
               </Box>
             ) : null}

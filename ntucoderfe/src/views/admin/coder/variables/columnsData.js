@@ -12,36 +12,35 @@ import {
   Button
 } from '@chakra-ui/react';
 import * as React from 'react';
-import Card from 'components/card/Card';
 import SwitchField from "components/fields/SwitchField";
 import { BiSolidDetail } from "react-icons/bi";
 import { MdAdd, MdEdit, MdDelete } from "react-icons/md";
 // columnsData.js
 export const columnsData = [
   {
-    Header: 'No',
+    Header: 'STT',
     accessor: 'stt',
     Cell: ({ rowIndex }) => rowIndex + 1,
     minWidth: '20px',
   },
   {
-    Header: 'User Name',
+    Header: 'Tài khoản',
     accessor: 'userName',
   },
   {
-    Header: 'Coder Name',
+    Header: 'Tên ND',
     accessor: 'coderName',
   },
   {
-    Header: 'Coder Email',
+    Header: 'Email',
     accessor: 'coderEmail',
   },
   {
-    Header: 'Phone Number',
+    Header: 'SĐT',
     accessor: 'phoneNumber',
   },
   {
-    Header: 'Status',
+    Header: 'Trạng thái',
     accessor: 'status',
     Cell: ({ value }) => (
       <SwitchField

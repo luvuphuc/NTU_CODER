@@ -18,6 +18,7 @@ export default function AdminNavbar(props) {
 
 	const { secondary, message } = props;
 	const currentRoute = routes.find(route => route.layout + route.path === location.pathname);
+	const breadcrumbPaths = currentRoute ? getBreadcrumbPaths(currentRoute, location.pathname) : [];
 	const brandText = currentRoute ? currentRoute.name : 'Dashboard';
 	// Here are all the props that may change depending on navbar's type or state.(secondary, variant, scrolled)
 	let mainText = useColorModeValue('navy.700', 'white');
@@ -38,7 +39,25 @@ export default function AdminNavbar(props) {
 			setScrolled(false);
 		}
 	};
-
+	const getBreadcrumbPaths = (route, pathname) => {
+		let paths = [{ name: 'Admin', path: '/admin' }];
+		
+		// Check if the current route is part of a nested path
+		if (pathname.includes(route.layout + route.path)) {
+		  paths.push({ name: route.name, path: route.layout + route.path });
+		  
+		  // Check for sub-routes (e.g., /coder/create)
+		  if (route.items) {
+			route.items.forEach(item => {
+			  if (pathname.includes(item.path)) {
+				paths.push({ name: item.name, path: route.layout + item.path });
+			  }
+			});
+		  }
+		}
+		
+		return paths;
+	  };
 	return (
 		<Box
 			position={navbarPosition}
@@ -91,18 +110,14 @@ export default function AdminNavbar(props) {
 				mb={gap}>
 				<Box mb={{ sm: '8px', md: '0px' }}>
 					<Breadcrumb>
-						<BreadcrumbItem color={secondaryText} fontSize='sm' mb='5px'>
-							<BreadcrumbLink href='#' color={secondaryText}>
-								Admin
-							</BreadcrumbLink>
-						</BreadcrumbItem>
-
-						<BreadcrumbItem color={secondaryText} fontSize='sm' mb='5px'>
-							<BreadcrumbLink href='#' color={secondaryText}>
-								{brandText}
-							</BreadcrumbLink>
-						</BreadcrumbItem>
-					</Breadcrumb>
+            {breadcrumbPaths.map((item, index) => (
+              <BreadcrumbItem key={index} color={secondaryText} fontSize="sm" mb="5px">
+                <BreadcrumbLink href={item.path} color={secondaryText}>
+                  {item.name}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+            ))}
+          </Breadcrumb>
 					{/* Here we create navbar brand, based on route name */}
 					<Link
 						color={mainText}

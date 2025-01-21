@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Icon } from '@chakra-ui/react';
+import { Icon, layout } from '@chakra-ui/react';
 import {
   MdBarChart,
   MdPerson,
@@ -8,16 +8,22 @@ import {
 } from 'react-icons/md';
 
 // Admin Imports
-import DataTables from 'views/admin/coder';
-
-
+import CoderIndex from 'views/admin/coder/index';
+import CreateCoder from 'views/admin/coder/components/Create';
 const routes = [
   {
-    name: 'Data Tables',
+    name: 'Người dùng',
     layout: '/admin',
     icon: <Icon as={MdBarChart} width="20px" height="20px" color="inherit" />,
-    path: '/data-tables',
-    component: <DataTables />,
+    path: '/coder',
+    component: <CoderIndex />,
+    items: [
+      {
+        name: 'Tạo Người Dùng',
+        path: 'coder/create',
+        component: <CreateCoder />,
+      },
+    ]
   },
   {
     name: 'NFT Marketplace',
