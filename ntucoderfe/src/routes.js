@@ -19,7 +19,7 @@ const routes = [
     component: <CoderIndex />,
     items: [
       {
-        name: 'Tạo Người Dùng',
+        name: 'Tạo người dùng',
         path: 'coder/create',
         component: <CreateCoder />,
       },
