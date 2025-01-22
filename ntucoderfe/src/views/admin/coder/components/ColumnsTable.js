@@ -37,7 +37,11 @@ export default function ColumnTable({ tableData }) {
               <Tr key={index}>
                 {columnsData.map((column) => (
                   <Td key={column.Header} fontSize={{ sm: '16px' }} width={column.width || 'auto'} borderColor="transparent">
-                    {column.Cell ? column.Cell({ value: row[column.accessor], rowIndex: index }) : row[column.accessor] || 'N/A'}
+                    {column.Cell ? (
+                      column.Cell({ value: row[column.accessor], rowIndex: index, row })
+                    ) : (
+                      row[column.accessor] || 'N/A'
+                    )}
                   </Td>
                 ))}
               </Tr>

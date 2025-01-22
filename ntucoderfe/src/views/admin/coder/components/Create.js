@@ -1,97 +1,165 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Button,
+  Flex,
   FormControl,
   FormLabel,
   Input,
   Text,
   useToast,
-} from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
+  VStack,
+  FormErrorMessage,
+  Grid,
+  GridItem,
+} from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
+import api from "utils/api";
 
 export default function CreateCoder() {
-  const [userName, setUserName] = useState('');
-  const [coderName, setCoderName] = useState('');
-  const [coderEmail, setCoderEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [status, setStatus] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [coderName, setCoderName] = useState("");
+  const [coderEmail, setCoderEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
   const toast = useToast();
   const navigate = useNavigate();
 
-  const handleSubmit = () => {
-    if (!userName || !coderName || !coderEmail || !phoneNumber) {
-      toast({
-        title: 'All fields are required!',
-        status: 'error',
-        duration: 3000,
+  const handleSubmit = async () => {
+    try {
+      const response = await api.post("/Coder/create", {
+        userName,
+        coderName,
+        coderEmail,
+        phoneNumber,
+        password,
       });
-      return;
-    }
-    console.log({
-      userName,
-      coderName,
-      coderEmail,
-      phoneNumber,
-      status,
-    });
 
-    toast({
-      title: 'Coder added successfully!',
-      status: 'success',
-      duration: 3000,
-    });
-    navigate('/admin/coder');
+      // Hiển thị thông báo thành công
+      toast({
+        title: "Thêm mới thành công!",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right",
+      });
+
+      // Reset errors
+      setErrors({});
+
+      // Điều hướng về danh sách coder
+      navigate("/admin/coder");
+    } catch (error) {
+      if (error.response && error.response.data.errors) {
+        // Chuyển lỗi từ API thành object để hiển thị
+        const errorMap = error.response.data.errors.reduce((acc, err) => {
+          if (err.includes("Tên đăng nhập")) acc.userName = err;
+          if (err.includes("Họ và tên")) acc.coderName = err;
+          if (err.includes("Email")) acc.coderEmail = err;
+          if (err.includes("Số điện thoại")) acc.phoneNumber = err;
+          if (err.includes("Mật khẩu")) acc.password = err;
+          return acc;
+        }, {});
+        setErrors(errorMap);
+      } else {
+        // Lỗi không mong muốn
+        toast({
+          title: "Đã xảy ra lỗi.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top-right",
+        });
+      }
+    }
   };
 
   return (
-    <Box w="50%" p="10" m="auto">
-      <Text fontSize="2xl" mb="4" fontWeight="bold">
-        Add New Coder
-      </Text>
-      <FormControl id="userName" mb="4">
-        <FormLabel>User Name</FormLabel>
-        <Input
-          type="text"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-        />
-      </FormControl>
-      <FormControl id="coderName" mb="4">
-        <FormLabel>Coder Name</FormLabel>
-        <Input
-          type="text"
-          value={coderName}
-          onChange={(e) => setCoderName(e.target.value)}
-        />
-      </FormControl>
-      <FormControl id="coderEmail" mb="4">
-        <FormLabel>Coder Email</FormLabel>
-        <Input
-          type="email"
-          value={coderEmail}
-          onChange={(e) => setCoderEmail(e.target.value)}
-        />
-      </FormControl>
-      <FormControl id="phoneNumber" mb="4">
-        <FormLabel>Phone Number</FormLabel>
-        <Input
-          type="text"
-          value={phoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
-        />
-      </FormControl>
-      <FormControl mb="4">
-        <FormLabel>Status</FormLabel>
-        <Input
-          type="checkbox"
-          isChecked={status}
-          onChange={(e) => setStatus(e.target.checked)}
-        />
-      </FormControl>
-      <Button colorScheme="teal" onClick={handleSubmit}>
-        Submit
-      </Button>
+    <Box pt={{ base: "130px", md: "80px", xl: "80px" }} px="25px">
+      <Box
+        bg="white"
+        p="6"
+        borderRadius="lg"
+        boxShadow="lg"
+        maxW="1000px"
+        mx="auto"
+      >
+        <Grid templateColumns="repeat(2, 1fr)" gap="6">
+          {/* Left column */}
+          <GridItem>
+            <FormControl isInvalid={errors.coderName} mb={4}>
+              <FormLabel fontWeight="bold">Họ và tên<Text as="span" color="red.500"> *</Text></FormLabel>
+              <Input
+                placeholder="Nhập họ và tên"
+                value={coderName}
+                onChange={(e) => setCoderName(e.target.value)}
+              />
+              <FormErrorMessage>{errors.coderName}</FormErrorMessage>
+            </FormControl>
+
+            <FormControl isInvalid={errors.userName} mb={4}>
+              <FormLabel fontWeight="bold">Tên đăng nhập<Text as="span" color="red.500"> *</Text></FormLabel>
+              <Input
+                placeholder="Nhập tên đăng nhập"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+              />
+              <FormErrorMessage>{errors.userName}</FormErrorMessage>
+            </FormControl>
+
+            <FormControl isInvalid={errors.password}>
+              <FormLabel fontWeight="bold">Mật khẩu<Text as="span" color="red.500"> *</Text></FormLabel>
+              <Input
+                type="password"
+                placeholder="Nhập mật khẩu"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <FormErrorMessage>{errors.password}</FormErrorMessage>
+            </FormControl>
+          </GridItem>
+
+          {/* Right column */}
+          <GridItem>
+            <FormControl isInvalid={errors.coderEmail} mb={4}>
+              <FormLabel fontWeight="bold">Email<Text as="span" color="red.500"> *</Text></FormLabel>
+              <Input
+                type="email"
+                placeholder="Nhập email"
+                value={coderEmail}
+                onChange={(e) => setCoderEmail(e.target.value)}
+              />
+              <FormErrorMessage>{errors.coderEmail}</FormErrorMessage>
+            </FormControl>
+
+            <FormControl isInvalid={errors.phoneNumber} mb={4}>
+              <FormLabel fontWeight="bold">Số điện thoại<Text as="span" color="red.500"> *</Text></FormLabel>
+              <Input
+                type="tel"
+                placeholder="Nhập số điện thoại"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+              />
+              <FormErrorMessage>{errors.phoneNumber}</FormErrorMessage>
+            </FormControl>
+
+            <GridItem display="flex" justifyContent="center">
+              <Button
+                colorScheme="teal"
+                onClick={handleSubmit}
+                borderRadius="md"
+                justifyContent="center"
+                alignItems="center"
+                width="50%"
+                mt="30px"
+              >
+                Thêm
+              </Button>
+            </GridItem>
+          </GridItem>
+        </Grid>
+      </Box>
     </Box>
   );
 }

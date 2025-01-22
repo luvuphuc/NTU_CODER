@@ -19,13 +19,17 @@ export default function AdminNavbar(props) {
 	const { secondary, message } = props;
 	let currentItem;
 	const currentRoute = routes.find(route => {
-		if (location.pathname.startsWith(route.layout + route.path)) {
-			currentItem = route.items?.find(item => location.pathname.endsWith(item.path));
-			return true;
+		const fullPath = route.layout + route.path;
+		if (location.pathname.startsWith(route.layout) && location.pathname.includes(route.path.split('/:')[0])) {
+		  currentItem = route.items?.find(item => {
+			const itemPath = item.path.split('/:')[0];
+			return location.pathname.includes(itemPath);
+		  });
+		  return true;
 		}
 		return false;
-	});
-
+	  });
+	  
 	const brandText = currentItem ? currentItem.name : currentRoute ? currentRoute.name : 'Dashboard';
 
 	// Here are all the props that may change depending on navbar's type or state.(secondary, variant, scrolled)
@@ -102,26 +106,27 @@ export default function AdminNavbar(props) {
 				<Breadcrumb>
 					<BreadcrumbItem color={secondaryText} fontSize="sm" mb="5px">
 						<BreadcrumbLink href="#" color={secondaryText}>
-							Admin
+						Admin
 						</BreadcrumbLink>
 					</BreadcrumbItem>
 
 					{currentRoute && (
 						<BreadcrumbItem color={secondaryText} fontSize="sm" mb="5px">
-							<BreadcrumbLink href={`${currentRoute.layout}${currentRoute.path}`} color={secondaryText}>
-								{currentRoute.name}
-							</BreadcrumbLink>
+						<BreadcrumbLink href={`${currentRoute.layout}${currentRoute.path}`} color={secondaryText}>
+							{currentRoute.name}
+						</BreadcrumbLink>
 						</BreadcrumbItem>
 					)}
 
 					{currentItem && (
 						<BreadcrumbItem color={secondaryText} fontSize="sm" mb="5px">
-							<BreadcrumbLink href="#" color={secondaryText}>
-								{currentItem.name}
-							</BreadcrumbLink>
+						<BreadcrumbLink href="#" color={secondaryText}>
+							{currentItem.name}
+						</BreadcrumbLink>
 						</BreadcrumbItem>
 					)}
-				</Breadcrumb>
+					</Breadcrumb>
+
 
 					{/* Here we create navbar brand, based on route name */}
 					<Link

@@ -10,6 +10,7 @@ import {
 // Admin Imports
 import CoderIndex from 'views/admin/coder/index';
 import CreateCoder from 'views/admin/coder/components/Create';
+import CoderDetail from 'views/admin/coder/components/Detail';
 const routes = [
   {
     name: 'Người dùng',
@@ -23,6 +24,11 @@ const routes = [
         path: 'coder/create',
         component: <CreateCoder />,
       },
+      {
+        name: 'Chi tiết người dùng',
+        path: 'coder/detail/:id',
+        component: <CoderDetail />,
+      }
     ]
   },
   {

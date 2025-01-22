@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Flex,
   Box,
@@ -9,12 +10,13 @@ import {
   Thead,
   Tr,
   useColorModeValue,
-  Button
+  Button,
 } from '@chakra-ui/react';
-import * as React from 'react';
+import { useNavigate } from 'react-router-dom';
 import SwitchField from "components/fields/SwitchField";
 import { BiSolidDetail } from "react-icons/bi";
-import { MdAdd, MdEdit, MdDelete } from "react-icons/md";
+import { MdEdit, MdDelete } from "react-icons/md";
+
 // columnsData.js
 export const columnsData = [
   {
@@ -53,18 +55,33 @@ export const columnsData = [
   {
     Header: '',
     accessor: 'action',
-    Cell: () => (
-      <Flex gap={4} justify="center" align="center">
-        <Button variant="solid" size="sm" colorScheme="yellow" borderRadius="md" minW="auto">
-          <MdEdit size="18" />
-        </Button>
-        <Button variant="solid" size="sm" colorScheme="facebook" borderRadius="md" minW="auto">
-          <BiSolidDetail size="18" />
-        </Button>
-        <Button variant="solid" size="sm" colorScheme="red" borderRadius="md" minW="auto">
-          <MdDelete size="18" />
-        </Button>
-      </Flex>
-    ),
+    Cell: ({ row }) => {
+      const navigate = useNavigate();
+      const { coderID } = row;
+      const handleDetailClick = () => {
+        navigate(`/admin/coder/detail/${coderID}`);
+      };
+
+      return (
+        <Flex gap={4} justify="center" align="center">
+          <Button variant="solid" size="sm" colorScheme="yellow" borderRadius="md" minW="auto">
+            <MdEdit size="18" />
+          </Button>
+          <Button
+            variant="solid"
+            size="sm"
+            colorScheme="facebook"
+            borderRadius="md"
+            minW="auto"
+            onClick={handleDetailClick} 
+          >
+            <BiSolidDetail size="18" />
+          </Button>
+          <Button variant="solid" size="sm" colorScheme="red" borderRadius="md" minW="auto">
+            <MdDelete size="18" />
+          </Button>
+        </Flex>
+      );
+    },
   },
 ];

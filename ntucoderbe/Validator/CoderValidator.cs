@@ -36,8 +36,9 @@ namespace ntucoderbe.Validator
 
                 RuleFor(coder => coder.PhoneNumber)
                     .Cascade(CascadeMode.Stop)
+                    .NotEmpty().WithMessage("Số điện thoại không được để trống.")
                     .Matches(@"^\d{10}$").WithMessage("Số điện thoại phải có 10 số.")
-                    .When(coder => !string.IsNullOrEmpty(coder.PhoneNumber));
+                    .When(coder => coder is CreateCoderDTO);
             }
             else
             {
