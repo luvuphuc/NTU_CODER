@@ -61,10 +61,12 @@ export const columnsData = [
       const handleDetailClick = () => {
         navigate(`/admin/coder/detail/${coderID}`);
       };
-
+      const handleUpdateClick = () => {
+        navigate(`/admin/coder/update/${coderID}`);
+      };
       return (
         <Flex gap={4} justify="center" align="center">
-          <Button variant="solid" size="sm" colorScheme="yellow" borderRadius="md" minW="auto">
+          <Button variant="solid" size="sm" colorScheme="yellow" borderRadius="md" minW="auto" onClick={handleUpdateClick}>
             <MdEdit size="18" />
           </Button>
           <Button
@@ -75,7 +77,7 @@ export const columnsData = [
             minW="auto"
             onClick={handleDetailClick} 
           >
-            <BiSolidDetail size="18" />
+            <BiSolidDetail size="18"/>
           </Button>
           <Button variant="solid" size="sm" colorScheme="red" borderRadius="md" minW="auto">
             <MdDelete size="18" />

@@ -11,6 +11,7 @@ import {
 import CoderIndex from 'views/admin/coder/index';
 import CreateCoder from 'views/admin/coder/components/Create';
 import CoderDetail from 'views/admin/coder/components/Detail';
+import CoderUpdate from 'views/admin/coder/components/Update';
 const routes = [
   {
     name: 'Người dùng',
@@ -28,6 +29,11 @@ const routes = [
         name: 'Chi tiết người dùng',
         path: 'coder/detail/:id',
         component: <CoderDetail />,
+      },
+      {
+        name: 'Cập nhật người dùng',
+        path: 'coder/update/:id',
+        component: <CoderUpdate />,
       }
     ]
   },

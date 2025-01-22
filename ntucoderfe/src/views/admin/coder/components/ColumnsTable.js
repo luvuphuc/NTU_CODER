@@ -1,5 +1,6 @@
 import { columnsData } from '../variables/columnsData';
 import {
+  useColorMode,
   Box,
   Table,
   Tbody,
@@ -13,9 +14,11 @@ import {
 import * as React from 'react';
 import Card from 'components/card/Card';
 
+
 export default function ColumnTable({ tableData }) {
-  const textColor = useColorModeValue('secondaryGray.900', 'white');
-  const borderColor = useColorModeValue('gray.200', 'whiteAlpha.100');
+  const { colorMode } = useColorMode(); // Lấy trạng thái chế độ màu
+  const textColor = colorMode === 'light' ? 'black' : 'white'; // Đổi màu text
+  const borderColor = colorMode === 'light' ? 'gray.200' : 'whiteAlpha.300';
 
   return (
     <Card flexDirection="column" w="100%" px="0px" overflowX={{ sm: 'scroll', lg: 'hidden' }}>
@@ -25,7 +28,7 @@ export default function ColumnTable({ tableData }) {
             <Tr>
               {columnsData.map((column) => (
                 <Th key={column.Header} borderColor={borderColor} width={column.width || 'auto'}>
-                  <Text fontSize={{ sm: '10px', lg: '12px' }} fontWeight="bold" color="blackAlpha.900">
+                  <Text fontSize={{ sm: '10px', lg: '12px' }} fontWeight="bold" color={textColor}>
                     {column.Header}
                   </Text>
                 </Th>
@@ -40,7 +43,7 @@ export default function ColumnTable({ tableData }) {
                     {column.Cell ? (
                       column.Cell({ value: row[column.accessor], rowIndex: index, row })
                     ) : (
-                      row[column.accessor] || 'N/A'
+                      <Text color={textColor}>{row[column.accessor] || 'N/A'}</Text>
                     )}
                   </Td>
                 ))}

@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Flex,
+  Link,
   FormControl,
   FormLabel,
   Input,
@@ -15,7 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import api from "utils/api";
-
+import { MdOutlineArrowBack } from "react-icons/md";
 export default function CreateCoder() {
   const [userName, setUserName] = useState("");
   const [coderName, setCoderName] = useState("");
@@ -85,6 +86,18 @@ export default function CreateCoder() {
         maxW="1000px"
         mx="auto"
       >
+        <Flex mb="8px" justifyContent="end" align="end" px="25px">
+          <Link><Button 
+            variant="solid" 
+            size="lg" 
+            colorScheme="messenger" 
+            borderRadius="md" 
+            onClick={() => navigate(`/admin/coder/`)}
+          >
+            Quay lại <MdOutlineArrowBack />
+          </Button>
+          </Link>
+        </Flex>
         <Grid templateColumns="repeat(2, 1fr)" gap="6">
           {/* Left column */}
           <GridItem>
