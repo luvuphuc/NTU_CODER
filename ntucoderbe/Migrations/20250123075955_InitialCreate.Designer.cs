@@ -11,7 +11,7 @@ using ntucoderbe.Models;
 namespace ntucoderbe.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250117095756_InitialCreate")]
+    [Migration("20250123075955_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -142,8 +142,7 @@ namespace ntucoderbe.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Avatar")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("CoderEmail")
                         .IsRequired()

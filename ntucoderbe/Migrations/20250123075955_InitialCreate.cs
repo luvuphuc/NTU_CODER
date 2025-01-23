@@ -97,7 +97,7 @@ namespace ntucoderbe.Migrations
                     CoderName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
                     CoderEmail = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
                     PhoneNumber = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: true),
-                    Avatar = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    Avatar = table.Column<string>(type: "longtext", nullable: true),
                     Description = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime", nullable: false),
                     CreatedBy = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),

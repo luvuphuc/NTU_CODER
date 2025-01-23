@@ -71,7 +71,7 @@ namespace ntucoderbe.Controllers
             }
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCoder(int id, [FromBody] CoderDetailDTO dto)
+        public async Task<IActionResult> UpdateCoder(int id, [FromForm] CoderDetailDTO dto)
         {
             if (dto == null)
             {
@@ -96,6 +96,10 @@ namespace ntucoderbe.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
+
+
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCoder(int id)
         {

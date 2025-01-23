@@ -1,7 +1,10 @@
+﻿using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.EntityFrameworkCore;
 using ntucoderbe.Infrashtructure.Repositories;
 using ntucoderbe.Infrashtructure.Services;
 using ntucoderbe.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +42,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+FirebaseApp.Create(new AppOptions
+{
+    Credential = GoogleCredential.FromFile("luvuphuc-firebase-790e8-firebase-adminsdk-axcoh-03ea884b0e.json") 
+});
 app.UseCors("AllowMyOrigin");
 app.UseHttpsRedirection();
 

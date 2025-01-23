@@ -34,7 +34,6 @@ namespace ntucoderbe.Models.ERD
         [Phone]
         public string? PhoneNumber { get; set; }
 
-        [MaxLength(100)]
         public string? Avatar { get; set; }
         [MaxLength(100)]
         public string? Description { get; set; }

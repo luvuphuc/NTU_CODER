@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using ntucoderbe.DTOs;
 using ntucoderbe.Infrashtructure.Helpers;
+using ntucoderbe.Infrastructure.Services;
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
 using ntucoderbe.Validator;
@@ -167,9 +168,12 @@ namespace ntucoderbe.Infrashtructure.Repositories
             {
                 existing.CoderName = dto.CoderName;
             }
-            if (dto.Avatar != null)
+            if (dto.AvatarFile != null)
             {
-                existing.Avatar = dto.Avatar;
+                var firebaseStorageService = new FirebaseStorageService();
+                var avatarFileName = "avatars/" + existing.CoderID + ".jpg";
+                var avatarUrl = await firebaseStorageService.UploadImageAsync(avatarFileName, dto.AvatarFile.OpenReadStream());
+                existing.Avatar = avatarUrl;
             }
             if (dto.Description != null)
             {
@@ -198,8 +202,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 Description = existing.Description,
                 Gender = existing.Gender,
                 PhoneNumber = existing.PhoneNumber,
-                CreatedAt = existing.CreatedAt,
-                CreatedBy = existing.CreatedBy,
                 UpdatedAt = existing.UpdatedAt,
                 UpdatedBy = existing.UpdatedBy
             };

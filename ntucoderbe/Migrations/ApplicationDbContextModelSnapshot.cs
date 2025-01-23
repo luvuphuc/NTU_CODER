@@ -139,8 +139,7 @@ namespace ntucoderbe.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Avatar")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("CoderEmail")
                         .IsRequired()
