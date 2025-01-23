@@ -13,7 +13,7 @@ import {
   Input,
   IconButton,
   useToast,
-  Select, // Import Select for dropdown
+  Select,
 } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 import moment from 'moment-timezone';
@@ -32,7 +32,7 @@ const CoderDetail = () => {
   const [coderDetail, setCoderDetail] = useState(null);
   const [editField, setEditField] = useState(null);
   const [editableValues, setEditableValues] = useState({});
-  const [avatarFile, setAvatarFile] = useState(null); // State for the avatar file
+  const [avatarFile, setAvatarFile] = useState(null);
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -41,7 +41,7 @@ const CoderDetail = () => {
       try {
         const response = await api.get(`/Coder/${id}`);
         setCoderDetail(response.data);
-        setEditableValues(response.data); // Initialize editable values
+        setEditableValues(response.data);
       } catch (error) {
         console.error("Đã xảy ra lỗi", error);
       }
@@ -57,15 +57,22 @@ const CoderDetail = () => {
   };
 
   const handleInputChange = (field, value) => {
-    setEditableValues((prev) => ({ ...prev, [field]: value }));
+    setEditableValues((prev) => {
+      const updatedValues = { ...prev, [field]: value };
+      setCoderDetail((prevCoderDetail) => ({
+        ...prevCoderDetail,
+        [field]: value,  
+      }));
+      return updatedValues;
+    });
   };
-
+  
   const handleAvatarChange = async (e) => {
-    const file = e.target.files[0]; // Get the selected file
+    const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = async () => {
-        setEditableValues((prev) => ({ ...prev, avatar: reader.result })); // Update the avatar preview
+        setEditableValues((prev) => ({ ...prev, avatar: reader.result })); 
         
         const formData = new FormData();
         formData.append("CoderID", id);
@@ -96,8 +103,8 @@ const CoderDetail = () => {
           });
         }
       };
-      reader.readAsDataURL(file); // Convert the file to a data URL
-      setAvatarFile(file); // Save the file to state for later use
+      reader.readAsDataURL(file);
+      setAvatarFile(file);
     }
   };
 
@@ -105,35 +112,35 @@ const CoderDetail = () => {
     try {
       const formData = new FormData();
       formData.append("CoderID", id);
-
-      // Append all editable fields to FormData
+  
+      // Lưu tất cả các trường đã chỉnh sửa.
       Object.keys(editableValues).forEach((field) => {
         formData.append(field, editableValues[field]);
       });
-
-      // If a new avatar file has been selected, append it to FormData
+  
+      // Nếu có file avatar, đính kèm vào formData
       if (avatarFile) {
         formData.append("AvatarFile", avatarFile);
       }
-
+  
       const response = await api.put(`/Coder/${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-
+  
       setCoderDetail((prev) => ({
         ...prev,
         ...editableValues,
       }));
-
-      setEditField(null);
+  
+      setEditField(null); // Reset trạng thái chỉnh sửa
       toast({
         title: "Cập nhật thành công!",
         status: "success",
         duration: 3000,
         isClosable: true,
-        position: "top-right"
+        position: "top-right",
       });
     } catch (error) {
       console.error("Đã xảy ra lỗi khi cập nhật", error);
@@ -142,11 +149,11 @@ const CoderDetail = () => {
         status: "error",
         duration: 3000,
         isClosable: true,
-        position: "top-right"
+        position: "top-right",
       });
     }
   };
-
+  
   if (!coderDetail) {
     return <Text>Loading...</Text>;
   }
@@ -185,7 +192,7 @@ const CoderDetail = () => {
               boxSize="200px"
               objectFit="cover"
               mb={4}
-              onClick={() => document.getElementById("avatarInput").click()} // Trigger the file input on avatar click
+              onClick={() => document.getElementById("avatarInput").click()}
               cursor="pointer"
             />
             <Input
@@ -206,7 +213,7 @@ const CoderDetail = () => {
                   </Text>
                 </Flex>
 
-                {["coderName", "coderEmail", "phoneNumber", "description"].map((field) => (
+                {["coderName", "coderEmail", "phoneNumber"].map((field) => (
                   <Flex key={field} align="center">
                     {editField === field ? (
                       <Input
@@ -220,9 +227,7 @@ const CoderDetail = () => {
                           ? "Họ và tên"
                           : field === "coderEmail"
                           ? "Email"
-                          : field === "phoneNumber"
-                          ? "Số điện thoại"
-                          : "Mô tả"}:</strong>{" "}
+                          : "Số điện thoại"}:</strong>{" "}
                         {coderDetail[field] || "Chưa có thông tin"}
                       </Text>
                     )}
@@ -236,12 +241,15 @@ const CoderDetail = () => {
                     />
                   </Flex>
                 ))}
+
+                {/* Gender field */}
                 <Flex align="center">
                   {editField === "gender" ? (
                     <Select
                       value={editableValues.gender || ""}
                       onChange={(e) => handleInputChange("gender", e.target.value)}
                       placeholder="Chọn giới tính"
+                      width="50%"
                     >
                       <option value="0">Nam</option>
                       <option value="1">Nữ</option>
@@ -261,8 +269,32 @@ const CoderDetail = () => {
                     cursor="pointer"
                   />
                 </Flex>
+
+                {/* Description field */}
+                <Flex align="center">
+                  {editField === "description" ? (
+                    <Input
+                      value={editableValues.description || ""}
+                      onChange={(e) => handleInputChange("description", e.target.value)}
+                      placeholder="Chỉnh sửa mô tả"
+                    />
+                  ) : (
+                    <Text fontSize="lg">
+                      <strong>Mô tả:</strong> {coderDetail.description || "Chưa có thông tin"}
+                    </Text>
+                  )}
+                  <IconButton
+                    aria-label="Edit"
+                    icon={<MdEdit />}
+                    ml={2}
+                    size="sm"
+                    onClick={() => handleEdit("description")}
+                    cursor="pointer"
+                  />
+                </Flex>
               </VStack>
             </GridItem>
+
 
             {/* Right Column */}
             <GridItem>

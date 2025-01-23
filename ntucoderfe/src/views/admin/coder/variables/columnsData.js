@@ -1,23 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Flex,
-  Box,
-  Table,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr,
-  useColorModeValue,
   Button,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  Text,
+  useToast,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import SwitchField from "components/fields/SwitchField";
-import { BiSolidDetail } from "react-icons/bi";
-import { MdDelete } from "react-icons/md";
+import { BiSolidDetail } from 'react-icons/bi';
+import { MdDelete } from 'react-icons/md';
+import SwitchField from 'components/fields/SwitchField';
+import api from 'utils/api';
 
-// columnsData.js
 export const columnsData = [
   {
     Header: 'STT',
@@ -58,12 +59,48 @@ export const columnsData = [
     Cell: ({ row }) => {
       const navigate = useNavigate();
       const { coderID } = row;
+      const { isOpen, onOpen, onClose } = useDisclosure();
+      const toast = useToast();
+      const [loading, setLoading] = useState(false);
+
       const handleDetailClick = () => {
         navigate(`/admin/coder/detail/${coderID}`);
       };
-      const handleUpdateClick = () => {
-        navigate(`/admin/coder/update/${coderID}`);
+
+      const handleDeleteClick = async () => {
+        try {
+          setLoading(true);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+      
+          const response = await api.delete(`/Coder/${coderID}`);
+          if (response.status === 200) {
+            toast({
+              title: "Xóa thành công!",
+              description: "Người dùng đã bị xóa.",
+              status: "success",
+              duration: 5000,
+              isClosable: true,
+              position: "top-right",
+            });
+            onClose();
+            window.location.reload();
+          } else {
+            throw new Error("Có lỗi xảy ra khi xóa");
+          }
+        } catch (error) {
+          toast({
+            title: "Lỗi",
+            description: error.message || "Có lỗi xảy ra khi xóa.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+            position: "top-right",
+          });
+        } finally {
+          setLoading(false);
+        }
       };
+
       return (
         <Flex gap={4} justify="center" align="center">
           <Button
@@ -72,13 +109,47 @@ export const columnsData = [
             colorScheme="facebook"
             borderRadius="md"
             minW="auto"
-            onClick={handleDetailClick} 
+            onClick={handleDetailClick}
           >
-            <BiSolidDetail size="18"/>
+            <BiSolidDetail size="18" />
           </Button>
-          <Button variant="solid" size="sm" colorScheme="red" borderRadius="md" minW="auto">
+
+          {/* Nút xóa */}
+          <Button
+            variant="solid"
+            size="sm"
+            colorScheme="red"
+            borderRadius="md"
+            minW="auto"
+            onClick={onOpen} 
+          >
             <MdDelete size="18" />
           </Button>
+
+          {/* Modal xác nhận xóa */}
+          <Modal isOpen={isOpen} onClose={onClose}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Xác nhận xóa</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <Text>Bạn có chắc chắn muốn xóa hay không?</Text>
+              </ModalBody>
+              <ModalFooter>
+                <Button colorScheme="gray" mr={3} onClick={onClose}>
+                  Hủy
+                </Button>
+                <Button
+                  colorScheme="red"
+                  isLoading={loading}
+                  loadingText="Đang xóa..."
+                  onClick={handleDeleteClick}
+                >
+                  Xóa
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
         </Flex>
       );
     },

@@ -17,7 +17,7 @@ namespace ntucoderbe.Models.ERD
         [ForeignKey("Contest")]
         public int ContestID { get; set; }
         [Column(TypeName = "datetime")]
-        public DateTime RegisterTime { get; set; } = DateTime.Now;
+        public DateTime RegisterTime { get; set; }
         public int? PointScore { get; set; }
         public int? TimeScore { get; set; }
         public int? Rank { get; set; }

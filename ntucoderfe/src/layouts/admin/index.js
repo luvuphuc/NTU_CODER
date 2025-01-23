@@ -11,7 +11,6 @@ import routes from 'routes.js';
 import CreateCoder from 'views/admin/coder/components/Create';
 import CoderIndex from 'views/admin/coder';
 import CoderDetail from 'views/admin/coder/components/Detail';
-import CoderUpdate from 'views/admin/coder/components/Update';
   // Custom Chakra theme
   export default function Dashboard(props) {
     const { ...rest } = props;
@@ -163,7 +162,6 @@ import CoderUpdate from 'views/admin/coder/components/Update';
                     <Route path="/coder" element={<CoderIndex />} />
                     <Route path="/coder/create" element={<CreateCoder />} />
                     <Route path="/coder/detail/:id" element={<CoderDetail />} />
-                    <Route path="/coder/update/:id" element={<CoderUpdate />} />
                     <Route path="/" element={<Navigate to="/admin/default" replace />} />
                   </Routes>
                   

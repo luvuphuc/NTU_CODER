@@ -15,7 +15,7 @@ namespace ntucoderbe.Models.ERD
         [ForeignKey("Coder")]
         [Required]
         public int CoderID { get; set; }
-        public DateTime CommentTime { get; set; } = DateTime.Now;
+        public DateTime CommentTime { get; set; }
 
         public virtual Blog Blog { get; set; }
 

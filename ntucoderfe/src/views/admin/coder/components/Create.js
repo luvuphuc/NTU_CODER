@@ -37,7 +37,6 @@ export default function CreateCoder() {
         password,
       });
 
-      // Hiển thị thông báo thành công
       toast({
         title: "Thêm mới thành công!",
         status: "success",
@@ -48,8 +47,6 @@ export default function CreateCoder() {
 
       // Reset errors
       setErrors({});
-
-      // Điều hướng về danh sách coder
       navigate("/admin/coder");
     } catch (error) {
       if (error.response && error.response.data.errors) {
@@ -64,7 +61,6 @@ export default function CreateCoder() {
         }, {});
         setErrors(errorMap);
       } else {
-        // Lỗi không mong muốn
         toast({
           title: "Đã xảy ra lỗi.",
           status: "error",

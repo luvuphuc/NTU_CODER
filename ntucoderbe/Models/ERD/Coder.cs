@@ -40,7 +40,7 @@ namespace ntucoderbe.Models.ERD
 
         [Required]
         [Column(TypeName = "datetime")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; }
 
         [MaxLength(100)]
         public string? CreatedBy { get; set; }

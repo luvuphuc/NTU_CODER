@@ -4,10 +4,9 @@ import api from "../../../utils/api";
 import ColumnsTable from "views/admin/coder/components/ColumnsTable";
 import ScrollToTop from "components/scroll/ScrollToTop";
 import { MdAdd } from "react-icons/md";
-import { useNavigate,Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 export default function CoderIndex() {
   const [tableData, setTableData] = useState([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     api
