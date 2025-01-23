@@ -11,7 +11,7 @@ using ntucoderbe.Models;
 namespace ntucoderbe.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250123075955_InitialCreate")]
+    [Migration("20250123102433_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
