@@ -15,7 +15,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import SwitchField from "components/fields/SwitchField";
 import { BiSolidDetail } from "react-icons/bi";
-import { MdEdit, MdDelete } from "react-icons/md";
+import { MdDelete } from "react-icons/md";
 
 // columnsData.js
 export const columnsData = [
@@ -66,9 +66,6 @@ export const columnsData = [
       };
       return (
         <Flex gap={4} justify="center" align="center">
-          <Button variant="solid" size="sm" colorScheme="yellow" borderRadius="md" minW="auto" onClick={handleUpdateClick}>
-            <MdEdit size="18" />
-          </Button>
           <Button
             variant="solid"
             size="sm"
