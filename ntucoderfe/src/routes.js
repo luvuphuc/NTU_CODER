@@ -21,12 +21,12 @@ const routes = [
     items: [
       {
         name: 'Tạo người dùng',
-        path: 'coder/create',
+        path: 'create',
         component: <CreateCoder />,
       },
       {
         name: 'Chi tiết người dùng',
-        path: 'coder/detail/:id',
+        path: 'detail/:id',
         component: <CoderDetail />,
       },
     ]

@@ -93,20 +93,29 @@ import CoderDetail from 'views/admin/coder/components/Detail';
     const getRoutes = (routes) => {
       return routes.map((route, key) => {
         if (route.layout === '/admin') {
-          return (
-            <Route path={route.path} element={route.component} key={key}>
-              {route.items &&
-                route.items.map((item, itemKey) => (
-                  <Route path={item.path} element={item.component} key={itemKey} />
+          if (route.item) {
+            // Nếu có sub-routes, render các sub-route trong item
+            return (
+              <>
+                <Route path={`${route.path}`} element={route.component} key={key} />
+                {route.item.map((subRoute, subKey) => (
+                  <Route
+                    key={subKey}
+                    path={`${route.path}/${subRoute.path}`}
+                    element={subRoute.component}
+                  />
                 ))}
-            </Route>
-          );
+              </>
+            );
+          } else {
+            return (
+              <Route path={`${route.path}`} element={route.component} key={key} />
+            );
+          }
         }
-        console.log(getRoutes(routes));
         return null;
       });
     };
-    
     
     document.documentElement.dir = 'ltr';
     const { onOpen } = useDisclosure();

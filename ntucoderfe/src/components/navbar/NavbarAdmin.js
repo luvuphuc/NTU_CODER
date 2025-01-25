@@ -19,7 +19,6 @@ export default function AdminNavbar(props) {
 	const { secondary, message } = props;
 	let currentItem;
 	const currentRoute = routes.find(route => {
-		const fullPath = route.layout + route.path;
 		if (location.pathname.startsWith(route.layout) && location.pathname.includes(route.path.split('/:')[0])) {
 		  currentItem = route.items?.find(item => {
 			const itemPath = item.path.split('/:')[0];

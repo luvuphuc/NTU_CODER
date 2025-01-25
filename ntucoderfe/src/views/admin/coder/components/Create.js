@@ -155,7 +155,7 @@ export default function CreateCoder() {
 
             <GridItem display="flex" justifyContent="center">
               <Button
-                colorScheme="teal"
+                colorScheme="green"
                 onClick={handleSubmit}
                 borderRadius="md"
                 justifyContent="center"

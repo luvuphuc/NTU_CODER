@@ -5,12 +5,15 @@ import ColumnsTable from "views/admin/coder/components/ColumnsTable";
 import ScrollToTop from "components/scroll/ScrollToTop";
 import { MdAdd } from "react-icons/md";
 import { Link } from "react-router-dom";
+
 export default function CoderIndex() {
   const [tableData, setTableData] = useState([]);
+  const [sortField, setSortField] = useState("coderName");
+  const [ascending, setAscending] = useState(true);
 
-  useEffect(() => {
+  const fetchTableData = () => {
     api
-      .get("/Coder/all")
+      .get(`/Coder/all?sortField=${sortField}&ascending=${ascending}`)
       .then((response) => {
         const dataWithStatus = response.data.data.map(item => ({
           ...item,
@@ -21,23 +24,42 @@ export default function CoderIndex() {
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
-  }, []);
+  };
+
+  useEffect(() => {
+    fetchTableData();
+  }, [sortField, ascending]);
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setAscending(!ascending);
+    } else {
+      setSortField(field);
+      setAscending(true);
+    }
+  };
 
   return (
     <ScrollToTop>
       <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
         <Flex mb="8px" justifyContent="end" align="end" px="25px">
-          <Link to="create"><Button 
-            variant="solid" 
-            size="lg" 
-            colorScheme="green" 
-            borderRadius="md" 
-          >
-            Thêm <MdAdd size="25" />
-          </Button>
+          <Link to="create">
+            <Button 
+              variant="solid" 
+              size="lg" 
+              colorScheme="green" 
+              borderRadius="md"
+            >
+              Thêm <MdAdd size="25" />
+            </Button>
           </Link>
         </Flex>
-        <ColumnsTable tableData={tableData} />
+        <ColumnsTable 
+          tableData={tableData} 
+          onSort={handleSort} 
+          sortField={sortField} 
+          ascending={ascending}
+        />
       </Box>
     </ScrollToTop>
   );
