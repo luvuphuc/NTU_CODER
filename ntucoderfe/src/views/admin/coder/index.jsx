@@ -47,7 +47,7 @@ export default function CoderIndex() {
   return (
     <ScrollToTop>
       <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
-        <Flex mb="8px" justifyContent="end" align="end" px="25px">
+        <Flex mb="20px" justifyContent="end" align="end" px="25px">
           <Link to="create">
             <Button 
               variant="solid" 
