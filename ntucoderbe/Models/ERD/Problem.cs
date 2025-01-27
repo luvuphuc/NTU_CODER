@@ -14,14 +14,14 @@ namespace ntucoderbe.Models.ERD
         [Required]
         public string ProblemCode { get; set; }
 
-        public int? TimeLimit { get; set; }
-        public int? MemoryLimit { get; set; }
+        public float TimeLimit { get; set; }
+        public int MemoryLimit { get; set; }
         [Required]
         public string ProblemContent { get; set; }
         public string? ProblemExplanation { get; set; }
         public string TestType { get; set; }
         public string TestCode { get; set; }
-        public string TestProgCompile { get; set; }
+        public string? TestProgCompile { get; set; }
         [ForeignKey("Coder")]
         public int CoderID { get; set; }
         public int Published { get; set; } = 0;

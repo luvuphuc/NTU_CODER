@@ -1,0 +1,228 @@
+﻿using AddressManagementSystem.Infrashtructure.Helpers;
+using ntucoderbe.DTOs;
+using ntucoderbe.Models.ERD;
+using ntucoderbe.Models;
+using Microsoft.EntityFrameworkCore;
+using Humanizer;
+
+namespace ntucoderbe.Infrashtructure.Repositories
+{
+    public class ProblemRepository : IProblemRepository
+    {
+        private readonly ApplicationDbContext _context;
+
+        public ProblemRepository(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<PagedResponse<ProblemDTO>> GetAllProblemsAsync(QueryObject query, string? sortField = null, bool ascending = true)
+        {
+            var problemQuery = _context.Problems
+                .Select(p => new ProblemDTO
+                {
+                    ProblemID = p.ProblemID,
+                    ProblemCode = p.ProblemCode,
+                    ProblemName = p.ProblemName,
+                    TestType = p.TestType,
+                    Published = p.Published,
+                });
+
+            problemQuery = ApplySorting(problemQuery, sortField, ascending);
+            var problems = await PagedResponse<ProblemDTO>.CreateAsync(
+                problemQuery,
+                query.Page,
+                query.PageSize);
+            return problems;
+        }
+
+        public IQueryable<ProblemDTO> ApplySorting(IQueryable<ProblemDTO> query, string? sortField, bool ascending)
+        {
+            return sortField?.ToLower() switch
+            {
+                "problemcode" => ascending ? query.OrderBy(p => p.ProblemCode) : query.OrderByDescending(p => p.ProblemCode),
+                "problemname" => ascending ? query.OrderBy(p => p.ProblemName) : query.OrderByDescending(p => p.ProblemName),
+                _ => query.OrderBy(p => p.ProblemID),
+            };
+        }
+
+        public async Task<ProblemDTO> CreateProblemAsync(ProblemDTO dto)
+        {
+            if (await CheckProblemCodeExist(dto.ProblemCode!))
+            {
+                throw new InvalidOperationException("Mã bài tập đã tồn tại.");
+            }
+
+            var problem = new Problem
+            {
+                ProblemCode = dto.ProblemCode!,
+                ProblemName = dto.ProblemName!,
+                TimeLimit = dto.TimeLimit!,
+                MemoryLimit = dto.MemoryLimit!,
+                ProblemContent = dto.ProblemContent!,
+                ProblemExplanation = dto.ProblemExplanation!,
+                TestType = dto.TestType!,
+                TestCode = dto.TestCode!,
+                CoderID = dto.CoderID,
+                Published = dto.Published,
+                TestCompilerID = dto.TestCompilerID,
+                TestProgCompile = dto.TestProgCompile
+            };
+
+            _context.Problems.Add(problem);
+            await _context.SaveChangesAsync();
+            dto.ProblemID = problem.ProblemID;
+            if (dto.SelectedCategoryIDs.Any())
+            {
+                foreach (var categoryId in dto.SelectedCategoryIDs)
+                {
+                    var problemCategory = new ProblemCategory
+                    {
+                        ProblemID = problem.ProblemID,
+                        CategoryID = categoryId
+                    };
+                    _context.ProblemCategories.Add(problemCategory);
+                }
+                await _context.SaveChangesAsync();
+            }
+            return dto;
+        }
+        public async Task<bool> CheckProblemCodeExist(string pc)
+        {
+            return await _context.Problems.AnyAsync(p=>p.ProblemCode == pc);
+        }
+        public async Task<bool> DeleteProblemAsync(int id)
+        {
+            var problem = await _context.Problems
+                .Include(p => p.ProblemCategories)
+                .FirstOrDefaultAsync(p => p.ProblemID == id);
+
+            if (problem == null)
+            {
+                return false;
+            }
+            if (problem.ProblemCategories != null && problem.ProblemCategories.Any())
+            {
+                _context.ProblemCategories.RemoveRange(problem.ProblemCategories);
+            }
+            _context.Problems.Remove(problem);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+
+        public async Task<ProblemDTO> GetProblemByIdAsync(int id)
+        {
+            var problem = await _context.Problems
+                .FirstOrDefaultAsync(p => p.ProblemID == id);
+            if (problem == null)
+            {
+                throw new KeyNotFoundException("Không tìm thấy vấn đề");
+            }
+
+            return new ProblemDTO
+            {
+                ProblemCode = problem.ProblemCode!,
+                ProblemName = problem.ProblemName!,
+                TimeLimit = problem.TimeLimit,
+                MemoryLimit = problem.MemoryLimit,
+                ProblemContent = problem.ProblemContent!,
+                ProblemExplanation = problem.ProblemExplanation!,
+                TestType = problem.TestType!,
+                TestCode = problem.TestCode!,
+                CoderID = problem.CoderID,
+                Published = problem.Published,
+                TestCompilerID = problem.TestCompilerID
+            };
+        }
+
+        public async Task<ProblemDTO> UpdateProblemAsync(int id, ProblemDTO dto)
+        {
+            var existing = await _context.Problems
+                .Include(p => p.ProblemCategories)
+                .FirstOrDefaultAsync(p => p.ProblemID == id);
+
+            if (existing == null)
+            {
+                throw new KeyNotFoundException("Không tìm thấy bài tập.");
+            }
+            if (!string.IsNullOrEmpty(dto.ProblemCode) && existing.ProblemCode != dto.ProblemCode)
+            {
+                if (await CheckProblemCodeExist(dto.ProblemCode!))
+                {
+                    throw new InvalidOperationException("Mã bài tập đã tồn tại.");
+                }
+                existing.ProblemCode = dto.ProblemCode!;
+            }
+
+            if (!string.IsNullOrEmpty(dto.ProblemName) && existing.ProblemName != dto.ProblemName)
+            {
+                existing.ProblemName = dto.ProblemName!;
+            }
+
+            if (dto.TimeLimit > 0 && dto.TimeLimit != null && existing.TimeLimit != dto.TimeLimit)
+            {
+                existing.TimeLimit = dto.TimeLimit!;
+            }
+
+            if (dto.MemoryLimit > 0 && dto.MemoryLimit != null && existing.MemoryLimit != dto.MemoryLimit)
+            {
+                existing.MemoryLimit = dto.MemoryLimit!;
+            }
+
+            if (!string.IsNullOrEmpty(dto.ProblemContent) && existing.ProblemContent != dto.ProblemContent)
+            {
+                existing.ProblemContent = dto.ProblemContent!;
+            }
+
+            if (!string.IsNullOrEmpty(dto.ProblemExplanation) && existing.ProblemExplanation != dto.ProblemExplanation)
+            {
+                existing.ProblemExplanation = dto.ProblemExplanation!;
+            }
+
+            if (!string.IsNullOrEmpty(dto.TestType) && existing.TestType != dto.TestType)
+            {
+                existing.TestType = dto.TestType!;
+            }
+
+            if (!string.IsNullOrEmpty(dto.TestCode) && existing.TestCode != dto.TestCode)
+            {
+                existing.TestCode = dto.TestCode!;
+            }
+
+            if (dto.TestCompilerID > 0 && dto.TestCompilerID != null && existing.TestCompilerID != dto.TestCompilerID)
+            {
+                existing.TestCompilerID = dto.TestCompilerID!;
+            }
+
+            if (dto.Published >= 0 && existing.Published != dto.Published)
+            {
+                existing.Published = dto.Published;
+            }
+            if (dto.SelectedCategoryIDs != null && dto.SelectedCategoryIDs.Any())
+            {
+                var existingCategoryIds = existing.ProblemCategories.Select(pc => pc.CategoryID).ToList();
+                if (!dto.SelectedCategoryIDs.SequenceEqual(existingCategoryIds))
+                {
+                    _context.ProblemCategories.RemoveRange(existing.ProblemCategories);
+
+                    foreach (var categoryId in dto.SelectedCategoryIDs)
+                    {
+                        var problemCategory = new ProblemCategory
+                        {
+                            ProblemID = existing.ProblemID,
+                            CategoryID = categoryId
+                        };
+                        _context.ProblemCategories.Add(problemCategory);
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            dto.ProblemID = existing.ProblemID; 
+            return dto;
+        }
+
+    }
+}

@@ -47,21 +47,58 @@ namespace ntucoderbe.Infrashtructure.Repositories
             return compilerDto;
         }
 
-        public Task<bool> DeleteCompilerAsync(int id)
+        public async Task<bool> DeleteCompilerAsync(int id)
         {
-            throw new NotImplementedException();
+            var compiler = await _context.Compilers.FindAsync(id);
+            if (compiler == null) return false;
+
+            _context.Compilers.Remove(compiler);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
 
-
-        public Task<CompilerDTO?> GetCompilerByIdAsync(int id)
+        public async Task<CompilerDTO?> GetCompilerByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var compiler = await _context.Compilers
+                .AsNoTracking()
+                .Where(c => c.CompilerID == id)
+                .Select(c => new CompilerDTO
+                {
+                    CompilerID = c.CompilerID,
+                    CompilerName = c.CompilerName,
+                    CompilerPath = c.CompilerPath,
+                    CompilerOption = c.CompilerOption,
+                    CompilerExtension = c.CompilerExtension
+                })
+                .FirstOrDefaultAsync();
+
+            return compiler;
         }
 
-        public Task<CompilerDTO?> UpdateCompilerAsync(int id, CompilerDTO compilerDto)
+
+        public async Task<CompilerDTO?> UpdateCompilerAsync(int id, CompilerDTO compilerDto)
         {
-            throw new NotImplementedException();
+            var existingCompiler = await _context.Compilers.FindAsync(id);
+            if (existingCompiler == null) return null;
+            if (!string.IsNullOrEmpty(compilerDto.CompilerName))
+                existingCompiler.CompilerName = compilerDto.CompilerName;
+
+            if (!string.IsNullOrEmpty(compilerDto.CompilerPath))
+                existingCompiler.CompilerPath = compilerDto.CompilerPath;
+
+            if (compilerDto.CompilerOption != 0)
+                existingCompiler.CompilerOption = compilerDto.CompilerOption;
+
+            if (!string.IsNullOrEmpty(compilerDto.CompilerExtension))
+                existingCompiler.CompilerExtension = compilerDto.CompilerExtension;
+
+            _context.Update(existingCompiler);
+            await _context.SaveChangesAsync();
+
+            compilerDto.CompilerID = existingCompiler.CompilerID;
+            return compilerDto;
         }
+
     }
 }
