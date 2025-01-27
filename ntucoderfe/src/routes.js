@@ -11,6 +11,7 @@ import {
 import CoderIndex from 'views/admin/coder/index';
 import CreateCoder from 'views/admin/coder/components/Create';
 import CoderDetail from 'views/admin/coder/components/Detail';
+import CategoryIndex from 'views/admin/category';
 const routes = [
   {
     name: 'Người dùng',
@@ -32,9 +33,9 @@ const routes = [
     ]
   },
   {
-    name: 'NFT Marketplace',
+    name: 'Thể loại',
     layout: '/admin',
-    path: '/nft-marketplace',
+    path: '/category',
     icon: (
       <Icon
         as={MdOutlineShoppingCart}
@@ -44,6 +45,7 @@ const routes = [
       />
     ),
     secondary: true,
+    component: <CategoryIndex/>
   },
   {
     name: 'Profile',

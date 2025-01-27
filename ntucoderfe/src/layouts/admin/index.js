@@ -11,13 +11,13 @@ import routes from 'routes.js';
 import CreateCoder from 'views/admin/coder/components/Create';
 import CoderIndex from 'views/admin/coder';
 import CoderDetail from 'views/admin/coder/components/Detail';
+import CategoryIndex from 'views/admin/category';
   // Custom Chakra theme
   export default function Dashboard(props) {
     const { ...rest } = props;
     // states and functions
     const [fixed] = useState(false);
     const [toggleSidebar, setToggleSidebar] = useState(false);
-    // functions for changing the states from components
     const getRoute = () => {
       return window.location.pathname !== '/admin/full-screen-maps';
     };
@@ -171,6 +171,7 @@ import CoderDetail from 'views/admin/coder/components/Detail';
                     <Route path="/coder" element={<CoderIndex />} />
                     <Route path="/coder/create" element={<CreateCoder />} />
                     <Route path="/coder/detail/:id" element={<CoderDetail />} />
+                    <Route path="/category" element={<CategoryIndex />} />
                     <Route path="/" element={<Navigate to="/admin/default" replace />} />
                   </Routes>
                   

@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Box, Button, Flex } from "@chakra-ui/react";
 import api from "../../../utils/api"; 
-import CoderTable from "./components/ColumnsTable";
+import CategoryTable from "./components/ColumnsTable";
 import ScrollToTop from "components/scroll/ScrollToTop";
 import { MdAdd } from "react-icons/md";
 import { Link } from "react-router-dom";
 import Pagination from "components/pagination/pagination";
 
-export default function CoderIndex() {
+export default function CategoryIndex() {
   const [tableData, setTableData] = useState([]);
-  const [sortField, setSortField] = useState("coderName");
+  const [sortField, setSortField] = useState("CatOrder");
   const [ascending, setAscending] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -17,12 +17,13 @@ export default function CoderIndex() {
 
   const fetchTableData = () => {
     api
-      .get(`/Coder/all?sortField=${sortField}&ascending=${ascending}&page=${currentPage}&size=${pageSize}`)
+      .get(`/Category/all?sortField=${sortField}&ascending=${ascending}&page=${currentPage}&size=${pageSize}`)
       .then((response) => {
         const dataWithStatus = response.data.data.map(item => ({
           ...item,
           status: true,
         }));
+        console.log(response.data);
         setTableData(dataWithStatus);
         setTotalPages(response.data.totalPages);
       })
@@ -59,7 +60,7 @@ export default function CoderIndex() {
             </Button>
           </Link>
         </Flex>
-        <CoderTable 
+        <CategoryTable 
           tableData={tableData} 
           onSort={handleSort} 
           sortField={sortField} 
