@@ -35,8 +35,8 @@ namespace ntucoderbe.Infrashtructure.Repositories
         {
             var compiler = new Compiler
             {
-                CompilerName = compilerDto.CompilerName,
-                CompilerPath = compilerDto.CompilerPath,
+                CompilerName = compilerDto.CompilerName!,
+                CompilerPath = compilerDto.CompilerPath!,
                 CompilerOption = compilerDto.CompilerOption,
                 CompilerExtension = compilerDto.CompilerExtension
             };

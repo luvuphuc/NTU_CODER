@@ -4,6 +4,9 @@ using ntucoderbe.Models.ERD;
 using ntucoderbe.Models;
 using Microsoft.EntityFrameworkCore;
 using Humanizer;
+using ntucoderbe.Validator;
+using Newtonsoft.Json;
+using FluentValidation;
 
 namespace ntucoderbe.Infrashtructure.Repositories
 {
@@ -48,30 +51,36 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
         public async Task<ProblemDTO> CreateProblemAsync(ProblemDTO dto)
         {
+            var validator = new ProblemValidator();
+            var validationResult = await validator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
             if (await CheckProblemCodeExist(dto.ProblemCode!))
             {
                 throw new InvalidOperationException("Mã bài tập đã tồn tại.");
             }
-
             var problem = new Problem
             {
                 ProblemCode = dto.ProblemCode!,
                 ProblemName = dto.ProblemName!,
-                TimeLimit = dto.TimeLimit!,
-                MemoryLimit = dto.MemoryLimit!,
+                TimeLimit = dto.TimeLimit ?? 1,
+                MemoryLimit = dto.MemoryLimit ?? 128!,
                 ProblemContent = dto.ProblemContent!,
                 ProblemExplanation = dto.ProblemExplanation!,
                 TestType = dto.TestType!,
                 TestCode = dto.TestCode!,
-                CoderID = dto.CoderID,
-                Published = dto.Published,
-                TestCompilerID = dto.TestCompilerID,
+                CoderID = 1,
+                Published = 0,
+                TestCompilerID = dto.TestCompilerID ?? 1!,
                 TestProgCompile = dto.TestProgCompile
             };
 
             _context.Problems.Add(problem);
             await _context.SaveChangesAsync();
             dto.ProblemID = problem.ProblemID;
+
             if (dto.SelectedCategoryIDs.Any())
             {
                 foreach (var categoryId in dto.SelectedCategoryIDs)
@@ -85,8 +94,11 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 }
                 await _context.SaveChangesAsync();
             }
+
             return dto;
         }
+
+
         public async Task<bool> CheckProblemCodeExist(string pc)
         {
             return await _context.Problems.AnyAsync(p=>p.ProblemCode == pc);
@@ -138,6 +150,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
         public async Task<ProblemDTO> UpdateProblemAsync(int id, ProblemDTO dto)
         {
+
             var existing = await _context.Problems
                 .Include(p => p.ProblemCategories)
                 .FirstOrDefaultAsync(p => p.ProblemID == id);
@@ -145,6 +158,12 @@ namespace ntucoderbe.Infrashtructure.Repositories
             if (existing == null)
             {
                 throw new KeyNotFoundException("Không tìm thấy bài tập.");
+            }
+            var validator = new ProblemValidator(true);
+            var validationResult = await validator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
             }
             if (!string.IsNullOrEmpty(dto.ProblemCode) && existing.ProblemCode != dto.ProblemCode)
             {
@@ -154,51 +173,16 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 }
                 existing.ProblemCode = dto.ProblemCode!;
             }
+            existing.ProblemName = dto.ProblemName ?? existing.ProblemName;
+            existing.ProblemContent = dto.ProblemContent ?? existing.ProblemContent;
+            existing.TimeLimit = dto.TimeLimit ?? existing.TimeLimit;
+            existing.MemoryLimit = dto.MemoryLimit ?? existing.MemoryLimit;
+            existing.ProblemExplanation = dto.ProblemExplanation ?? existing.ProblemExplanation;
+            existing.TestType = dto.TestType ?? existing.TestType;
+            existing.TestCode = dto.TestCode ?? existing.TestCode;
+            existing.TestCompilerID = dto.TestCompilerID ?? existing.TestCompilerID;
+            existing.Published = dto.Published ?? existing.Published;
 
-            if (!string.IsNullOrEmpty(dto.ProblemName) && existing.ProblemName != dto.ProblemName)
-            {
-                existing.ProblemName = dto.ProblemName!;
-            }
-
-            if (dto.TimeLimit > 0 && dto.TimeLimit != null && existing.TimeLimit != dto.TimeLimit)
-            {
-                existing.TimeLimit = dto.TimeLimit!;
-            }
-
-            if (dto.MemoryLimit > 0 && dto.MemoryLimit != null && existing.MemoryLimit != dto.MemoryLimit)
-            {
-                existing.MemoryLimit = dto.MemoryLimit!;
-            }
-
-            if (!string.IsNullOrEmpty(dto.ProblemContent) && existing.ProblemContent != dto.ProblemContent)
-            {
-                existing.ProblemContent = dto.ProblemContent!;
-            }
-
-            if (!string.IsNullOrEmpty(dto.ProblemExplanation) && existing.ProblemExplanation != dto.ProblemExplanation)
-            {
-                existing.ProblemExplanation = dto.ProblemExplanation!;
-            }
-
-            if (!string.IsNullOrEmpty(dto.TestType) && existing.TestType != dto.TestType)
-            {
-                existing.TestType = dto.TestType!;
-            }
-
-            if (!string.IsNullOrEmpty(dto.TestCode) && existing.TestCode != dto.TestCode)
-            {
-                existing.TestCode = dto.TestCode!;
-            }
-
-            if (dto.TestCompilerID > 0 && dto.TestCompilerID != null && existing.TestCompilerID != dto.TestCompilerID)
-            {
-                existing.TestCompilerID = dto.TestCompilerID!;
-            }
-
-            if (dto.Published >= 0 && existing.Published != dto.Published)
-            {
-                existing.Published = dto.Published;
-            }
             if (dto.SelectedCategoryIDs != null && dto.SelectedCategoryIDs.Any())
             {
                 var existingCategoryIds = existing.ProblemCategories.Select(pc => pc.CategoryID).ToList();
@@ -217,12 +201,10 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     }
                 }
             }
-
             await _context.SaveChangesAsync();
 
             dto.ProblemID = existing.ProblemID; 
             return dto;
         }
-
     }
 }
