@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Box, Button, Flex } from "@chakra-ui/react";
+import React, { useEffect, useState, useCallback } from "react";
+import { Box, Button, Flex,useToast } from "@chakra-ui/react";
 import api from "../../../utils/api"; 
 import CoderTable from "./components/ColumnsTable";
 import ScrollToTop from "components/scroll/ScrollToTop";
@@ -12,28 +12,36 @@ export default function CoderIndex() {
   const [sortField, setSortField] = useState("coderName");
   const [ascending, setAscending] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalRows, setTotalRows] = useState(0);
 
-  const fetchTableData = () => {
-    api
-      .get(`/Coder/all?sortField=${sortField}&ascending=${ascending}&page=${currentPage}&size=${pageSize}`)
-      .then((response) => {
-        const dataWithStatus = response.data.data.map(item => ({
+  const fetchData = useCallback(async () => {
+  try {
+    const response = await api.get('/coder/all', {
+      params: {
+        Page: currentPage,
+        PageSize: pageSize,
+        ascending: ascending,
+        sortField: sortField,
+      },
+    });
+    const dataWithStatus = Array.isArray(response.data.data)
+      ? response.data.data.map((item) => ({
           ...item,
           status: true,
-        }));
-        setTableData(dataWithStatus);
-        setTotalPages(response.data.totalPages);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
-  };
-
+        }))
+      : [];
+    setTableData(dataWithStatus);
+    setTotalPages(response.data.totalPages || 0); // Mặc định là 0 nếu không có
+    setTotalRows (response.data.totalCount || 0);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+}, [sortField, ascending,currentPage, pageSize]);
   useEffect(() => {
-    fetchTableData();
-  }, [sortField, ascending, currentPage, pageSize]);
+    fetchData();
+  }, [sortField, ascending, currentPage, pageSize]); 
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -44,6 +52,19 @@ export default function CoderIndex() {
     }
   };
 
+  const handlePageChange = (newPage) => {
+    if (newPage > 0 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  const handlePageSizeChange = (value) => {
+    const newPageSize = parseInt(value, 10);
+    if (newPageSize !== pageSize) {
+      setPageSize(newPageSize);
+      setCurrentPage(1);
+    }
+  };
   return (
     <ScrollToTop>
       <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
@@ -68,9 +89,10 @@ export default function CoderIndex() {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
+          totalRows={totalRows}
+          onPageChange={handlePageChange}
           pageSize={pageSize}
-          onPageChange={setCurrentPage}
-          onPageSizeChange={setPageSize}
+          onPageSizeChange={handlePageSizeChange}
         />
       </Box>
     </ScrollToTop>
