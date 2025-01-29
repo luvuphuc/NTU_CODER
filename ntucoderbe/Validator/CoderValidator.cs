@@ -24,8 +24,8 @@ namespace ntucoderbe.Validator
                 RuleFor(coder => coder.CoderEmail)
                     .Cascade(CascadeMode.Stop)
                     .NotEmpty().WithMessage("Email không được để trống.")
-                    .EmailAddress().WithMessage("Địa chỉ email không hợp lệ.")
-                    .Matches(@".+\@.+\..+").WithMessage("Địa chỉ email không hợp lệ.");
+                    .EmailAddress().WithMessage("Địa chỉ Email không hợp lệ.")
+                    .Matches(@".+\@.+\..+").WithMessage("Địa chỉ Email không hợp lệ.");
 
                 RuleFor(coder => (coder as CreateCoderDTO)!.Password)
                     .Cascade(CascadeMode.Stop)
@@ -47,7 +47,10 @@ namespace ntucoderbe.Validator
                     .Cascade(CascadeMode.Stop)
                     .MaximumLength(100).WithMessage("Họ và tên không được vượt quá 100 ký tự.")
                     .When(coder => !string.IsNullOrEmpty(coder.CoderName));
-
+                RuleFor(coder => coder.CoderEmail)
+                    .Cascade(CascadeMode.Stop)
+                    .EmailAddress().WithMessage("Địa chỉ email không hợp lệ.")
+                    .Matches(@".+\@.+\..+").WithMessage("Địa chỉ email không hợp lệ.");
                 RuleFor(coder => (coder as CoderDetailDTO)!.Description)
                     .Cascade(CascadeMode.Stop)
                     .MaximumLength(100).WithMessage("Mô tả không được vượt quá 100 ký tự.")

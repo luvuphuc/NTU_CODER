@@ -50,13 +50,14 @@ export default function CreateCoder() {
       navigate("/admin/coder");
     } catch (error) {
       if (error.response && error.response.data.errors) {
+        console.log(error.response.data.errors);
         // Chuyển lỗi từ API thành object để hiển thị
         const errorMap = error.response.data.errors.reduce((acc, err) => {
-          if (err.includes("Tên đăng nhập")) acc.userName = err;
           if (err.includes("Họ và tên")) acc.coderName = err;
+          if (err.includes("Tên đăng nhập")) acc.userName = err;
+          if (err.includes("Mật khẩu")) acc.password = err;
           if (err.includes("Email")) acc.coderEmail = err;
           if (err.includes("Số điện thoại")) acc.phoneNumber = err;
-          if (err.includes("Mật khẩu")) acc.password = err;
           return acc;
         }, {});
         setErrors(errorMap);
