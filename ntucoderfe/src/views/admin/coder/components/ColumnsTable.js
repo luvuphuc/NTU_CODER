@@ -30,7 +30,7 @@ import SwitchField from 'components/fields/SwitchField';
 import api from 'utils/api';
 import { AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai";
 
-export default function CoderTable({ tableData, onSort, sortField, ascending }) {
+export default function CoderTable({ tableData, onSort, sortField, ascending, refetchData }) {
   const { colorMode } = useColorMode();
   const textColor = colorMode === 'light' ? 'black' : 'white';
   const borderColor = colorMode === 'light' ? 'gray.200' : 'whiteAlpha.300';
@@ -60,7 +60,7 @@ export default function CoderTable({ tableData, onSort, sortField, ascending }) 
           position: "top-right",
         });
         onClose();
-        window.location.reload();
+        refetchData();
       } else {
         throw new Error("Có lỗi xảy ra khi xóa");
       }
@@ -158,43 +158,48 @@ export default function CoderTable({ tableData, onSort, sortField, ascending }) 
     <>
       <Card flexDirection="column" w="100%" px="0px" overflowX={{ sm: 'scroll', lg: 'hidden' }}>
         <Box>
-          <Table variant="simple" color="gray.500" mb="24px" mt="12px" tableLayout="fixed">
-            <Thead>
-              <Tr>
-                {columnsData.map((column) => (
-                  <Th key={column.Header} borderColor={borderColor} width={column.width || 'auto'}>
-                    <Flex align="center" gap={2}>
-                      <Text fontSize={{ sm: '10px', lg: '12px' }} fontWeight="bold" color={textColor}>
-                        {column.Header}
-                      </Text>
-                      {/* Sorting icon is enabled only for the "Tên ND" column */}
-                      {column.accessor === 'coderName' && onSort && (
-                        <Box onClick={() => onSort(column.accessor)} cursor="pointer">
-                          {renderSortIcon(column.accessor)}
-                        </Box>
-                      )}
-                    </Flex>
-                  </Th>
-                ))}
-              </Tr>
-            </Thead>
-
-            <Tbody>
-              {tableData.map((row, index) => (
-                <Tr key={index}>
+          {tableData.length === 0 ? (
+            <Text fontSize="lg" color="gray.500" textAlign="center">
+              Không có dữ liệu nào
+            </Text>
+          ) : (
+            <Table variant="simple" color="gray.500" mb="24px" mt="12px" tableLayout="fixed">
+              <Thead>
+                <Tr>
                   {columnsData.map((column) => (
-                    <Td key={column.Header} fontSize={{ sm: '16px' }} width={column.width || 'auto'} borderColor="transparent">
-                      {column.Cell ? (
-                        column.Cell({ value: row[column.accessor], rowIndex: index, row })
-                      ) : (
-                        <Text color={textColor}>{row[column.accessor] || 'N/A'}</Text>
-                      )}
-                    </Td>
+                    <Th key={column.Header} borderColor={borderColor} width={column.width || 'auto'}>
+                      <Flex align="center" gap={2}>
+                        <Text fontSize={{ sm: '10px', lg: '12px' }} fontWeight="bold" color={textColor}>
+                          {column.Header}
+                        </Text>
+                        {column.accessor === 'coderName' && onSort && (
+                          <Box onClick={() => onSort(column.accessor)} cursor="pointer">
+                            {renderSortIcon(column.accessor)}
+                          </Box>
+                        )}
+                      </Flex>
+                    </Th>
                   ))}
                 </Tr>
-              ))}
-            </Tbody>
-          </Table>
+              </Thead>
+
+              <Tbody>
+                {tableData.map((row, index) => (
+                  <Tr key={index}>
+                    {columnsData.map((column) => (
+                      <Td key={column.Header} fontSize={{ sm: '16px' }} width={column.width || 'auto'} borderColor="transparent">
+                        {column.Cell ? (
+                          column.Cell({ value: row[column.accessor], rowIndex: index, row })
+                        ) : (
+                          <Text color={textColor}>{row[column.accessor] || 'N/A'}</Text>
+                        )}
+                      </Td>
+                    ))}
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          )}
         </Box>
       </Card>
 

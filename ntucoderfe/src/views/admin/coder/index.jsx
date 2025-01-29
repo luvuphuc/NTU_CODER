@@ -51,7 +51,9 @@ export default function CoderIndex() {
       setAscending(true);
     }
   };
-
+  const refetchData = () => {
+    fetchData();
+  };
   const handlePageChange = (newPage) => {
     if (newPage > 0 && newPage <= totalPages) {
       setCurrentPage(newPage);
@@ -85,6 +87,7 @@ export default function CoderIndex() {
           onSort={handleSort} 
           sortField={sortField} 
           ascending={ascending}
+          refetchData={refetchData}
         />
         <Pagination
           currentPage={currentPage}
