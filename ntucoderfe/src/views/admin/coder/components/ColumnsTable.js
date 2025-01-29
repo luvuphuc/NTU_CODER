@@ -102,13 +102,6 @@ export default function CoderTable({ tableData, onSort, sortField, ascending, re
       accessor: 'phoneNumber',
     },
     {
-      Header: 'Trạng thái',
-      accessor: 'status',
-      Cell: ({ value }) => (
-        <SwitchField isChecked={value || false} reversed={true} fontSize="sm" />
-      ),
-    },
-    {
       Header: '',
       accessor: 'action',
       Cell: ({ row }) => (

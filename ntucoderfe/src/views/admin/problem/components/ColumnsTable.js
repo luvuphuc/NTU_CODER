@@ -84,7 +84,6 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
       });
     }
   };
-  
 
   const handleDeleteClick = async () => {
     try {
@@ -124,10 +123,12 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
     {
       Header: 'Mã bài tập',
       accessor: 'problemCode',
+      sortField: 'problemCode',
     },
     {
       Header: 'Tên bài tập',
       accessor: 'problemName',
+      sortField: 'problemName',
     },
     {
       Header: 'Tên ND',
@@ -181,17 +182,23 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
   ];
 
   const renderSortIcon = (field) => {
-    if (sortField !== field) return <BiSort size="18px" />;
-    return ascending ? (
+    return sortField === field ? (
+      ascending ? (
+        <Box as="span" fontWeight="bold">
+          <AiOutlineSortAscending size="20px" />
+        </Box>
+      ) : (
+        <Box as="span" fontWeight="bold">
+          <AiOutlineSortDescending size="20px" />
+        </Box>
+      )
+    ) : (
       <Box as="span" fontWeight="bold">
         <AiOutlineSortAscending size="20px" />
       </Box>
-    ) : (
-      <Box as="span" fontWeight="bold">
-        <AiOutlineSortDescending size="20px" />
-      </Box>
     );
   };
+  
 
   return (
     <>
@@ -211,9 +218,9 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
                         <Text fontSize={{ sm: '10px', lg: '12px' }} fontWeight="bold" color={textColor}>
                           {column.Header}
                         </Text>
-                        {column.accessor === 'coderName' && onSort && (
-                          <Box onClick={() => onSort(column.accessor)} cursor="pointer">
-                            {renderSortIcon(column.accessor)}
+                        {column.sortField && onSort && (
+                          <Box onClick={() => onSort(column.sortField)} cursor="pointer">
+                            {renderSortIcon(column.sortField)}
                           </Box>
                         )}
                       </Flex>
@@ -241,7 +248,6 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
           )}
         </Box>
       </Card>
-
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
@@ -263,3 +269,4 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
     </>
   );
 }
+
