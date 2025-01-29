@@ -12,6 +12,7 @@ import CoderIndex from 'views/admin/coder/index';
 import CreateCoder from 'views/admin/coder/components/Create';
 import CoderDetail from 'views/admin/coder/components/Detail';
 import CategoryIndex from 'views/admin/category';
+import ProblemIndex from 'views/admin/problem';
 const routes = [
   {
     name: 'Người dùng',
@@ -48,11 +49,11 @@ const routes = [
     component: <CategoryIndex/>
   },
   {
-    name: 'Profile',
+    name: 'Bài tập',
     layout: '/admin',
-    path: '/profile',
+    path: '/problem',
     icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
-    //component: <Profile />,
+    component: <ProblemIndex />,
   },
 ];
 

@@ -29,6 +29,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     ProblemName = p.ProblemName,
                     TestType = p.TestType,
                     Published = p.Published,
+                    CoderID = p.CoderID,
                 });
 
             problemQuery = ApplySorting(problemQuery, sortField, ascending);
@@ -71,7 +72,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 ProblemExplanation = dto.ProblemExplanation!,
                 TestType = dto.TestType!,
                 TestCode = dto.TestCode!,
-                CoderID = 1,
+                CoderID = dto.CoderID ?? 1,
                 Published = 0,
                 TestCompilerID = dto.TestCompilerID ?? 1!,
                 TestProgCompile = dto.TestProgCompile

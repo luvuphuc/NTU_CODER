@@ -1,3 +1,4 @@
+
 import { Switch as ChakraSwitch } from '@chakra-ui/react'
 import * as React from 'react'
 function _optionalChain(ops) {
@@ -21,8 +22,6 @@ function _optionalChain(ops) {
   }
   return value
 }
-
-
 export const Switch = React.forwardRef(function Switch(props, ref) {
   const { inputProps, children, rootRef, trackLabel, thumbLabel, ...rest } =
     props
