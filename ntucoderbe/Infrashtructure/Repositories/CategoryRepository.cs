@@ -90,7 +90,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             var category = await _context.Categories.FirstOrDefaultAsync(c => c.CategoryID == id);
             if (category == null)
             {
-                throw new KeyNotFoundException("Không tìm thấy danh mục.");
+                throw new KeyNotFoundException("Không tìm thấy thể loại.");
             }
 
             if (!string.IsNullOrWhiteSpace(dto.CatName))
@@ -120,9 +120,13 @@ namespace ntucoderbe.Infrashtructure.Repositories
             {
                 return false;
             }
-
+            if (category.ProblemCategories != null && category.ProblemCategories.Any())
+            {
+                _context.ProblemCategories.RemoveRange(category.ProblemCategories);
+            }
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
+
             return true;
         }
 
