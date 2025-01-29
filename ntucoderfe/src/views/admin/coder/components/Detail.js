@@ -112,13 +112,9 @@ const CoderDetail = () => {
     try {
       const formData = new FormData();
       formData.append("CoderID", id);
-  
-      // Lưu tất cả các trường đã chỉnh sửa.
       Object.keys(editableValues).forEach((field) => {
         formData.append(field, editableValues[field]);
       });
-  
-      // Nếu có file avatar, đính kèm vào formData
       if (avatarFile) {
         formData.append("AvatarFile", avatarFile);
       }
@@ -134,7 +130,7 @@ const CoderDetail = () => {
         ...editableValues,
       }));
   
-      setEditField(null); // Reset trạng thái chỉnh sửa
+      setEditField(null);
       toast({
         title: "Cập nhật thành công!",
         status: "success",
@@ -143,16 +139,33 @@ const CoderDetail = () => {
         position: "top-right",
       });
     } catch (error) {
-      console.error("Đã xảy ra lỗi khi cập nhật", error);
-      toast({
-        title: "Đã xảy ra lỗi khi cập nhật.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-        position: "top-right",
-      });
+      let errorMessage = error.response.data.errors;
+      if (Array.isArray(errorMessage)) {
+        errorMessage.forEach((msg, index) => {
+          toast({
+            title: "Lỗi khi cập nhật.",
+            description: msg,
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+            position: "top-right",
+            key: index,
+          });
+        });
+      } else {
+        toast({
+          title: "Đã xảy ra lỗi khi cập nhật.",
+          description: "Vui lòng kiểm tra lại thông tin.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top-right",
+        });
+      }
     }
   };
+  
+  
   
   if (!coderDetail) {
     return <Text>Loading...</Text>;

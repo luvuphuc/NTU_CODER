@@ -83,6 +83,10 @@ namespace ntucoderbe.Controllers
                 var result = await _coderService.UpdateCoderAsync(id, dto);
                 return Ok(result);
             }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { Errors = ex.Errors.Select(e => e.ErrorMessage).ToList() });
+            }
             catch (KeyNotFoundException ex)
             {
                 return NotFound(new { Message = ex.Message });
@@ -96,6 +100,7 @@ namespace ntucoderbe.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCoder(int id)
         {
