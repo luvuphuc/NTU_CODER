@@ -186,10 +186,10 @@ const CoderDetail = () => {
           {/* Avatar Section */}
           <Flex direction="column" align="center">
             <Image
-              src={editableValues.avatar || coderDetail.avatar || "default-avatar.jpg"}
+              src={editableValues.avatar || coderDetail.avatar || "https://firebasestorage.googleapis.com/v0/b/luvuphuc-firebase-790e8.appspot.com/o/ntucoder%2Favatars%2Fdefault.jpg?alt=media"}
               alt="Coder Avatar"
               borderRadius="full"
-              boxSize="200px"
+              boxSize="150px"
               objectFit="cover"
               mb={4}
               onClick={() => document.getElementById("avatarInput").click()}

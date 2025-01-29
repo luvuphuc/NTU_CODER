@@ -37,5 +37,19 @@ namespace ntucoderbe.Infrastructure.Services
             var downloadUrl = await task;
             return downloadUrl;
         }
+        public async Task DeleteImageAsync(string imageUrl)
+        {
+            try
+            {
+                var imagePath = imageUrl.Split(new[] { "firebaseapp.com/" }, StringSplitOptions.None)[1];
+                var firebaseStorage = new FirebaseStorage(_bucket);
+                await firebaseStorage.Child("ntucoder").Child(imagePath).DeleteAsync();
+            }
+            catch (Exception ex)
+            {
+                // Handle error, log it if needed
+                throw new InvalidOperationException("Error deleting image from Firebase Storage", ex);
+            }
+        }
     }
 }

@@ -13,6 +13,7 @@ import CreateCoder from 'views/admin/coder/components/Create';
 import CoderDetail from 'views/admin/coder/components/Detail';
 import CategoryIndex from 'views/admin/category';
 import ProblemIndex from 'views/admin/problem';
+import ProblemDetail from 'views/admin/problem/components/Detail';
 const routes = [
   {
     name: 'Người dùng',
@@ -54,6 +55,13 @@ const routes = [
     path: '/problem',
     icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
     component: <ProblemIndex />,
+    items:[
+    {
+      name: 'Chi tiết bài tập',
+      path: 'detail/:id',
+      component: <ProblemDetail />,
+    },
+    ]
   },
 ];
 

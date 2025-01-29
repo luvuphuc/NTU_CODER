@@ -13,6 +13,7 @@ import CoderIndex from 'views/admin/coder';
 import CoderDetail from 'views/admin/coder/components/Detail';
 import CategoryIndex from 'views/admin/category';
 import ProblemIndex from 'views/admin/problem';
+import ProblemDetail from 'views/admin/problem/components/Detail';
   // Custom Chakra theme
   export default function Dashboard(props) {
     const { ...rest } = props;
@@ -173,7 +174,8 @@ import ProblemIndex from 'views/admin/problem';
                     <Route path="/coder/create" element={<CreateCoder />} />
                     <Route path="/coder/detail/:id" element={<CoderDetail />} />
                     <Route path="/category" element={<CategoryIndex />} />
-                    <Route path="/category" element={<ProblemIndex />} />
+                    <Route path="/problem" element={<ProblemIndex />} />
+                    <Route path="/problem/detail/:id" element={<ProblemDetail />} />
                     <Route path="/" element={<Navigate to="/admin/default" replace />} />
                   </Routes>
                   

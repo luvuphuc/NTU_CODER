@@ -114,6 +114,11 @@ namespace ntucoderbe.Infrashtructure.Repositories
             {
                 return false;
             }
+            if (!string.IsNullOrEmpty(coder.Avatar))
+            {
+                var firebaseStorageService = new FirebaseStorageService();
+                await firebaseStorageService.DeleteImageAsync(coder.Avatar);
+            }
             _context.Coders.Remove(coder);
             if (coder.Account != null)
             {
