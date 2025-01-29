@@ -14,6 +14,7 @@ import CoderDetail from 'views/admin/coder/components/Detail';
 import CategoryIndex from 'views/admin/category';
 import ProblemIndex from 'views/admin/problem';
 import ProblemDetail from 'views/admin/problem/components/Detail';
+import ProblemCreate from 'views/admin/problem/components/Create';
 const routes = [
   {
     name: 'Người dùng',
@@ -56,6 +57,11 @@ const routes = [
     icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
     component: <ProblemIndex />,
     items:[
+    {
+      name: 'Tạo bài tập',
+      path: 'create',
+      component: <ProblemCreate />,
+    },
     {
       name: 'Chi tiết bài tập',
       path: 'detail/:id',
