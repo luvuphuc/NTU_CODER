@@ -22,6 +22,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
         public async Task<PagedResponse<ProblemDTO>> GetAllProblemsAsync(QueryObject query, string? sortField = null, bool ascending = true)
         {
             var problemQuery = _context.Problems
+                .Include(p=>p.Coder)
                 .Select(p => new ProblemDTO
                 {
                     ProblemID = p.ProblemID,
@@ -30,6 +31,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     TestType = p.TestType,
                     Published = p.Published,
                     CoderID = p.CoderID,
+                    CoderName = p.Coder.CoderName
                 });
 
             problemQuery = ApplySorting(problemQuery, sortField, ascending);
@@ -127,10 +129,17 @@ namespace ntucoderbe.Infrashtructure.Repositories
         public async Task<ProblemDTO> GetProblemByIdAsync(int id)
         {
             var problem = await _context.Problems
-                .FirstOrDefaultAsync(p => p.ProblemID == id);
+             .Where(p => p.ProblemID == id)
+             .Include(p => p.ProblemCategories)
+                .ThenInclude(pc => pc.Category)
+             .Include(c => c.Coder)
+             .Include(com => com.Compiler)
+             
+             .FirstOrDefaultAsync();
+
             if (problem == null)
             {
-                throw new KeyNotFoundException("Không tìm thấy vấn đề");
+                throw new KeyNotFoundException("Không tìm thấy bài tập");
             }
 
             return new ProblemDTO
@@ -145,7 +154,12 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 TestCode = problem.TestCode!,
                 CoderID = problem.CoderID,
                 Published = problem.Published,
-                TestCompilerID = problem.TestCompilerID
+                TestCompilerID = problem.TestCompilerID,
+                CoderName = problem.Coder.CoderName,
+                TestCompilerName = problem.Compiler.CompilerName,
+                SelectedCategoryNames = problem.ProblemCategories
+                .Select(pc => pc.Category.CatName)
+                .ToList()
             };
         }
 

@@ -15,7 +15,10 @@
         public int? CoderID { get; set; }
         public int? Published { get; set; }
         public int? TestCompilerID { get; set; }
+        public string? CoderName { get; set; }
+        public string? TestCompilerName { get; set; }
         public List<int> SelectedCategoryIDs { get; set; } = new List<int>();
+        public List<string> SelectedCategoryNames { get; set; } = new List<string>();
     }
 
 }

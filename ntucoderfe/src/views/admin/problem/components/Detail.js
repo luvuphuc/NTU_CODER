@@ -9,38 +9,30 @@ import {
   GridItem,
   Link,
   Button,
-  Image,
   Input,
   IconButton,
   useToast,
   Select,
 } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
-import moment from 'moment-timezone';
+import moment from "moment-timezone";
 import api from "utils/api";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineArrowBack, MdEdit } from "react-icons/md";
 
-const genderMapping = {
-  0: "Nam", // Male
-  1: "Nữ", // Female
-  2: "Khác", // Other
-};
-
-const CoderDetail = () => {
+const ProblemDetail = () => {
   const { id } = useParams();
-  const [coderDetail, setCoderDetail] = useState(null);
+  const [problemDetail, setProblemDetail] = useState(null);
   const [editField, setEditField] = useState(null);
   const [editableValues, setEditableValues] = useState({});
-  const [avatarFile, setAvatarFile] = useState(null);
   const navigate = useNavigate();
   const toast = useToast();
 
   useEffect(() => {
-    const fetchCoderDetail = async () => {
+    const fetchProblemDetail = async () => {
       try {
-        const response = await api.get(`/Coder/${id}`);
-        setCoderDetail(response.data);
+        const response = await api.get(`/Problem/${id}`);
+        setProblemDetail(response.data);
         setEditableValues(response.data);
       } catch (error) {
         console.error("Đã xảy ra lỗi", error);
@@ -48,7 +40,7 @@ const CoderDetail = () => {
     };
 
     if (id) {
-      fetchCoderDetail();
+      fetchProblemDetail();
     }
   }, [id]);
 
@@ -59,82 +51,34 @@ const CoderDetail = () => {
   const handleInputChange = (field, value) => {
     setEditableValues((prev) => {
       const updatedValues = { ...prev, [field]: value };
-      setCoderDetail((prevCoderDetail) => ({
-        ...prevCoderDetail,
-        [field]: value,  
+      setProblemDetail((prevProblemDetail) => ({
+        ...prevProblemDetail,
+        [field]: value,
       }));
       return updatedValues;
     });
-  };
-  
-  const handleAvatarChange = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        setEditableValues((prev) => ({ ...prev, avatar: reader.result })); 
-        
-        const formData = new FormData();
-        formData.append("CoderID", id);
-        formData.append("AvatarFile", file);
-  
-        try {
-          await api.put(`/Coder/${id}/`, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
-  
-          toast({
-            title: "Cập nhật avatar thành công!",
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-            position: "top-right"
-          });
-        } catch (error) {
-          console.error("Đã xảy ra lỗi khi cập nhật avatar", error);
-          toast({
-            title: "Đã xảy ra lỗi khi cập nhật avatar.",
-            status: "error",
-            duration: 3000,
-            isClosable: true,
-            position: "top-right"
-          });
-        }
-      };
-      reader.readAsDataURL(file);
-      setAvatarFile(file);
-    }
   };
 
   const handleSave = async () => {
     try {
       const formData = new FormData();
-      formData.append("CoderID", id);
-  
-      // Lưu tất cả các trường đã chỉnh sửa.
+      formData.append("ProblemID", id);
       Object.keys(editableValues).forEach((field) => {
         formData.append(field, editableValues[field]);
       });
-  
-      // Nếu có file avatar, đính kèm vào formData
-      if (avatarFile) {
-        formData.append("AvatarFile", avatarFile);
-      }
-  
-      const response = await api.put(`/Coder/${id}`, formData, {
+
+      const response = await api.put(`/Problem/${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-  
-      setCoderDetail((prev) => ({
+
+      setProblemDetail((prev) => ({
         ...prev,
         ...editableValues,
       }));
-  
-      setEditField(null); // Reset trạng thái chỉnh sửa
+
+      setEditField(null);
       toast({
         title: "Cập nhật thành công!",
         status: "success",
@@ -143,18 +87,33 @@ const CoderDetail = () => {
         position: "top-right",
       });
     } catch (error) {
-      console.error("Đã xảy ra lỗi khi cập nhật", error);
-      toast({
-        title: "Đã xảy ra lỗi khi cập nhật.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-        position: "top-right",
-      });
+      let errorMessage = error.response.data.errors;
+      if (Array.isArray(errorMessage)) {
+        errorMessage.forEach((msg, index) => {
+          toast({
+            title: "Lỗi khi cập nhật.",
+            description: msg,
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+            position: "top-right",
+            key: index,
+          });
+        });
+      } else {
+        toast({
+          title: "Đã xảy ra lỗi khi cập nhật.",
+          description: "Vui lòng kiểm tra lại thông tin.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top-right",
+        });
+      }
     }
   };
-  
-  if (!coderDetail) {
+
+  if (!problemDetail) {
     return <Text>Loading...</Text>;
   }
 
@@ -176,164 +135,111 @@ const CoderDetail = () => {
               size="lg"
               colorScheme="messenger"
               borderRadius="md"
-              onClick={() => navigate(`/admin/coder`)}
+              onClick={() => navigate(`/admin/problem`)}
             >
               Quay lại <MdOutlineArrowBack />
             </Button>
           </Link>
         </Flex>
+
         <VStack spacing={6} align="stretch">
-          {/* Avatar Section */}
-          <Flex direction="column" align="center">
-            <Image
-              src={editableValues.avatar || coderDetail.avatar || "default-avatar.jpg"}
-              alt="Coder Avatar"
-              borderRadius="full"
-              boxSize="200px"
-              objectFit="cover"
-              mb={4}
-              onClick={() => document.getElementById("avatarInput").click()}
-              cursor="pointer"
-            />
-            <Input
-              id="avatarInput"
-              type="file"
-              onChange={handleAvatarChange}
-              style={{ display: "none" }}
-            />
-          </Flex>
-          <Divider />
           <Grid templateColumns="repeat(2, 1fr)" gap={6}>
             {/* Left Column */}
             <GridItem>
               <VStack align="stretch" spacing={4}>
                 <Flex align="center">
                   <Text fontSize="lg">
-                    <strong>Tên đăng nhập:</strong> {coderDetail.userName || "Chưa có thông tin"}
+                    <strong>Mã bài tập:</strong> {problemDetail.problemCode || "Chưa có thông tin"}
                   </Text>
                 </Flex>
 
-                {["coderName", "coderEmail", "phoneNumber"].map((field) => (
-                  <Flex key={field} align="center">
-                    {editField === field ? (
-                      <Input
-                        value={editableValues[field] || ""}
-                        onChange={(e) => handleInputChange(field, e.target.value)}
-                        placeholder={`Chỉnh sửa ${field}`}
-                      />
-                    ) : (
-                      <Text fontSize="lg">
-                        <strong>{field === "coderName"
-                          ? "Họ và tên"
-                          : field === "coderEmail"
-                          ? "Email"
-                          : "Số điện thoại"}:</strong>{" "}
-                        {coderDetail[field] || "Chưa có thông tin"}
-                      </Text>
-                    )}
-                    <IconButton
-                      aria-label="Edit"
-                      icon={<MdEdit />}
-                      ml={2}
-                      size="sm"
-                      onClick={() => handleEdit(field)}
-                      cursor="pointer"
-                    />
-                  </Flex>
-                ))}
-
-                {/* Gender field */}
                 <Flex align="center">
-                  {editField === "gender" ? (
-                    <Select
-                      value={editableValues.gender || ""}
-                      onChange={(e) => handleInputChange("gender", e.target.value)}
-                      placeholder="Chọn giới tính"
-                      width="50%"
-                    >
-                      <option value="0">Nam</option>
-                      <option value="1">Nữ</option>
-                      <option value="2">Khác</option>
-                    </Select>
-                  ) : (
-                    <Text fontSize="lg">
-                      <strong>Giới tính:</strong> {genderMapping[coderDetail.gender] || "Khác"}
-                    </Text>
-                  )}
-                  <IconButton
-                    aria-label="Edit"
-                    icon={<MdEdit />}
-                    ml={2}
-                    size="sm"
-                    onClick={() => handleEdit("gender")}
-                    cursor="pointer"
-                  />
+                  <Text fontSize="lg">
+                    <strong>Tên bài tập:</strong> {problemDetail.problemName || "Chưa có thông tin"}
+                  </Text>
                 </Flex>
 
-                {/* Description field */}
                 <Flex align="center">
-                  {editField === "description" ? (
-                    <Input
-                      value={editableValues.description || ""}
-                      onChange={(e) => handleInputChange("description", e.target.value)}
-                      placeholder="Chỉnh sửa mô tả"
-                    />
-                  ) : (
-                    <Text fontSize="lg">
-                      <strong>Mô tả:</strong> {coderDetail.description || "Chưa có thông tin"}
-                    </Text>
-                  )}
-                  <IconButton
-                    aria-label="Edit"
-                    icon={<MdEdit />}
-                    ml={2}
-                    size="sm"
-                    onClick={() => handleEdit("description")}
-                    cursor="pointer"
-                  />
+                  <Text fontSize="lg">
+                    <strong>Thời gian giới hạn:</strong> {problemDetail.timeLimit} giây
+                  </Text>
+                </Flex>
+
+                <Flex align="center">
+                  <Text fontSize="lg">
+                    <strong>Giới hạn bộ nhớ:</strong> {problemDetail.memoryLimit} KB
+                  </Text>
+                </Flex>
+
+                <Flex align="center">
+                  <Text fontSize="lg">
+                    <strong>Nội dung:</strong> {problemDetail.problemContent || "Chưa có thông tin"}
+                  </Text>
+                </Flex>
+
+                <Flex align="center">
+                  <Text fontSize="lg">
+                    <strong>Giải thích:</strong> {problemDetail.problemExplanation || "Chưa có thông tin"}
+                  </Text>
+                </Flex>
+
+                <Flex align="center">
+                  <Text fontSize="lg">
+                    <strong>Hình thức kiểm tra:</strong> {problemDetail.testType || "Chưa có thông tin"}
+                  </Text>
                 </Flex>
               </VStack>
             </GridItem>
-
 
             {/* Right Column */}
             <GridItem>
               <VStack align="stretch" spacing={4}>
+                <Flex align="center">
+                  <Text fontSize="lg">
+                    <strong>Tên người tạo:</strong> {problemDetail.coderName || "Chưa có thông tin"}
+                  </Text>
+                </Flex>
+
+                <Flex align="center">
+                  <Text fontSize="lg">
+                    <strong>Trạng thái xuất bản:</strong> {problemDetail.published === 0 ? "Chưa xuất bản" : "Đã xuất bản"}
+                  </Text>
+                </Flex>
+
+                <Flex align="center">
+                  <Text fontSize="lg">
+                    <strong>Trình biên dịch:</strong> {problemDetail.testCompilerName || "Chưa có thông tin"}
+                  </Text>
+                </Flex>
+
+                <Flex align="center">
                 <Text fontSize="lg">
-                <strong>Ngày tạo:</strong> {moment.utc(coderDetail.updatedAt).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY HH:mm:ss')}
+                  <strong>Thể loại:</strong>{" "}
+                  {problemDetail.selectedCategoryNames.length > 0
+                    ? problemDetail.selectedCategoryNames.join(", ")
+                    : "Chưa có danh mục"}
                 </Text>
-                <Text fontSize="lg">
-                  <strong>Người tạo:</strong> {coderDetail.createdBy}
-                </Text>
-                {coderDetail.updatedAt && (
-                  <>
-                    <Text fontSize="lg">
-                    <strong>Ngày cập nhật:</strong> {moment.utc(coderDetail.updatedAt).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY HH:mm:ss')}
-                    </Text>
-                    <Text fontSize="lg">
-                      <strong>Người cập nhật:</strong> {coderDetail.updatedBy}
-                    </Text>
-                  </>
-                )}
+                </Flex>
               </VStack>
             </GridItem>
           </Grid>
+
+          <Flex justifyContent="flex-end" mt={6}>
+            <Button
+              variant="solid"
+              size="lg"
+              colorScheme="teal"
+              borderRadius="md"
+              onClick={handleSave}
+              disabled={editField === null}
+            >
+              Lưu
+            </Button>
+          </Flex>
         </VStack>
-        <Flex justifyContent="flex-end" mt={6}>
-          <Button
-            variant="solid"
-            size="lg"
-            colorScheme="teal"
-            borderRadius="md"
-            onClick={handleSave}
-            disabled={editField === null}
-          >
-            Lưu
-          </Button>
-        </Flex>
       </Box>
     </Box>
   );
 };
 
-export default CoderDetail;
+export default ProblemDetail;

@@ -132,7 +132,7 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
     },
     {
       Header: 'Tên ND',
-      accessor: 'coderID',
+      accessor: 'coderName',
     },
     {
       Header: 'Kiểu test',
