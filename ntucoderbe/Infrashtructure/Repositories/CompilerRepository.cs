@@ -1,8 +1,11 @@
 ﻿using AddressManagementSystem.Infrashtructure.Helpers;
+using FluentValidation;
+using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using ntucoderbe.DTOs;
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
+using ntucoderbe.Validator;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ntucoderbe.Infrashtructure.Repositories
@@ -33,11 +36,17 @@ namespace ntucoderbe.Infrashtructure.Repositories
         }
         public async Task<CompilerDTO> CreateCompilerAsync(CompilerDTO compilerDto)
         {
+            var validator = new CompilerValidator();
+            var validationResult = await validator.ValidateAsync(compilerDto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
             var compiler = new Compiler
             {
                 CompilerName = compilerDto.CompilerName!,
                 CompilerPath = compilerDto.CompilerPath!,
-                CompilerOption = compilerDto.CompilerOption,
+                CompilerOption = compilerDto.CompilerOption ?? 0,
                 CompilerExtension = compilerDto.CompilerExtension
             };
 
@@ -88,7 +97,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 existingCompiler.CompilerPath = compilerDto.CompilerPath;
 
             if (compilerDto.CompilerOption != 0)
-                existingCompiler.CompilerOption = compilerDto.CompilerOption;
+                existingCompiler.CompilerOption = compilerDto.CompilerOption?? 0;
 
             if (!string.IsNullOrEmpty(compilerDto.CompilerExtension))
                 existingCompiler.CompilerExtension = compilerDto.CompilerExtension;

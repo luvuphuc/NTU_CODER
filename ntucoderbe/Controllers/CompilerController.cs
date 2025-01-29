@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using FluentValidation;
+using Humanizer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
 using ntucoderbe.Infrashtructure.Services;
+using ntucoderbe.Validator;
 
 namespace ntucoderbe.Controllers
 {
@@ -34,16 +37,54 @@ namespace ntucoderbe.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateCompiler(CompilerDTO compilerDto)
         {
-            var createdCompiler = await _compilerService.CreateCompilerAsync(compilerDto);
-            return CreatedAtAction(nameof(GetCompilerById), new { id = createdCompiler.CompilerID }, createdCompiler);
+            if (compilerDto == null)
+            {
+                return BadRequest(new { Errors = new List<string> { "Dữ liệu không hợp lệ." } });
+            }
+            try
+            {
+                var result = await _compilerService.CreateCompilerAsync(compilerDto);
+                return CreatedAtAction(nameof(CompilerDTO), new { id = result.CompilerID }, result);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { Errors = ex.Errors.Select(e => e.ErrorMessage).ToList() });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Errors = new List<string> { ex.Message } });
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCompiler(int id, CompilerDTO compilerDto)
         {
-            var updatedCompiler = await _compilerService.UpdateCompilerAsync(id, compilerDto);
-            if (updatedCompiler == null) return NotFound();
-            return Ok(updatedCompiler);
+            if (compilerDto == null)
+            {
+                return BadRequest(new { Errors = new List<string> { "Dữ liệu không hợp lệ." } });
+            }
+
+            try
+            {
+                var result = await _compilerService.UpdateCompilerAsync(id, compilerDto);
+                return Ok(result);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { Errors = ex.Errors.Select(e => e.ErrorMessage).ToList() });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Errors = new List<string> { ex.Message } });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
