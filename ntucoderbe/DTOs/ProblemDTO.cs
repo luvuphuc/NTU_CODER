@@ -17,6 +17,7 @@
         public int? TestCompilerID { get; set; }
         public string? CoderName { get; set; }
         public string? TestCompilerName { get; set; }
+        public string? Note { get; set; }
         public List<int> SelectedCategoryIDs { get; set; } = new List<int>();
         public List<string> SelectedCategoryNames { get; set; } = new List<string>();
     }

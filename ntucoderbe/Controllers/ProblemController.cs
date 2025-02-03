@@ -1,4 +1,5 @@
 ﻿using AddressManagementSystem.Infrashtructure.Helpers;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
@@ -43,6 +44,10 @@ namespace ntucoderbe.Controllers
             {
                 var result = await _problemService.CreateProblemAsync(dto);
                 return CreatedAtAction(nameof(GetProblemById), new { id = result.ProblemID }, result);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { Errors = ex.Errors.Select(e => e.ErrorMessage).ToList() });
             }
             catch (InvalidOperationException ex)
             {

@@ -21,6 +21,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import api from "utils/api";
 import { MdOutlineArrowBack } from "react-icons/md";
+import Editor from "@monaco-editor/react";
 
 export default function ProblemCreate() {
   const [problemCode, setProblemCode] = useState("");
@@ -29,15 +30,16 @@ export default function ProblemCreate() {
   const [memoryLimit, setMemoryLimit] = useState("128");
   const [testType, setTestType] = useState("OutputMatching");
   const [testCompilerID, setTestCompilerID] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [note, setNote] = useState("");
+  const [selectedCategoryIDs, setselectedCategoryIDs] = useState([]);
   const [errors, setErrors] = useState({});
   const [compilers, setCompilers] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [code, setCode] = useState("");
-
+  const [testCode, settestCode] = useState("");
+  const [problemContent, setProblemContent] = useState("");
+  const [problemExplanation, setProblemExplanation] = useState("");
   const toast = useToast();
   const navigate = useNavigate();
-
   useEffect(() => {
     async function fetchData() {
       try {
@@ -48,28 +50,33 @@ export default function ProblemCreate() {
           ? categoryRes.data.data.sort((a, b) => a.catOrder - b.catOrder)
           : [];
         setCategories(sortedCategories);
+        if (compilerRes.data.data.length > 0) {
+          setTestCompilerID(compilerRes.data.data[0].compilerID); 
+        }
       } catch (error) {
-        console.error("Error fetching data", error);
+        console.error("Error:", error);
       }
     }
     fetchData();
   }, []);
-  
-  
-    
 
   const handleSubmit = async () => {
     try {
-      await api.post("/Problem/create", {
-        problemCode,
+      const response = await api.post("/Problem/create", {
         problemName,
+        problemCode,
         timeLimit,
         memoryLimit,
+        problemContent,
+        problemExplanation,
         testType,
+        testCode,
         testCompilerID,
-        selectedCategories,
+        selectedCategoryIDs,
+        note
       });
-
+  
+      console.log('Response:', response.data);
       toast({
         title: "Thêm mới thành công!",
         status: "success",
@@ -77,18 +84,40 @@ export default function ProblemCreate() {
         isClosable: true,
         position: "top-right",
       });
-
+  
       navigate("/admin/problem");
     } catch (error) {
-      toast({
-        title: "Đã xảy ra lỗi.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-        position: "top-right",
-      });
+      console.error("Error:", error);
+  
+      if (error.response && error.response.data.errors) {
+        const errorMessages = error.response.data.errors;
+        const newErrors = {};
+        errorMessages.forEach((errorMessage) => {
+          if (errorMessage.includes('Tên bài tập')) newErrors.problemName = errorMessage;
+          if (errorMessage.includes('Mã bài tập')) newErrors.problemCode = errorMessage;
+          if (errorMessage.includes('Giới hạn thời gian')) newErrors.timeLimit = errorMessage;
+          if (errorMessage.includes('Giới hạn bộ nhớ')) newErrors.memoryLimit = errorMessage;
+          if (errorMessage.includes('Nội dung')) newErrors.problemContent = errorMessage;
+          if (errorMessage.includes('Giải thích bài tập')) newErrors.problemExplanation = errorMessage;
+          if (errorMessage.includes('Mã kiểm tra')) newErrors.testCode = errorMessage;
+          if (errorMessage.includes('Ghi chú')) newErrors.note = errorMessage;
+        });
+  
+        setErrors(newErrors);
+      } else {
+        toast({
+          title: "Đã xảy ra lỗi.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top-right",
+        });
+      }
     }
   };
+  
+  
+  
 
   return (
     <Box pt={{ base: "130px", md: "80px", xl: "80px" }} px="25px">
@@ -124,24 +153,53 @@ export default function ProblemCreate() {
               <Input placeholder="Nhập giới hạn bộ nhớ" value={memoryLimit} onChange={(e) => setMemoryLimit(e.target.value)} />
               <FormErrorMessage>{errors.memoryLimit}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={errors.code} mb={4}>
-              <FormLabel fontWeight="bold">Code<Text as="span" color="red.500"> *</Text></FormLabel>
+            <FormControl isInvalid={errors.problemContent} mb={4}>
+              <FormLabel fontWeight="bold">Nội dung bài toán<Text as="span" color="red.500"> *</Text></FormLabel>
               <Textarea 
-                
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                size="md"
-                minHeight="120px"
+                placeholder="Nhập nội dung bài toán" 
+                value={problemContent} 
+                onChange={(e) => setProblemContent(e.target.value)} 
               />
-              <FormErrorMessage>{errors.code}</FormErrorMessage>
+              <FormErrorMessage>{errors.problemContent}</FormErrorMessage>
+            </FormControl>
+
+            <FormControl isInvalid={errors.problemExplanation} mb={4}>
+              <FormLabel fontWeight="bold">Giải thích bài toán<Text as="span" color="red.500"> *</Text></FormLabel>
+              <Textarea 
+                placeholder="Nhập giải thích bài toán" 
+                value={problemExplanation} 
+                onChange={(e) => setProblemExplanation(e.target.value)} 
+              />
+              <FormErrorMessage>{errors.problemExplanation}</FormErrorMessage>
+            </FormControl>
+
+            <FormControl isInvalid={errors.testCode} mb={4}>
+              <FormLabel fontWeight="bold">Code<Text as="span" color="red.500"> *</Text></FormLabel>
+              <div style={{ border: "2px solid #ccc", borderRadius: "8px", padding: "4px" }}>
+              <Editor
+                height="400px"
+                language="cpp"
+                value={testCode}
+                onChange={(value) => settestCode(value)}
+                theme="vs"
+                options={{
+                  selectOnLineNumbers: true,
+                  minimap: { enabled: false },
+                  lineNumbers: "on",
+                  wordWrap: "on",
+                  automaticLayout: true,
+                }}
+              />
+              </div>
+              
+
+              <FormErrorMessage>{errors.testCode}</FormErrorMessage>
             </FormControl>
           </GridItem>
 
           <GridItem>
-            
-
             <FormControl mb={4}>
-              <FormLabel fontWeight="bold">Loại kiểm thử</FormLabel>
+              <FormLabel fontWeight="bold">Loại kiểm thử <Text as="span" color="red.500"> *</Text></FormLabel>
               <Select value={testType} onChange={(e) => setTestType(e.target.value)}>
                 <option value="OutputMatching">OutputMatching</option>
                 <option value="VerifyOutput">VerifyOutput</option>
@@ -149,8 +207,9 @@ export default function ProblemCreate() {
             </FormControl>
 
             <FormControl mb={4}>
-              <FormLabel fontWeight="bold">Trình biên dịch</FormLabel>
+              <FormLabel fontWeight="bold">Trình biên dịch <Text as="span" color="red.500"> *</Text></FormLabel>
               <Select value={testCompilerID} onChange={(e) => setTestCompilerID(e.target.value)}>
+                
                 {compilers.map((compiler) => (
                   <option key={compiler.compilerID} value={compiler.compilerID}>
                     {compiler.compilerName}
@@ -159,19 +218,23 @@ export default function ProblemCreate() {
               </Select>
             </FormControl>
 
-
+            <FormControl isInvalid={errors.note} mb={4}>
+              <FormLabel fontWeight="bold">Ghi chú</FormLabel>
+              <Input placeholder="Nhập ghi chú" value={note} onChange={(e) => setNote(e.target.value)} />
+              <FormErrorMessage>{errors.note}</FormErrorMessage>
+            </FormControl>
             <FormControl mb={4}>
               <FormLabel fontWeight="bold">Danh mục</FormLabel>
               <SimpleGrid columns={2} spacing={2} w="full">
                 {categories.map((category) => (
                   <Checkbox
                     key={category.categoryID}
-                    isChecked={selectedCategories.includes(category.categoryID)}
+                    isChecked={selectedCategoryIDs.includes(category.categoryID)}
                     onChange={(e) => {
                       if (e.target.checked) {
-                        setSelectedCategories([...new Set([...selectedCategories, category.categoryID])]);
+                        setselectedCategoryIDs([...new Set([...selectedCategoryIDs, category.categoryID])]);
                       } else {
-                        setSelectedCategories(selectedCategories.filter((id) => id !== category.categoryID));
+                        setselectedCategoryIDs(selectedCategoryIDs.filter((id) => id !== category.categoryID));
                       }
                     }}
                   >
@@ -180,7 +243,6 @@ export default function ProblemCreate() {
                 ))}
               </SimpleGrid>
             </FormControl>
-
           </GridItem>
         </Grid>
         <GridItem display="flex" justifyContent="center">

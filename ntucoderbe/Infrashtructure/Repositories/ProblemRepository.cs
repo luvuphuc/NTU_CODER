@@ -74,7 +74,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 ProblemExplanation = dto.ProblemExplanation!,
                 TestType = dto.TestType!,
                 TestCode = dto.TestCode!,
-                CoderID = dto.CoderID ?? 1,
+                CoderID = dto.CoderID ?? 10,
                 Published = 0,
                 TestCompilerID = dto.TestCompilerID ?? 1!,
                 TestProgCompile = dto.TestProgCompile
@@ -91,7 +91,8 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     var problemCategory = new ProblemCategory
                     {
                         ProblemID = problem.ProblemID,
-                        CategoryID = categoryId
+                        CategoryID = categoryId,
+                        Note = dto.Note,
                     };
                     _context.ProblemCategories.Add(problemCategory);
                 }
@@ -159,7 +160,8 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 TestCompilerName = problem.Compiler.CompilerName,
                 SelectedCategoryNames = problem.ProblemCategories
                 .Select(pc => pc.Category.CatName)
-                .ToList()
+                .ToList(),
+                Note = problem.ProblemCategories.Select(pc => pc.Note).FirstOrDefault()
             };
         }
 
@@ -210,7 +212,8 @@ namespace ntucoderbe.Infrashtructure.Repositories
                         var problemCategory = new ProblemCategory
                         {
                             ProblemID = existing.ProblemID,
-                            CategoryID = categoryId
+                            CategoryID = categoryId,
+                            Note  = dto.Note,
                         };
                         _context.ProblemCategories.Add(problemCategory);
                     }

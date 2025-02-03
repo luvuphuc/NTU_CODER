@@ -13,6 +13,7 @@ namespace ntucoderbe.Validator
                     .NotEmpty().WithMessage("Tên bài tập không được để trống");
 
                 RuleFor(x => x.ProblemCode)
+                    .Cascade(CascadeMode.Stop)
                     .NotEmpty().WithMessage("Mã bài tập không được để trống")
                     .Matches("^[a-zA-Z0-9]+$").WithMessage("Mã bài tập chỉ chấp nhận chữ cái và số");
 
