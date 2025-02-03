@@ -7,6 +7,7 @@ using Humanizer;
 using ntucoderbe.Validator;
 using Newtonsoft.Json;
 using FluentValidation;
+using FluentValidation.Results;
 
 namespace ntucoderbe.Infrashtructure.Repositories
 {
@@ -62,7 +63,8 @@ namespace ntucoderbe.Infrashtructure.Repositories
             }
             if (await CheckProblemCodeExist(dto.ProblemCode!))
             {
-                throw new InvalidOperationException("Mã bài tập đã tồn tại.");
+                validationResult.Errors.Add(new ValidationFailure("ProblemCode", "Mã bài tập đã tồn tại."));
+                throw new ValidationException(validationResult.Errors);
             }
             var problem = new Problem
             {
