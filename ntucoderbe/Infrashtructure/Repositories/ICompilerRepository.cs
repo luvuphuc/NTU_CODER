@@ -1,10 +1,11 @@
-﻿using ntucoderbe.DTOs;
+﻿using AddressManagementSystem.Infrashtructure.Helpers;
+using ntucoderbe.DTOs;
 
 namespace ntucoderbe.Infrashtructure.Repositories
 {
     public interface ICompilerRepository
     {
-        Task<List<CompilerDTO>> GetAllCompilersAsync();
+        Task<PagedResponse<CompilerDTO>> GetAllCompilersAsync(QueryObject query, string? sortField = null, bool ascending = true);
         Task<CompilerDTO?> GetCompilerByIdAsync(int id);
         Task<CompilerDTO> CreateCompilerAsync(CompilerDTO compilerDto);
         Task<CompilerDTO?> UpdateCompilerAsync(int id, CompilerDTO compilerDto);

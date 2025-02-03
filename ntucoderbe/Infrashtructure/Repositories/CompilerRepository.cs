@@ -18,9 +18,9 @@ namespace ntucoderbe.Infrashtructure.Repositories
         {
             _context = context;
         }
-        public async Task<List<CompilerDTO>> GetAllCompilersAsync()
+        public async Task<PagedResponse<CompilerDTO>> GetAllCompilersAsync(QueryObject query, string? sortField = null, bool ascending = true)
         {
-            var compilers = await _context.Compilers
+            var compilerQuery = _context.Compilers
                 .AsNoTracking()
                 .Select(c => new CompilerDTO
                 {
@@ -29,10 +29,25 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     CompilerPath = c.CompilerPath,
                     CompilerOption = c.CompilerOption,
                     CompilerExtension = c.CompilerExtension
-                })
-                .ToListAsync();
+                });
+
+            compilerQuery = ApplySorting(compilerQuery, sortField, ascending);
+
+            var compilers = await PagedResponse<CompilerDTO>.CreateAsync(
+                compilerQuery,
+                query.Page,
+                query.PageSize);
 
             return compilers;
+        }
+
+        public IQueryable<CompilerDTO> ApplySorting(IQueryable<CompilerDTO> query, string? sortField, bool ascending)
+        {
+            return sortField?.ToLower() switch
+            {
+                "compilername" => ascending ? query.OrderBy(c => c.CompilerName) : query.OrderByDescending(c => c.CompilerName),
+                _ => query.OrderBy(c => c.CompilerID)
+            };
         }
         public async Task<CompilerDTO> CreateCompilerAsync(CompilerDTO compilerDto)
         {

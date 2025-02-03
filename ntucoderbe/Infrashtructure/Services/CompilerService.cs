@@ -1,4 +1,5 @@
-﻿using ntucoderbe.DTOs;
+﻿using AddressManagementSystem.Infrashtructure.Helpers;
+using ntucoderbe.DTOs;
 using ntucoderbe.Infrashtructure.Repositories;
 
 namespace ntucoderbe.Infrashtructure.Services
@@ -12,9 +13,9 @@ namespace ntucoderbe.Infrashtructure.Services
             _compilerRepository = compilerRepository;
         }
 
-        public async Task<List<CompilerDTO>> GetAllCompilersAsync()
+        public async Task<PagedResponse<CompilerDTO>> GetAllCompilersAsync(QueryObject query, string? sortField = null, bool ascending = true)
         {
-            return await _compilerRepository.GetAllCompilersAsync();
+            return await _compilerRepository.GetAllCompilersAsync(query,sortField,ascending);
         }
 
         public async Task<CompilerDTO> CreateCompilerAsync(CompilerDTO compilerDto)

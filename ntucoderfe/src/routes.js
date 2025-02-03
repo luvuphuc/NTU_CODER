@@ -15,6 +15,7 @@ import CategoryIndex from 'views/admin/category';
 import ProblemIndex from 'views/admin/problem';
 import ProblemDetail from 'views/admin/problem/components/Detail';
 import ProblemCreate from 'views/admin/problem/components/Create';
+import CompilerIndex from 'views/admin/compiler';
 const routes = [
   {
     name: 'Người dùng',
@@ -68,6 +69,21 @@ const routes = [
       component: <ProblemDetail />,
     },
     ]
+  },
+  {
+    name: 'Trình biên dịch',
+    layout: '/admin',
+    path: '/compiler',
+    icon: (
+      <Icon
+        as={MdOutlineShoppingCart}
+        width="20px"
+        height="20px"
+        color="inherit"
+      />
+    ),
+    secondary: true,
+    component: <CompilerIndex/>
   },
 ];
 

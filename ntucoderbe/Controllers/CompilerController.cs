@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using AddressManagementSystem.Infrashtructure.Helpers;
+using FluentValidation;
 using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,11 +20,19 @@ namespace ntucoderbe.Controllers
             _compilerService = compilerService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllCompilers()
+        [HttpGet("all")]
+
+        public async Task<IActionResult> GetAllCompilers([FromQuery] QueryObject query, string? sortField = null, bool ascending = true)
         {
-            var compilers = await _compilerService.GetAllCompilersAsync();
-            return Ok(compilers);
+            try
+            {
+                var result = await _compilerService.GetAllCompilersAsync(query, sortField, ascending);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
 
         [HttpGet("{id}")]
