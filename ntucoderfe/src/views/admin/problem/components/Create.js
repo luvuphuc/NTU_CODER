@@ -25,8 +25,8 @@ import { MdOutlineArrowBack } from "react-icons/md";
 export default function ProblemCreate() {
   const [problemCode, setProblemCode] = useState("");
   const [problemName, setProblemName] = useState("");
-  const [timeLimit, setTimeLimit] = useState("");
-  const [memoryLimit, setMemoryLimit] = useState("");
+  const [timeLimit, setTimeLimit] = useState("1.00");
+  const [memoryLimit, setMemoryLimit] = useState("128");
   const [testType, setTestType] = useState("OutputMatching");
   const [testCompilerID, setTestCompilerID] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -41,14 +41,11 @@ export default function ProblemCreate() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const compilerRes = await api.get("/Compiler");
+        const compilerRes = await api.get("/Compiler/all");
         const categoryRes = await api.get("/Category/all");
-  
-        console.log("Categories API response:", categoryRes.data);
-  
-        setCompilers(compilerRes.data);
-        const sortedCategories = Array.isArray(categoryRes.data.data) 
-          ? categoryRes.data.data.sort((a, b) => a.catOrder - b.catOrder) 
+        setCompilers(Array.isArray(compilerRes.data.data) ? compilerRes.data.data : []);
+        const sortedCategories = Array.isArray(categoryRes.data.data)
+          ? categoryRes.data.data.sort((a, b) => a.catOrder - b.catOrder)
           : [];
         setCategories(sortedCategories);
       } catch (error) {
@@ -57,6 +54,7 @@ export default function ProblemCreate() {
     }
     fetchData();
   }, []);
+  
   
     
 
@@ -154,30 +152,32 @@ export default function ProblemCreate() {
               <FormLabel fontWeight="bold">Trình biên dịch</FormLabel>
               <Select value={testCompilerID} onChange={(e) => setTestCompilerID(e.target.value)}>
                 {compilers.map((compiler) => (
-                  <option key={compiler.id} value={compiler.id}>{compiler.name}</option>
+                  <option key={compiler.compilerID} value={compiler.compilerID}>
+                    {compiler.compilerName}
+                  </option>
                 ))}
               </Select>
             </FormControl>
 
+
             <FormControl mb={4}>
               <FormLabel fontWeight="bold">Danh mục</FormLabel>
               <SimpleGrid columns={2} spacing={2} w="full">
-                {Array.isArray(categories) &&
-                  categories.map((category) => (
-                    <Checkbox
-                      key={category.categoryID}
-                      isChecked={selectedCategories.includes(category.categoryID)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedCategories([...new Set([...selectedCategories, category.categoryID])]);
-                        } else {
-                          setSelectedCategories(selectedCategories.filter((id) => id !== category.categoryID));
-                        }
-                      }}
-                    >
-                      {category.catName}
-                    </Checkbox>
-                  ))}
+                {categories.map((category) => (
+                  <Checkbox
+                    key={category.categoryID}
+                    isChecked={selectedCategories.includes(category.categoryID)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedCategories([...new Set([...selectedCategories, category.categoryID])]);
+                      } else {
+                        setSelectedCategories(selectedCategories.filter((id) => id !== category.categoryID));
+                      }
+                    }}
+                  >
+                    {category.catName}
+                  </Checkbox>
+                ))}
               </SimpleGrid>
             </FormControl>
 

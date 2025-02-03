@@ -20,7 +20,7 @@ const routes = [
   {
     name: 'Người dùng',
     layout: '/admin',
-    icon: <Icon as={MdBarChart} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
     path: '/coder',
     component: <CoderIndex />,
     items: [
