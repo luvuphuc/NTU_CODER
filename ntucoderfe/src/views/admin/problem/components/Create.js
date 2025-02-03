@@ -18,6 +18,8 @@ import {
   SimpleGrid,
   Textarea
 } from "@chakra-ui/react";
+import ReactQuill from 'react-quill'; 
+import 'react-quill/dist/quill.snow.css';
 import { useNavigate } from "react-router-dom";
 import api from "utils/api";
 import { MdOutlineArrowBack } from "react-icons/md";
@@ -153,26 +155,50 @@ export default function ProblemCreate() {
               <Input placeholder="Nhập giới hạn bộ nhớ" value={memoryLimit} onChange={(e) => setMemoryLimit(e.target.value)} />
               <FormErrorMessage>{errors.memoryLimit}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={errors.problemContent} mb={4}>
+            <FormControl isInvalid={errors.problemContent} mb="60px">
               <FormLabel fontWeight="bold">Nội dung bài toán<Text as="span" color="red.500"> *</Text></FormLabel>
-              <Textarea 
-                placeholder="Nhập nội dung bài toán" 
+              <ReactQuill 
                 value={problemContent} 
-                onChange={(e) => setProblemContent(e.target.value)} 
+                onChange={setProblemContent} 
+                placeholder="Nhập nội dung bài toán" 
+                style={{ height: '300px' }}
               />
-              <FormErrorMessage>{errors.problemContent}</FormErrorMessage>
+              <FormErrorMessage mt="50px">{errors.problemContent}</FormErrorMessage>
             </FormControl>
 
             <FormControl isInvalid={errors.problemExplanation} mb={4}>
               <FormLabel fontWeight="bold">Giải thích bài toán<Text as="span" color="red.500"> *</Text></FormLabel>
-              <Textarea 
-                placeholder="Nhập giải thích bài toán" 
+              <ReactQuill 
                 value={problemExplanation} 
-                onChange={(e) => setProblemExplanation(e.target.value)} 
+                onChange={setProblemExplanation} 
+                placeholder="Nhập giải thích bài toán" 
+                style={{ height: '300px' }}
               />
-              <FormErrorMessage>{errors.problemExplanation}</FormErrorMessage>
+              <FormErrorMessage mt="50px">{errors.problemExplanation}</FormErrorMessage>
+            </FormControl>
+          </GridItem>
+
+          <GridItem>
+            
+            <FormControl mb={4}>
+              <FormLabel fontWeight="bold">Loại kiểm thử <Text as="span" color="red.500"> *</Text></FormLabel>
+              <Select value={testType} onChange={(e) => setTestType(e.target.value)}>
+                <option value="OutputMatching">OutputMatching</option>
+                <option value="VerifyOutput">VerifyOutput</option>
+              </Select>
             </FormControl>
 
+            <FormControl mb={4}>
+              <FormLabel fontWeight="bold">Trình biên dịch <Text as="span" color="red.500"> *</Text></FormLabel>
+              <Select value={testCompilerID} onChange={(e) => setTestCompilerID(e.target.value)}>
+                
+                {compilers.map((compiler) => (
+                  <option key={compiler.compilerID} value={compiler.compilerID}>
+                    {compiler.compilerName}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
             <FormControl isInvalid={errors.testCode} mb={4}>
               <FormLabel fontWeight="bold">Code<Text as="span" color="red.500"> *</Text></FormLabel>
               <div style={{ border: "2px solid #ccc", borderRadius: "8px", padding: "4px" }}>
@@ -195,29 +221,6 @@ export default function ProblemCreate() {
 
               <FormErrorMessage>{errors.testCode}</FormErrorMessage>
             </FormControl>
-          </GridItem>
-
-          <GridItem>
-            <FormControl mb={4}>
-              <FormLabel fontWeight="bold">Loại kiểm thử <Text as="span" color="red.500"> *</Text></FormLabel>
-              <Select value={testType} onChange={(e) => setTestType(e.target.value)}>
-                <option value="OutputMatching">OutputMatching</option>
-                <option value="VerifyOutput">VerifyOutput</option>
-              </Select>
-            </FormControl>
-
-            <FormControl mb={4}>
-              <FormLabel fontWeight="bold">Trình biên dịch <Text as="span" color="red.500"> *</Text></FormLabel>
-              <Select value={testCompilerID} onChange={(e) => setTestCompilerID(e.target.value)}>
-                
-                {compilers.map((compiler) => (
-                  <option key={compiler.compilerID} value={compiler.compilerID}>
-                    {compiler.compilerName}
-                  </option>
-                ))}
-              </Select>
-            </FormControl>
-
             <FormControl isInvalid={errors.note} mb={4}>
               <FormLabel fontWeight="bold">Ghi chú</FormLabel>
               <Input placeholder="Nhập ghi chú" value={note} onChange={(e) => setNote(e.target.value)} />
@@ -245,7 +248,7 @@ export default function ProblemCreate() {
             </FormControl>
           </GridItem>
         </Grid>
-        <GridItem display="flex" justifyContent="center">
+        <GridItem display="flex" marginTop="30px" justifyContent="center">
           <Button colorScheme="green" onClick={handleSubmit} borderRadius="md" width="50%" mt="30px">
             Thêm
           </Button>
