@@ -5,8 +5,6 @@ import {
   VStack,
   Divider,
   Flex,
-  FormControl,
-  FormLabel,
   Grid,
   GridItem,
   Link,
@@ -17,11 +15,11 @@ import {
   Select,
 } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
-import ReactQuill from 'react-quill'; 
 import api from "utils/api";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineArrowBack, MdEdit } from "react-icons/md";
-
+import ReactQuill from 'react-quill'; 
+import 'react-quill/dist/quill.snow.css';
 const ProblemDetail = () => {
   const { id } = useParams();
   const [problemDetail, setProblemDetail] = useState(null);
@@ -29,21 +27,31 @@ const ProblemDetail = () => {
   const [editableValues, setEditableValues] = useState({});
   const navigate = useNavigate();
   const toast = useToast();
-
+  const testTypeMapping = {
+    "outputmatching" : "Output Matching",
+    "verifyoutput" : "Verify Output"
+  };
+  const [compilers, setCompilers] = useState([]);
+  const [testCompilerID, setTestCompilerID] = useState(null); 
   useEffect(() => {
-    const fetchProblemDetail = async () => {
+    const fetchData = async () => {
       try {
-        const response = await api.get(`/Problem/${id}`);
-        setProblemDetail(response.data);
-        setEditableValues(response.data);
+        const [problemRes, compilerRes] = await Promise.all([
+          api.get(`/Problem/${id}`),
+          api.get("/Compiler/all"),
+        ]);
+        setProblemDetail(problemRes.data);
+        setEditableValues(problemRes.data);
+        setCompilers(Array.isArray(compilerRes.data.data) ? compilerRes.data.data : []);
+        if (compilerRes.data.data.length > 0) {
+          setTestCompilerID(compilerRes.data.data[0].compilerID); 
+        }
       } catch (error) {
         console.error("Đã xảy ra lỗi", error);
       }
     };
 
-    if (id) {
-      fetchProblemDetail();
-    }
+    if (id) fetchData();
   }, [id]);
 
   const handleEdit = (field) => {
@@ -75,9 +83,11 @@ const ProblemDetail = () => {
           "Content-Type": "application/json",
         },
       });
+      // Cập nhật lại state với dữ liệu mới
       setProblemDetail((prev) => ({
         ...prev,
         ...editableValues,
+        testCompilerName: compilers.find(c => c.compilerID == testCompilerID)?.compilerName || prev.testCompilerName
       }));
       setEditField(null);
       toast({
@@ -178,30 +188,74 @@ const ProblemDetail = () => {
                     />
                   </Flex>
                 ))}
-                <FormControl>
-                  <FormLabel fontWeight="bold">Nội dung bài toán</FormLabel>
-                  {editField === "problemContent" ? (
-                    <ReactQuill value={editableValues.problemContent} onChange={(value) => handleInputChange("problemContent", value)} style={{ height: "300px" }} />
-                  ) : (
-                    <Box p={2} dangerouslySetInnerHTML={{ __html: problemDetail.problemContent || "Chưa có thông tin" }} />
-                  )}
-                  <IconButton aria-label="Edit" icon={<MdEdit />} ml={2} size="sm" onClick={() => handleEdit("problemContent")} />
-                </FormControl>
+                <Flex align="center">
+                  <Text fontSize="lg" fontWeight="bold">Nội dung:</Text>
+                  <IconButton
+                    aria-label="Edit"
+                    icon={<MdEdit />}
+                    ml={2}
+                    size="sm"
+                    onClick={() => handleEdit("problemContent")}
+                    cursor="pointer"
+                  />
+                </Flex>
+                {editField === "problemContent" ? (
+                  <ReactQuill
+                    theme="snow"
+                    value={editableValues.problemContent || ""}
+                    onChange={(value) => handleInputChange("problemContent", value)}
+                  />
+                ) : (
+                  <Box p={2} dangerouslySetInnerHTML={{ __html: problemDetail.problemContent || "Chưa có thông tin" }} />
+                )}
 
                 <Flex align="center">
                   <Text fontSize="lg" fontWeight="bold">Giải thích:</Text>
+                  <IconButton
+                    aria-label="Edit"
+                    icon={<MdEdit />}
+                    ml={2}
+                    size="sm"
+                    onClick={() => handleEdit("problemExplanation")}
+                    cursor="pointer"
+                  />
                 </Flex>
-                <Box
-                  p={2}
-                  dangerouslySetInnerHTML={{ __html: problemDetail.problemExplanation || "Chưa có thông tin" }}
-                />
-
+                {editField === "problemExplanation" ? (
+                  <ReactQuill
+                    theme="snow"
+                    value={editableValues.problemExplanation || ""}
+                    onChange={(value) => handleInputChange("problemExplanation", value)}
+                  />
+                ) : (
+                  <Box p={2} dangerouslySetInnerHTML={{ __html: problemDetail.problemExplanation || "Chưa có thông tin" }} />
+                )}
                 <Flex align="center">
-                  <Text fontSize="lg">
-                    <strong>Hình thức kiểm tra:</strong>{" "}
-                    {problemDetail.testType || "Chưa có thông tin"}
-                  </Text>
+                  {editField === "testType" ? (
+                    <Select
+                      value={editableValues.testType || problemDetail.testType || ""}
+                      onChange={(e) => handleInputChange("testType", e.target.value)}
+                      placeholder="Chọn hình thức kiểm tra"
+                      width="50%"
+                    >
+                      <option value="outputmatching">Output Matching</option>
+                      <option value="verifyoutput">Verify Output</option>
+                    </Select>
+                  ) : (
+                    <Text fontSize="lg">
+                      <strong>Hình thức kiểm tra:</strong>{" "}
+                      {testTypeMapping[problemDetail.testType] || "Không xác định"}
+                    </Text>
+                  )}
+                  <IconButton
+                    aria-label="Edit"
+                    icon={<MdEdit />}
+                    ml={2}
+                    size="sm"
+                    onClick={() => handleEdit("testType")}
+                    cursor="pointer"
+                  />
                 </Flex>
+
               </VStack>
             </GridItem>
 
@@ -217,16 +271,28 @@ const ProblemDetail = () => {
 
                 <Flex align="center">
                   <Text fontSize="lg">
-                    <strong>Trạng thái xuất bản:</strong>{" "}
-                    {problemDetail.published === 0 ? "Chưa xuất bản" : "Đã xuất bản"}
+                    <strong>Trạng thái:</strong>{" "}
+                    {problemDetail.published === 1 ? "Công khai" : "Riêng tư"}
                   </Text>
                 </Flex>
 
                 <Flex align="center">
-                  <Text fontSize="lg">
-                    <strong>Trình biên dịch:</strong>{" "}
-                    {problemDetail.testCompilerName || "Chưa có thông tin"}
-                  </Text>
+                  {editField === "testCompiler" ? (
+                    <Select value={testCompilerID} onChange={(e) => {
+                      const newCompilerID = e.target.value;
+                      setTestCompilerID(newCompilerID);
+                      setEditableValues((prev) => ({ ...prev, testCompilerID: newCompilerID }));
+                    }}>
+                      {compilers.map((compiler) => (
+                        <option key={compiler.compilerID} value={compiler.compilerID}>
+                          {compiler.compilerName}
+                        </option>
+                      ))}
+                    </Select>
+                  ) : (
+                    <Text fontSize="lg"><strong>Trình biên dịch:</strong> {problemDetail.testCompilerName || "Chưa có thông tin"}</Text>
+                  )}
+                  <IconButton aria-label="Edit" icon={<MdEdit />} ml={2} size="sm" onClick={() => handleEdit("testCompiler")} />
                 </Flex>
 
                 <Flex align="center">
