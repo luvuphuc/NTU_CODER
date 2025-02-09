@@ -11,6 +11,8 @@ import {
   Button,
   Input,
   IconButton,
+  Checkbox,
+  SimpleGrid,
   useToast,
   Select,
 } from "@chakra-ui/react";
@@ -20,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { MdOutlineArrowBack, MdEdit } from "react-icons/md";
 import ReactQuill from 'react-quill'; 
 import 'react-quill/dist/quill.snow.css';
+import Editor from "@monaco-editor/react";
 const ProblemDetail = () => {
   const { id } = useParams();
   const [problemDetail, setProblemDetail] = useState(null);
@@ -28,21 +31,28 @@ const ProblemDetail = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const testTypeMapping = {
-    "outputmatching" : "Output Matching",
-    "verifyoutput" : "Verify Output"
+    "Output Matching" : "Output Matching",
+    "Validate Output" : "Validate Output"
   };
   const [compilers, setCompilers] = useState([]);
   const [testCompilerID, setTestCompilerID] = useState(null); 
+  const [categories, setCategories] = useState([]);
+  const [selectedCategoryIDs, setSelectedCategoryIDs] = useState([]); 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [problemRes, compilerRes] = await Promise.all([
+        const [problemRes, compilerRes, categoryRes] = await Promise.all([
           api.get(`/Problem/${id}`),
           api.get("/Compiler/all"),
+          api.get("/Category/all"),
         ]);
         setProblemDetail(problemRes.data);
         setEditableValues(problemRes.data);
         setCompilers(Array.isArray(compilerRes.data.data) ? compilerRes.data.data : []);
+        const sortedCategories = Array.isArray(categoryRes.data.data)
+          ? categoryRes.data.data.sort((a, b) => a.catOrder - b.catOrder)
+          : [];
+        setCategories(sortedCategories);
         if (compilerRes.data.data.length > 0) {
           setTestCompilerID(compilerRes.data.data[0].compilerID); 
         }
@@ -78,16 +88,22 @@ const ProblemDetail = () => {
           formData.append(field, editableValues[field]);
         }
       });
-      await api.put(`/Problem/${id}`, editableValues, {
+      const updatedValues = { 
+        ...editableValues, 
+        selectedCategoryIDs 
+      };
+      await api.put(`/Problem/${id}`, updatedValues, {
         headers: {
           "Content-Type": "application/json",
         },
       });
-      // Cập nhật lại state với dữ liệu mới
       setProblemDetail((prev) => ({
         ...prev,
         ...editableValues,
-        testCompilerName: compilers.find(c => c.compilerID == testCompilerID)?.compilerName || prev.testCompilerName
+        testCompilerName: compilers.find(c => c.compilerID == testCompilerID)?.compilerName || prev.testCompilerName,
+        selectedCategoryNames: categories
+        .filter((cat) => selectedCategoryIDs.includes(cat.categoryID))
+        .map((cat) => cat.catName),
       }));
       setEditField(null);
       toast({
@@ -237,8 +253,8 @@ const ProblemDetail = () => {
                       placeholder="Chọn hình thức kiểm tra"
                       width="50%"
                     >
-                      <option value="outputmatching">Output Matching</option>
-                      <option value="verifyoutput">Verify Output</option>
+                      <option value="Output Matching">Output Matching</option>
+                      <option value="Validate Output">Validate Output</option>
                     </Select>
                   ) : (
                     <Text fontSize="lg">
@@ -296,14 +312,73 @@ const ProblemDetail = () => {
                 </Flex>
 
                 <Flex align="center">
-                  <Text fontSize="lg">
-                    <strong>Thể loại:</strong>{" "}
-                    {problemDetail.selectedCategoryNames &&
-                    problemDetail.selectedCategoryNames.length > 0
-                      ? problemDetail.selectedCategoryNames.join(", ")
-                      : "Chưa có danh mục"}
-                  </Text>
+                  {editField === "selectedCategory" ? (
+                    <SimpleGrid columns={2} spacing={2} w="full">
+                      {categories.map((category) => (
+                        <Checkbox
+                          key={category.categoryID}
+                          isChecked={selectedCategoryIDs.includes(category.categoryID)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedCategoryIDs([...new Set([...selectedCategoryIDs, category.categoryID])]);
+                            } else {
+                              setSelectedCategoryIDs(selectedCategoryIDs.filter((id) => id !== category.categoryID));
+                            }
+                          }}
+                        >
+                          {category.catName}
+                        </Checkbox>
+                      ))}
+                    </SimpleGrid>
+                  ) : (
+                    <Text fontSize="lg">
+                      <strong>Thể loại:</strong>{" "}
+                      {problemDetail.selectedCategoryNames?.length > 0
+                        ? problemDetail.selectedCategoryNames.join(", ")
+                        : "Chưa có danh mục"}
+                    </Text>
+                  )}
+                  <IconButton
+                    aria-label="Edit"
+                    icon={<MdEdit />}
+                    ml={2}
+                    size="sm"
+                    onClick={() => handleEdit("selectedCategory")}
+                  />
                 </Flex>
+                <Flex align="center">
+                  <Text fontSize="lg" fontWeight="bold">Code test:</Text>
+                  <IconButton
+                    aria-label="Edit"
+                    icon={<MdEdit />}
+                    ml={2}
+                    size="sm"
+                    onClick={() => handleEdit("testCode")}
+                  />
+                </Flex>
+
+                {editField === "testCode" ? (
+                  <Editor
+                  height="400px"
+                  language="cpp"
+                  value={editableValues.testCode || ""}
+                  onChange={(value) => handleInputChange("testCode", value)}
+                  theme="vs"
+                  options={{
+                    selectOnLineNumbers: true,
+                    minimap: { enabled: false },
+                    lineNumbers: "on",
+                    wordWrap: "on",
+                    automaticLayout: true,
+                  }}
+                  />
+                ) : (
+                  <Box p={2} bg="gray.100" borderRadius="md" overflowX="auto">
+                    <pre>
+                      <code>{problemDetail.testCode || "Chưa có"}</code>
+                    </pre>
+                  </Box>
+                )}
               </VStack>
             </GridItem>
           </Grid>

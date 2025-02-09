@@ -30,7 +30,7 @@ export default function ProblemCreate() {
   const [problemName, setProblemName] = useState("");
   const [timeLimit, setTimeLimit] = useState("1.00");
   const [memoryLimit, setMemoryLimit] = useState("128");
-  const [testType, setTestType] = useState("OutputMatching");
+  const [testType, setTestType] = useState("Output Matching");
   const [testCompilerID, setTestCompilerID] = useState("");
   const [note, setNote] = useState("");
   const [selectedCategoryIDs, setselectedCategoryIDs] = useState([]);
@@ -183,8 +183,8 @@ export default function ProblemCreate() {
             <FormControl mb={4}>
               <FormLabel fontWeight="bold">Loại kiểm thử <Text as="span" color="red.500"> *</Text></FormLabel>
               <Select value={testType} onChange={(e) => setTestType(e.target.value)}>
-                <option value="OutputMatching">OutputMatching</option>
-                <option value="VerifyOutput">VerifyOutput</option>
+                <option value="Output Matching">Output Matching</option>
+                <option value="Validate Output">Validate Output</option>
               </Select>
             </FormControl>
 
