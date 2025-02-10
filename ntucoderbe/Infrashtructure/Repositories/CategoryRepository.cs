@@ -44,9 +44,9 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
         public async Task<CategoryDTO> CreateCategoryAsync(CategoryDTO dto)
         {
-            if (await IsCategoryNameExistAsync(dto.CatName))
+            if (await IsCategoryNameExistAsync(dto.CatName!))
             {
-                throw new InvalidOperationException("Tên danh mục đã tồn tại.");
+                throw new InvalidOperationException("Tên thể loại đã tồn tại.");
             }
             if (dto.CatOrder <= 0)
             {
@@ -55,7 +55,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             var category = new Category
             {
                 CatName = dto.CatName,
-                CatOrder = dto.CatOrder
+                CatOrder = dto.CatOrder ?? 0
             };
 
             _context.Categories.Add(category);
@@ -74,7 +74,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             var category = await _context.Categories.FirstOrDefaultAsync(c => c.CategoryID == id);
             if (category == null)
             {
-                throw new KeyNotFoundException("Không tìm thấy danh mục.");
+                throw new KeyNotFoundException("Không tìm thấy thể loại.");
             }
 
             return new CategoryDTO
@@ -99,7 +99,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             }
             if (dto.CatOrder != default)
             {
-                category.CatOrder = dto.CatOrder;
+                category.CatOrder = dto.CatOrder?? 0;
             }
 
             _context.Categories.Update(category);

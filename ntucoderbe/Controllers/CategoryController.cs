@@ -1,4 +1,5 @@
 ﻿using AddressManagementSystem.Infrashtructure.Helpers;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
@@ -35,9 +36,9 @@ namespace ntucoderbe.Controllers
                 var createdCategory = await _categoryService.CreateCategoryAsync(dto);
                 return CreatedAtAction(nameof(GetCategoryById), new { id = createdCategory.CategoryID }, createdCategory);
             }
-            catch (ArgumentException ex)
+            catch (ValidationException ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new { Errors = ex.Errors.Select(e => e.ErrorMessage).ToList() });
             }
             catch (InvalidOperationException ex)
             {
@@ -75,12 +76,30 @@ namespace ntucoderbe.Controllers
         {
             try
             {
-                await _categoryService.DeleteCategoryAsync(id);
-                return NoContent();
+                var isDeleted = await _categoryService.DeleteCategoryAsync(id);
+
+                if (isDeleted)
+                {
+                    return Ok(new
+                    {
+                        Message = "Xóa bài tập thành công."
+                    });
+                }
+                else
+                {
+                    return NotFound(new
+                    {
+                        Message = "Không tìm thấy bài tập với ID được cung cấp."
+                    });
+                }
             }
-            catch (KeyNotFoundException ex)
+            catch (Exception ex)
             {
-                return NotFound(new { message = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Message = "Có lỗi xảy ra khi xóa bài tập.",
+                    Error = ex.Message
+                });
             }
         }
     }

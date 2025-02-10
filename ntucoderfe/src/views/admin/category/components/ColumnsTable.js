@@ -20,31 +20,42 @@ import {
   ModalCloseButton,
   ModalBody,
   ModalFooter,
-  useDisclosure
+  useDisclosure,
+  Input
 } from '@chakra-ui/react';
-import { BiSort, BiSortUp, BiSortDown, BiSolidDetail } from 'react-icons/bi';
+import { BiSort, BiEdit } from 'react-icons/bi';
 import { MdDelete } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import Card from 'components/card/Card';
 import api from 'utils/api';
 import { AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai";
 
-export default function CategoryTable({ tableData, onSort, sortField, ascending }) {
+export default function CategoryTable({ tableData, onSort, sortField, ascending, refetchData }) {
   const { colorMode } = useColorMode();
   const textColor = colorMode === 'light' ? 'black' : 'white';
   const borderColor = colorMode === 'light' ? 'gray.200' : 'whiteAlpha.300';
   const toast = useToast();
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
+  const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
   const [loading, setLoading] = useState(false);
-  const [currentID, setcurrentID] = useState(null);
+  const [currentcategoryID, setCurrentcategoryID] = useState(null);
 
+  const [editData, setEditData] = useState({ categoryID: '', catName: '', catOrder: '' });
+  const handleEditClick = (row) => {
+    setEditData(row);
+    onEditOpen();
+  };
+  const handleChange = (e) => {
+    setEditData({ ...editData, [e.target.name]: e.target.value });
+  };
   const handleDeleteClick = async () => {
     try {
       setLoading(true);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const response = await api.delete(`/Category/${currentID}`);
+      const response = await api.delete(`/Category/${currentcategoryID}`);
       if (response.status === 200) {
         toast({
           title: "Xóa thành công!",
@@ -55,7 +66,7 @@ export default function CategoryTable({ tableData, onSort, sortField, ascending 
           position: "top-right",
         });
         onClose();
-        window.location.reload();
+        refetchData();
       } else {
         throw new Error("Có lỗi xảy ra khi xóa");
       }
@@ -72,7 +83,41 @@ export default function CategoryTable({ tableData, onSort, sortField, ascending 
       setLoading(false);
     }
   };
+  const handleUpdateCategory = async () => {
+    try {
+      setLoading(true);
+      const response = await api.put(`/Category/${editData.categoryID}`, {
+        catName: editData.catName,
+        catOrder: editData.catOrder,
+      });
 
+      if (response.status === 200) {
+        toast({
+          title: "Cập nhật thành công!",
+          description: "Thể loại đã được cập nhật.",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+          position: "top-right",
+        });
+        onEditClose();
+        refetchData();
+      } else {
+        throw new Error("Có lỗi xảy ra khi cập nhật");
+      }
+    } catch (error) {
+      toast({
+        title: "Lỗi",
+        description: error.message || "Có lỗi xảy ra khi cập nhật.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top-right",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   const columnsData = [
     {
       Header: 'STT',
@@ -93,16 +138,16 @@ export default function CategoryTable({ tableData, onSort, sortField, ascending 
       accessor: 'action',
       Cell: ({ row }) => (
         <Flex gap={4} justify="center" align="center">
-          {/* <Button
+          <Button
             variant="solid"
             size="sm"
             colorScheme="facebook"
             borderRadius="md"
             minW="auto"
-            onClick={() => handleDetailClick(row.categoryID)}
+            onClick={() => handleEditClick(row)}
           >
-            <BiSolidDetail size="18" />
-          </Button> */}
+            <BiEdit size="18" />
+          </Button>
           <Button
             variant="solid"
             size="sm"
@@ -110,7 +155,7 @@ export default function CategoryTable({ tableData, onSort, sortField, ascending 
             borderRadius="md"
             minW="auto"
             onClick={() => {
-              setcurrentID(row.categoryID);
+              setCurrentcategoryID(row.categoryID);
               onOpen();
             }}
           >
@@ -133,7 +178,6 @@ export default function CategoryTable({ tableData, onSort, sortField, ascending 
       </Box>
     );
   };
-
   return (
     <>
       <Card flexDirection="column" w="100%" px="0px" overflowX={{ sm: 'scroll', lg: 'hidden' }}>
@@ -178,7 +222,6 @@ export default function CategoryTable({ tableData, onSort, sortField, ascending 
           </Table>
         </Box>
       </Card>
-
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
@@ -193,6 +236,29 @@ export default function CategoryTable({ tableData, onSort, sortField, ascending 
             </Button>
             <Button colorScheme="red" isLoading={loading} loadingText="Đang xóa..." onClick={handleDeleteClick}>
               Xóa
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={isEditOpen} onClose={onEditClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Chỉnh sửa thể loại</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Box mb={4}>
+              <Text fontSize="sm" mb={1}>Tên thể loại</Text>
+              <Input name="catName" value={editData.catName} onChange={handleChange} />
+            </Box>
+            <Box mb={4}>
+              <Text fontSize="sm" mb={1}>Sắp xếp</Text>
+              <Input name="catOrder" type="number" value={editData.catOrder} onChange={handleChange} />
+            </Box>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="gray" onClick={onEditClose}>Hủy</Button>
+            <Button colorScheme="blue" isLoading={loading} onClick={handleUpdateCategory}>
+              Lưu
             </Button>
           </ModalFooter>
         </ModalContent>
