@@ -28,15 +28,37 @@ export default function CreateCoder() {
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
+    setErrors({});
+    const inputs = { userName, coderName, coderEmail, phoneNumber, password };
+    const newErrors = {};
+    Object.keys(inputs).forEach((key) => {
+      if (!inputs[key].trim()) newErrors[key] = "Không được bỏ trống.";
+    });
+  
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (coderEmail && !emailRegex.test(coderEmail)) {
+      newErrors.coderEmail = "Email không hợp lệ.";
+    }
+  
+    const nameRegex = /^[^\d]+$/;
+    if (coderName && !nameRegex.test(coderName)) {
+      newErrors.coderName = "Họ và tên không được chứa số.";
+    }
+    const phoneRegex = /^\d{10}$/;
+    if (phoneNumber && !phoneRegex.test(phoneNumber)) {
+      newErrors.phoneNumber = "Số điện thoại phải có đúng 10 chữ số.";
+    }
+    if (password && password.length < 6) {
+      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự.";
+    }
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+  
     try {
-      const response = await api.post("/Coder/create", {
-        userName,
-        coderName,
-        coderEmail,
-        phoneNumber,
-        password,
-      });
-
+      await api.post("/Coder/create", inputs);
+  
       toast({
         title: "Thêm mới thành công!",
         status: "success",
@@ -44,20 +66,18 @@ export default function CreateCoder() {
         isClosable: true,
         position: "top-right",
       });
-
-      // Reset errors
-      setErrors({});
+  
       navigate("/admin/coder");
     } catch (error) {
       if (error.response && error.response.data.errors) {
-        const errorMap = error.response.data.errors.reduce((acc, err) => {
-          if (err.includes("Họ và tên")) acc.coderName = err;
-          if (err.includes("Tên đăng nhập")) acc.userName = err;
-          if (err.includes("Mật khẩu")) acc.password = err;
-          if (err.includes("Email")) acc.coderEmail = err;
-          if (err.includes("Số điện thoại")) acc.phoneNumber = err;
-          return acc;
-        }, {});
+        const apiErrors = error.response.data.errors;
+        const errorMap = {};
+  
+        apiErrors.forEach((err) => {
+          if (err.includes("Tên đăng nhập")) errorMap.userName = err;
+          if (err.includes("Email")) errorMap.coderEmail = err;
+        });
+  
         setErrors(errorMap);
       } else {
         toast({
@@ -70,6 +90,7 @@ export default function CreateCoder() {
       }
     }
   };
+  
 
   return (
     <Box pt={{ base: "130px", md: "80px", xl: "80px" }} px="25px">
