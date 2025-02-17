@@ -5,11 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using ntucoderbe.DTOs;
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
-using ntucoderbe.Validator;
 
 namespace ntucoderbe.Infrashtructure.Repositories
 {
-    public class BlogRepository : IBlogRepository
+    public class BlogRepository
     {
         private readonly ApplicationDbContext _context;
 
@@ -18,14 +17,11 @@ namespace ntucoderbe.Infrashtructure.Repositories
             _context = context;
         }
 
-        public async Task<BlogDTO> CreateBlogAsync(BlogDTO dto) {
-
-            var validator = new BlogValidator();
-            var validationResult = await validator.ValidateAsync(dto);
+        public async Task<BlogDTO> CreateBlogAsync(BlogDTO dto) 
+        {
             if (await CheckTitleExist(dto.Title!))
             {
-                validationResult.Errors.Add(new ValidationFailure("Title", "Tên bài viết đã tồn tại."));
-                throw new ValidationException(validationResult.Errors);
+                throw new ValidationException("Tên bài viết đã tồn tại");
             }
             var blog = new Blog
             {

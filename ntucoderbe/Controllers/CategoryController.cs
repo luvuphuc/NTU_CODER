@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
+using ntucoderbe.Infrashtructure.Repositories;
 using ntucoderbe.Infrashtructure.Services;
 
 namespace ntucoderbe.Controllers
@@ -11,17 +12,17 @@ namespace ntucoderbe.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly ICategoryService _categoryService;
+        private readonly CategoryRepository _categoryRepository;
 
-        public CategoryController(ICategoryService categoryService)
+        public CategoryController(CategoryRepository categoryRepository)
         {
-            _categoryService = categoryService;
+            _categoryRepository = categoryRepository;
         }
 
         [HttpGet("all")]
         public async Task<IActionResult> GetAllCategories([FromQuery] QueryObject query,string? sortField = null,bool ascending = true)
         {
-            var categories = await _categoryService.GetAllCategoriesAsync(query, sortField, ascending);
+            var categories = await _categoryRepository.GetAllCategoriesAsync(query, sortField, ascending);
             return Ok(categories);
         }
         [HttpPost("create")]
@@ -33,7 +34,7 @@ namespace ntucoderbe.Controllers
             }
             try
             {
-                var createdCategory = await _categoryService.CreateCategoryAsync(dto);
+                var createdCategory = await _categoryRepository.CreateCategoryAsync(dto);
                 return CreatedAtAction(nameof(GetCategoryById), new { id = createdCategory.CategoryID }, createdCategory);
             }
             catch (ValidationException ex)
@@ -50,7 +51,7 @@ namespace ntucoderbe.Controllers
         {
             try
             {
-                var category = await _categoryService.GetCategoryByIdAsync(id);
+                var category = await _categoryRepository.GetCategoryByIdAsync(id);
                 return Ok(category);
             }
             catch (KeyNotFoundException ex)
@@ -63,7 +64,7 @@ namespace ntucoderbe.Controllers
         {
             try
             {
-                var updatedCategory = await _categoryService.UpdateCategoryAsync(id, dto);
+                var updatedCategory = await _categoryRepository.UpdateCategoryAsync(id, dto);
                 return Ok(updatedCategory);
             }
             catch (KeyNotFoundException ex)
@@ -76,7 +77,7 @@ namespace ntucoderbe.Controllers
         {
             try
             {
-                var isDeleted = await _categoryService.DeleteCategoryAsync(id);
+                var isDeleted = await _categoryRepository.DeleteCategoryAsync(id);
 
                 if (isDeleted)
                 {

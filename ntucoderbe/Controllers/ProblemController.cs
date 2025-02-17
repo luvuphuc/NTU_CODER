@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
+using ntucoderbe.Infrashtructure.Repositories;
 using ntucoderbe.Infrashtructure.Services;
 
 namespace ntucoderbe.Controllers
@@ -12,11 +13,11 @@ namespace ntucoderbe.Controllers
     [ApiController]
     public class ProblemController : ControllerBase
     {
-        private readonly IProblemService _problemService;
+        private readonly ProblemRepository _problemRepository;
 
-        public ProblemController(IProblemService problemService)
+        public ProblemController(ProblemRepository problemRepository)
         {
-            _problemService = problemService;
+            _problemRepository = problemRepository;
         }
 
         [HttpGet("all")]
@@ -24,7 +25,7 @@ namespace ntucoderbe.Controllers
         {
             try
             {
-                var result = await _problemService.GetAllProblemsAsync(query, sortField, ascending);
+                var result = await _problemRepository.GetAllProblemsAsync(query, sortField, ascending);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -43,7 +44,7 @@ namespace ntucoderbe.Controllers
 
             try
             {
-                var result = await _problemService.CreateProblemAsync(dto);
+                var result = await _problemRepository.CreateProblemAsync(dto);
                 return CreatedAtAction(nameof(GetProblemById), new { id = result.ProblemID }, result);
             }
             catch (ValidationException ex)
@@ -62,7 +63,7 @@ namespace ntucoderbe.Controllers
         {
             try
             {
-                var problem = await _problemService.GetProblemByIdAsync(id);
+                var problem = await _problemRepository.GetProblemByIdAsync(id);
 
                 if (problem == null)
                 {
@@ -88,7 +89,7 @@ namespace ntucoderbe.Controllers
 
             try
             {
-                var result = await _problemService.UpdateProblemAsync(id, dto);
+                var result = await _problemRepository.UpdateProblemAsync(id, dto);
                 return Ok(result);
             }
             catch (KeyNotFoundException ex)
@@ -111,7 +112,7 @@ namespace ntucoderbe.Controllers
         {
             try
             {
-                var isDeleted = await _problemService.DeleteProblemAsync(id);
+                var isDeleted = await _problemRepository.DeleteProblemAsync(id);
 
                 if (isDeleted)
                 {

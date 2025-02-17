@@ -4,8 +4,8 @@ using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
+using ntucoderbe.Infrashtructure.Repositories;
 using ntucoderbe.Infrashtructure.Services;
-using ntucoderbe.Validator;
 
 namespace ntucoderbe.Controllers
 {
@@ -13,11 +13,11 @@ namespace ntucoderbe.Controllers
     [ApiController]
     public class CompilerController : ControllerBase
     {
-        private readonly ICompilerService _compilerService;
+        private readonly CompilerRepository _compilerRepository;
 
-        public CompilerController(ICompilerService compilerService)
+        public CompilerController(CompilerRepository compilerRepository)
         {
-            _compilerService = compilerService;
+            _compilerRepository = compilerRepository;
         }
 
         [HttpGet("all")]
@@ -26,7 +26,7 @@ namespace ntucoderbe.Controllers
         {
             try
             {
-                var result = await _compilerService.GetAllCompilersAsync(query, sortField, ascending);
+                var result = await _compilerRepository.GetAllCompilersAsync(query, sortField, ascending);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -38,7 +38,7 @@ namespace ntucoderbe.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCompilerById(int id)
         {
-            var compiler = await _compilerService.GetCompilerByIdAsync(id);
+            var compiler = await _compilerRepository.GetCompilerByIdAsync(id);
             if (compiler == null) return NotFound();
             return Ok(compiler);
         }
@@ -52,7 +52,7 @@ namespace ntucoderbe.Controllers
             }
             try
             {
-                var result = await _compilerService.CreateCompilerAsync(compilerDto);
+                var result = await _compilerRepository.CreateCompilerAsync(compilerDto);
                 return CreatedAtAction(nameof(CompilerDTO), new { id = result.CompilerID }, result);
             }
             catch (ValidationException ex)
@@ -75,7 +75,7 @@ namespace ntucoderbe.Controllers
 
             try
             {
-                var result = await _compilerService.UpdateCompilerAsync(id, compilerDto);
+                var result = await _compilerRepository.UpdateCompilerAsync(id, compilerDto);
                 return Ok(result);
             }
             catch (ValidationException ex)
@@ -99,7 +99,7 @@ namespace ntucoderbe.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCompiler(int id)
         {
-            var result = await _compilerService.DeleteCompilerAsync(id);
+            var result = await _compilerRepository.DeleteCompilerAsync(id);
             if (!result) return NotFound();
             return NoContent();
         }

@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
+using ntucoderbe.Infrashtructure.Repositories;
 using ntucoderbe.Infrashtructure.Services;
 
 namespace ntucoderbe.Controllers
@@ -11,18 +12,18 @@ namespace ntucoderbe.Controllers
     [ApiController]
     public class CoderController : ControllerBase
     {
-        private readonly ICoderService _coderService;
+        private readonly CoderRepository _coderRepository;
 
-        public CoderController(ICoderService coderService)
+        public CoderController(CoderRepository coderRepository)
         {
-            _coderService = coderService;
+            _coderRepository = coderRepository;
         }
         [HttpGet("all")]
         public async Task<IActionResult> GetAllCoders([FromQuery] QueryObject query, string? sortField = null, bool ascending = true)
         {
             try
             {
-                var result = await _coderService.GetAllCoderAsync(query, sortField, ascending);
+                var result = await _coderRepository.GetAllCoderAsync(query, sortField, ascending);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -39,7 +40,7 @@ namespace ntucoderbe.Controllers
             }
             try
             {
-                var result = await _coderService.CreateCoderAsync(dto);
+                var result = await _coderRepository.CreateCoderAsync(dto);
                 return CreatedAtAction(nameof(CreateCoder), new { id = result.CoderID }, result);
             }
             catch (ValidationException ex)
@@ -56,7 +57,7 @@ namespace ntucoderbe.Controllers
         {
             try
             {
-                var coder = await _coderService.GetCoderByIdAsync(id);
+                var coder = await _coderRepository.GetCoderByIdAsync(id);
 
                 if (coder == null)
                 {
@@ -80,7 +81,7 @@ namespace ntucoderbe.Controllers
 
             try
             {
-                var result = await _coderService.UpdateCoderAsync(id, dto);
+                var result = await _coderRepository.UpdateCoderAsync(id, dto);
                 return Ok(result);
             }
             catch (ValidationException ex)
@@ -106,7 +107,7 @@ namespace ntucoderbe.Controllers
         {
             try
             {
-                var isDeleted = await _coderService.DeleteCoderAsync(id);
+                var isDeleted = await _coderRepository.DeleteCoderAsync(id);
 
                 if (isDeleted)
                 {

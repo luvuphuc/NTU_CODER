@@ -1,13 +1,12 @@
 ﻿using AddressManagementSystem.Infrashtructure.Helpers;
 using Microsoft.EntityFrameworkCore;
-using ntuCategorybe.Infrashtructure.Repositories;
 using ntucoderbe.DTOs;
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
 
 namespace ntucoderbe.Infrashtructure.Repositories
 {
-    public class CategoryRepository : ICategoryRepository
+    public class CategoryRepository
     {
         private readonly ApplicationDbContext _context;
 

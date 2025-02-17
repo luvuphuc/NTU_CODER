@@ -6,7 +6,7 @@ using ntucoderbe.Models.ERD;
 
 namespace ntucoderbe.Infrashtructure.Repositories
 {
-    public class RoleRepository : IRoleRepository
+    public class RoleRepository
     {
         private readonly ApplicationDbContext _context;
 

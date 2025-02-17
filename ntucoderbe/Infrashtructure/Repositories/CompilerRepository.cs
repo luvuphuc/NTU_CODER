@@ -5,12 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using ntucoderbe.DTOs;
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
-using ntucoderbe.Validator;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ntucoderbe.Infrashtructure.Repositories
 {
-    public class CompilerRepository : ICompilerRepository
+    public class CompilerRepository
     {
         private readonly ApplicationDbContext _context;
 
@@ -51,12 +50,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
         }
         public async Task<CompilerDTO> CreateCompilerAsync(CompilerDTO compilerDto)
         {
-            var validator = new CompilerValidator();
-            var validationResult = await validator.ValidateAsync(compilerDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
             var compiler = new Compiler
             {
                 CompilerName = compilerDto.CompilerName!,

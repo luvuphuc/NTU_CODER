@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ntucoderbe.Infrashtructure.Repositories;
 using ntucoderbe.Infrashtructure.Services;
 
 namespace ntucoderbe.Controllers
@@ -7,17 +8,17 @@ namespace ntucoderbe.Controllers
     [ApiController]
     public class RoleController : ControllerBase
     {
-        private readonly IRoleService _roleService;
+        private readonly RoleRepository _roleRepository;
 
-        public RoleController(IRoleService roleService)
+        public RoleController(RoleRepository roleRepository)
         {
-            _roleService = roleService;
+            _roleRepository = roleRepository;
         }
         [HttpGet]
         [Route("api/role")]
         public async Task<IActionResult> GetAllRole()
         {
-            var all = await _roleService.GetRoleAllAsync();
+            var all = await _roleRepository.GetRoleAllAsync();
             return Ok(all);
         }
     }

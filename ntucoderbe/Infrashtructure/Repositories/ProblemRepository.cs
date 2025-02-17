@@ -4,7 +4,6 @@ using ntucoderbe.Models.ERD;
 using ntucoderbe.Models;
 using Microsoft.EntityFrameworkCore;
 using Humanizer;
-using ntucoderbe.Validator;
 using Newtonsoft.Json;
 using FluentValidation;
 using FluentValidation.Results;
@@ -12,7 +11,7 @@ using ntucoderbe.Infrashtructure.Services;
 
 namespace ntucoderbe.Infrashtructure.Repositories
 {
-    public class ProblemRepository : IProblemRepository
+    public class ProblemRepository
     {
         private readonly ApplicationDbContext _context;
         private readonly AuthService _authService;
@@ -57,16 +56,9 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
         public async Task<ProblemDTO> CreateProblemAsync(ProblemDTO dto)
         {
-            var validator = new ProblemValidator();
-            var validationResult = await validator.ValidateAsync(dto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
             if (await CheckProblemCodeExist(dto.ProblemCode!))
             {
-                validationResult.Errors.Add(new ValidationFailure("ProblemCode", "Mã bài tập đã tồn tại."));
-                throw new ValidationException(validationResult.Errors);
+                throw new ValidationException("Mã bài tập đã tồn tại.");
             }
             var problem = new Problem
             {
@@ -179,12 +171,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
             if (existing == null)
             {
                 throw new KeyNotFoundException("Không tìm thấy bài tập.");
-            }
-            var validator = new ProblemValidator(true);
-            var validationResult = await validator.ValidateAsync(dto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
             }
             if (!string.IsNullOrEmpty(dto.ProblemCode) && existing.ProblemCode != dto.ProblemCode)
             {

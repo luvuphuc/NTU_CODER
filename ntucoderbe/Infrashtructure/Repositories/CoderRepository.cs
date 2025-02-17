@@ -6,14 +6,13 @@ using ntucoderbe.Infrashtructure.Helpers;
 using ntucoderbe.Infrastructure.Services;
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
-using ntucoderbe.Validator;
 using System;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace ntucoderbe.Infrashtructure.Repositories
 {
-    public class CoderRepository : ICoderRepository
+    public class CoderRepository
     {
         private readonly ApplicationDbContext _context;
 
@@ -59,12 +58,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
         }
         public async Task<CreateCoderDTO> CreateCoderAsync(CreateCoderDTO dto)
         {
-            var validator = new CoderValidator();
-            var validationResult = await validator.ValidateAsync(dto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
             if (await CheckEmailExist(dto.CoderEmail!))
             {
                 throw new InvalidOperationException("Email đã tồn tại.");
@@ -162,12 +155,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
             if (existing == null)
             {
                 throw new KeyNotFoundException("Không tìm thấy.");
-            }
-            var validator = new CoderValidator(true);
-            var validationResult = await validator.ValidateAsync(dto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
             }
             if (dto.CoderName != null)
             {

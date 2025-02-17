@@ -1,7 +1,6 @@
 ﻿using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.EntityFrameworkCore;
-using ntuCategorybe.Infrashtructure.Repositories;
 using ntucoderbe.Infrashtructure.Repositories;
 using ntucoderbe.Infrashtructure.Services;
 using ntucoderbe.Models;
@@ -37,16 +36,11 @@ builder.Services.AddSwaggerGen(options=>
         {jwtSecurityScheme,Array.Empty<string>() }
     });
 });
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<IRoleService, RoleService>();
-builder.Services.AddScoped<ICoderRepository, CoderRepository>();
-builder.Services.AddScoped<ICoderService, CoderService>();
-builder.Services.AddScoped<ICompilerRepository,CompilerRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<ICompilerService,CompilerService>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
-builder.Services.AddScoped<IProblemRepository, ProblemRepository>();
-builder.Services.AddScoped<IProblemService, ProblemService>();
+builder.Services.AddScoped<RoleRepository>();
+builder.Services.AddScoped<CoderRepository>();
+builder.Services.AddScoped<CompilerRepository>();
+builder.Services.AddScoped<CategoryRepository>();
+builder.Services.AddScoped<ProblemRepository>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddCors(options =>
