@@ -71,8 +71,7 @@ namespace ntucoderbe.Migrations
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     UserName = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     ReceiveEmail = table.Column<string>(type: "longtext", nullable: true),
-                    RoleID = table.Column<int>(type: "int", nullable: false),
-                    CoderID = table.Column<int>(type: "int", nullable: false)
+                    RoleID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -547,11 +546,6 @@ namespace ntucoderbe.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Accounts_CoderID",
-                table: "Accounts",
-                column: "CoderID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Accounts_RoleID",
                 table: "Accounts",
                 column: "RoleID");
@@ -670,23 +664,11 @@ namespace ntucoderbe.Migrations
                 name: "IX_TestRuns_TestCaseID",
                 table: "TestRuns",
                 column: "TestCaseID");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Accounts_Coders_CoderID",
-                table: "Accounts",
-                column: "CoderID",
-                principalTable: "Coders",
-                principalColumn: "CoderID",
-                onDelete: ReferentialAction.Cascade);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Accounts_Coders_CoderID",
-                table: "Accounts");
-
             migrationBuilder.DropTable(
                 name: "Announcements");
 

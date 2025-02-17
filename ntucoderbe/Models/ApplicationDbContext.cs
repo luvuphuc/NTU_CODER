@@ -46,11 +46,6 @@ namespace ntucoderbe.Models
                 .IsRequired();
 
             modelBuilder.Entity<Account>()
-                .HasOne(a => a.Coder)
-                .WithOne(c => c.Account)
-                .HasForeignKey<Coder>(c => c.CoderID);
-
-            modelBuilder.Entity<Account>()
                 .Ignore(a => a.SaltMD5)
                 .Ignore(a => a.PwdResetCode)
                 .Ignore(a => a.PwdResetDate)
@@ -200,8 +195,9 @@ namespace ntucoderbe.Models
                       .HasMaxLength(100);
 
                 entity.HasOne(c => c.Account)
-                      .WithOne()
-                      .HasForeignKey<Coder>(c => c.CoderID);
+                      .WithOne(a => a.Coder) 
+                      .HasForeignKey<Coder>(c => c.CoderID)
+                      .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasMany(c => c.Blogs)
                       .WithOne(b => b.Coder)

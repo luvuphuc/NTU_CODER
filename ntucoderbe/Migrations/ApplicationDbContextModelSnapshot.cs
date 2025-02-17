@@ -25,9 +25,6 @@ namespace ntucoderbe.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("CoderID")
-                        .HasColumnType("int");
-
                     b.Property<string>("ReceiveEmail")
                         .HasColumnType("longtext")
                         .HasAnnotation("EmailAddress", true);
@@ -41,8 +38,6 @@ namespace ntucoderbe.Migrations
                         .HasColumnType("varchar(30)");
 
                     b.HasKey("AccountID");
-
-                    b.HasIndex("CoderID");
 
                     b.HasIndex("RoleID");
 
@@ -665,19 +660,11 @@ namespace ntucoderbe.Migrations
 
             modelBuilder.Entity("ntucoderbe.Models.ERD.Account", b =>
                 {
-                    b.HasOne("ntucoderbe.Models.ERD.Coder", "Coder")
-                        .WithMany()
-                        .HasForeignKey("CoderID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ntucoderbe.Models.ERD.Role", "Role")
                         .WithMany("Accounts")
                         .HasForeignKey("RoleID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Coder");
 
                     b.Navigation("Role");
                 });
@@ -707,7 +694,7 @@ namespace ntucoderbe.Migrations
             modelBuilder.Entity("ntucoderbe.Models.ERD.Coder", b =>
                 {
                     b.HasOne("ntucoderbe.Models.ERD.Account", "Account")
-                        .WithOne()
+                        .WithOne("Coder")
                         .HasForeignKey("ntucoderbe.Models.ERD.Coder", "CoderID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -941,6 +928,12 @@ namespace ntucoderbe.Migrations
                     b.Navigation("Submission");
 
                     b.Navigation("TestCase");
+                });
+
+            modelBuilder.Entity("ntucoderbe.Models.ERD.Account", b =>
+                {
+                    b.Navigation("Coder")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ntucoderbe.Models.ERD.Blog", b =>
