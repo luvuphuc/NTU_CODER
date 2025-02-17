@@ -444,6 +444,7 @@ namespace ntucoderbe.Models
                     Name = e.ToString()
                 })
             );
+
             //solved
             modelBuilder.Entity<Solved>()
                 .HasKey(s => new { s.CoderID, s.ProblemID });

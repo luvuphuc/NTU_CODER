@@ -25,25 +25,15 @@ namespace ntucoderbe.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("PwdResetCode")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("PwdResetDate")
-                        .HasColumnType("datetime(6)");
+                    b.Property<int>("CoderID")
+                        .HasColumnType("int");
 
                     b.Property<string>("ReceiveEmail")
-                        .HasColumnType("longtext");
+                        .HasColumnType("longtext")
+                        .HasAnnotation("EmailAddress", true);
 
                     b.Property<int>("RoleID")
                         .HasColumnType("int");
-
-                    b.Property<string>("SaltMD5")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -51,6 +41,8 @@ namespace ntucoderbe.Migrations
                         .HasColumnType("varchar(30)");
 
                     b.HasKey("AccountID");
+
+                    b.HasIndex("CoderID");
 
                     b.HasIndex("RoleID");
 
@@ -97,10 +89,14 @@ namespace ntucoderbe.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<int>("PinHome")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<int>("Published")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -139,7 +135,8 @@ namespace ntucoderbe.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Avatar")
-                        .HasColumnType("longtext");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("CoderEmail")
                         .IsRequired()
@@ -216,7 +213,8 @@ namespace ntucoderbe.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("CompilerExtension")
-                        .HasColumnType("longtext");
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)");
 
                     b.Property<string>("CompilerName")
                         .IsRequired()
@@ -244,6 +242,9 @@ namespace ntucoderbe.Migrations
                     b.Property<int>("CoderID")
                         .HasColumnType("int");
 
+                    b.Property<int?>("CoderID1")
+                        .HasColumnType("int");
+
                     b.Property<string>("ContestDescription")
                         .HasColumnType("longtext");
 
@@ -255,32 +256,41 @@ namespace ntucoderbe.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("EndTime")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime");
 
                     b.Property<string>("FailedPenalty")
-                        .HasColumnType("longtext");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.Property<int?>("FrozenTime")
                         .HasColumnType("int");
 
                     b.Property<int>("Published")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<string>("RankingFinished")
-                        .HasColumnType("longtext");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("RuleType")
-                        .HasColumnType("longtext");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.HasKey("ContestID");
 
                     b.HasIndex("CoderID");
+
+                    b.HasIndex("CoderID1");
 
                     b.ToTable("Contest");
                 });
@@ -293,11 +303,16 @@ namespace ntucoderbe.Migrations
                     b.Property<int>("ProblemID")
                         .HasColumnType("int");
 
+                    b.Property<int?>("CoderID1")
+                        .HasColumnType("int");
+
                     b.Property<string>("Note")
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
                     b.HasKey("CoderID", "ProblemID");
+
+                    b.HasIndex("CoderID1");
 
                     b.HasIndex("ProblemID");
 
@@ -353,7 +368,7 @@ namespace ntucoderbe.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<DateTime>("RegisterTime")
-                        .HasColumnType("datetime");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int?>("SolvedCount")
                         .HasColumnType("int");
@@ -395,8 +410,7 @@ namespace ntucoderbe.Migrations
 
                     b.Property<string>("ProblemName")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
+                        .HasColumnType("longtext");
 
                     b.Property<int>("Published")
                         .HasColumnType("int");
@@ -527,7 +541,7 @@ namespace ntucoderbe.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<DateTime>("SubmitTime")
-                        .HasColumnType("datetime");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("TakePartID")
                         .HasColumnType("int");
@@ -661,11 +675,19 @@ namespace ntucoderbe.Migrations
 
             modelBuilder.Entity("ntucoderbe.Models.ERD.Account", b =>
                 {
+                    b.HasOne("ntucoderbe.Models.ERD.Coder", "Coder")
+                        .WithMany()
+                        .HasForeignKey("CoderID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ntucoderbe.Models.ERD.Role", "Role")
                         .WithMany("Accounts")
                         .HasForeignKey("RoleID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Coder");
 
                     b.Navigation("Role");
                 });
@@ -686,7 +708,7 @@ namespace ntucoderbe.Migrations
                     b.HasOne("ntucoderbe.Models.ERD.Coder", "Coder")
                         .WithMany("Blogs")
                         .HasForeignKey("CoderID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Coder");
@@ -695,7 +717,7 @@ namespace ntucoderbe.Migrations
             modelBuilder.Entity("ntucoderbe.Models.ERD.Coder", b =>
                 {
                     b.HasOne("ntucoderbe.Models.ERD.Account", "Account")
-                        .WithOne("Coder")
+                        .WithOne()
                         .HasForeignKey("ntucoderbe.Models.ERD.Coder", "CoderID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -725,10 +747,14 @@ namespace ntucoderbe.Migrations
             modelBuilder.Entity("ntucoderbe.Models.ERD.Contest", b =>
                 {
                     b.HasOne("ntucoderbe.Models.ERD.Coder", "Coder")
-                        .WithMany("Contests")
+                        .WithMany()
                         .HasForeignKey("CoderID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ntucoderbe.Models.ERD.Coder", null)
+                        .WithMany("Contests")
+                        .HasForeignKey("CoderID1");
 
                     b.Navigation("Coder");
                 });
@@ -736,10 +762,14 @@ namespace ntucoderbe.Migrations
             modelBuilder.Entity("ntucoderbe.Models.ERD.Favourite", b =>
                 {
                     b.HasOne("ntucoderbe.Models.ERD.Coder", "Coder")
-                        .WithMany("Favourites")
+                        .WithMany()
                         .HasForeignKey("CoderID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ntucoderbe.Models.ERD.Coder", null)
+                        .WithMany("Favourites")
+                        .HasForeignKey("CoderID1");
 
                     b.HasOne("ntucoderbe.Models.ERD.Problem", "Problem")
                         .WithMany("Favourites")
@@ -929,12 +959,6 @@ namespace ntucoderbe.Migrations
                     b.Navigation("Submission");
 
                     b.Navigation("TestCase");
-                });
-
-            modelBuilder.Entity("ntucoderbe.Models.ERD.Account", b =>
-                {
-                    b.Navigation("Coder")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("ntucoderbe.Models.ERD.Blog", b =>

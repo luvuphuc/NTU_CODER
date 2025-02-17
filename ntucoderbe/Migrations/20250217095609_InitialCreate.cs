@@ -41,7 +41,7 @@ namespace ntucoderbe.Migrations
                     CompilerName = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
                     CompilerPath = table.Column<string>(type: "longtext", nullable: false),
                     CompilerOption = table.Column<int>(type: "int", nullable: false),
-                    CompilerExtension = table.Column<string>(type: "longtext", nullable: true)
+                    CompilerExtension = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -70,12 +70,9 @@ namespace ntucoderbe.Migrations
                     AccountID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     UserName = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
-                    Password = table.Column<string>(type: "longtext", nullable: false),
-                    SaltMD5 = table.Column<string>(type: "longtext", nullable: false),
-                    PwdResetCode = table.Column<string>(type: "longtext", nullable: true),
-                    PwdResetDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     ReceiveEmail = table.Column<string>(type: "longtext", nullable: true),
-                    RoleID = table.Column<int>(type: "int", nullable: false)
+                    RoleID = table.Column<int>(type: "int", nullable: false),
+                    CoderID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -97,7 +94,7 @@ namespace ntucoderbe.Migrations
                     CoderName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
                     CoderEmail = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
                     PhoneNumber = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: true),
-                    Avatar = table.Column<string>(type: "longtext", nullable: true),
+                    Avatar = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
                     Description = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime", nullable: false),
                     CreatedBy = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
@@ -126,8 +123,8 @@ namespace ntucoderbe.Migrations
                     Title = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
                     BlogDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     Content = table.Column<string>(type: "longtext", nullable: false),
-                    Published = table.Column<int>(type: "int", nullable: false),
-                    PinHome = table.Column<int>(type: "int", nullable: false),
+                    Published = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    PinHome = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     CoderID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -138,7 +135,7 @@ namespace ntucoderbe.Migrations
                         column: x => x.CoderID,
                         principalTable: "Coders",
                         principalColumn: "CoderID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -151,15 +148,16 @@ namespace ntucoderbe.Migrations
                     CoderID = table.Column<int>(type: "int", nullable: false),
                     ContestName = table.Column<string>(type: "longtext", nullable: false),
                     ContestDescription = table.Column<string>(type: "longtext", nullable: true),
-                    StartTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    EndTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    RuleType = table.Column<string>(type: "longtext", nullable: true),
-                    FailedPenalty = table.Column<string>(type: "longtext", nullable: true),
-                    Published = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "datetime", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "datetime", nullable: false),
+                    RuleType = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    FailedPenalty = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    Published = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    Status = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     Duration = table.Column<int>(type: "int", nullable: false),
-                    RankingFinished = table.Column<string>(type: "longtext", nullable: true),
-                    FrozenTime = table.Column<int>(type: "int", nullable: true)
+                    RankingFinished = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    FrozenTime = table.Column<int>(type: "int", nullable: true),
+                    CoderID1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -169,7 +167,12 @@ namespace ntucoderbe.Migrations
                         column: x => x.CoderID,
                         principalTable: "Coders",
                         principalColumn: "CoderID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Contest_Coders_CoderID1",
+                        column: x => x.CoderID1,
+                        principalTable: "Coders",
+                        principalColumn: "CoderID");
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -179,15 +182,15 @@ namespace ntucoderbe.Migrations
                 {
                     ProblemID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    ProblemName = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false),
+                    ProblemName = table.Column<string>(type: "longtext", nullable: false),
                     ProblemCode = table.Column<string>(type: "longtext", nullable: false),
-                    TimeLimit = table.Column<int>(type: "int", nullable: true),
-                    MemoryLimit = table.Column<int>(type: "int", nullable: true),
+                    TimeLimit = table.Column<float>(type: "float", nullable: false),
+                    MemoryLimit = table.Column<int>(type: "int", nullable: false),
                     ProblemContent = table.Column<string>(type: "longtext", nullable: false),
                     ProblemExplanation = table.Column<string>(type: "longtext", nullable: true),
                     TestType = table.Column<string>(type: "longtext", nullable: false),
                     TestCode = table.Column<string>(type: "longtext", nullable: false),
-                    TestProgCompile = table.Column<string>(type: "longtext", nullable: false),
+                    TestProgCompile = table.Column<string>(type: "longtext", nullable: true),
                     CoderID = table.Column<int>(type: "int", nullable: false),
                     Published = table.Column<int>(type: "int", nullable: false),
                     TestCompilerID = table.Column<int>(type: "int", nullable: false)
@@ -269,7 +272,7 @@ namespace ntucoderbe.Migrations
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     CoderID = table.Column<int>(type: "int", nullable: false),
                     ContestID = table.Column<int>(type: "int", nullable: false),
-                    RegisterTime = table.Column<DateTime>(type: "datetime", nullable: false),
+                    RegisterTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     PointScore = table.Column<int>(type: "int", nullable: true),
                     TimeScore = table.Column<int>(type: "int", nullable: true),
                     Rank = table.Column<int>(type: "int", nullable: true),
@@ -300,7 +303,8 @@ namespace ntucoderbe.Migrations
                 {
                     CoderID = table.Column<int>(type: "int", nullable: false),
                     ProblemID = table.Column<int>(type: "int", nullable: false),
-                    Note = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
+                    Note = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
+                    CoderID1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -310,7 +314,12 @@ namespace ntucoderbe.Migrations
                         column: x => x.CoderID,
                         principalTable: "Coders",
                         principalColumn: "CoderID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Favorites_Coders_CoderID1",
+                        column: x => x.CoderID1,
+                        principalTable: "Coders",
+                        principalColumn: "CoderID");
                     table.ForeignKey(
                         name: "FK_Favorites_Problems_ProblemID",
                         column: x => x.ProblemID,
@@ -355,7 +364,7 @@ namespace ntucoderbe.Migrations
                 {
                     ProblemID = table.Column<int>(type: "int", nullable: false),
                     CategoryID = table.Column<int>(type: "int", nullable: false),
-                    Note = table.Column<string>(type: "longtext", nullable: false)
+                    Note = table.Column<string>(type: "longtext", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -467,7 +476,7 @@ namespace ntucoderbe.Migrations
                     CompilerID = table.Column<int>(type: "int", nullable: false),
                     ProblemID = table.Column<int>(type: "int", nullable: false),
                     TakePartID = table.Column<int>(type: "int", nullable: false),
-                    SubmitTime = table.Column<DateTime>(type: "datetime", nullable: false),
+                    SubmitTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     SubmissionCode = table.Column<string>(type: "longtext", nullable: false),
                     SubmissionStatus = table.Column<int>(type: "int", nullable: false),
                     SubmitLineCount = table.Column<int>(type: "int", nullable: true),
@@ -550,6 +559,11 @@ namespace ntucoderbe.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Accounts_CoderID",
+                table: "Accounts",
+                column: "CoderID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Accounts_RoleID",
                 table: "Accounts",
                 column: "RoleID");
@@ -578,6 +592,16 @@ namespace ntucoderbe.Migrations
                 name: "IX_Contest_CoderID",
                 table: "Contest",
                 column: "CoderID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Contest_CoderID1",
+                table: "Contest",
+                column: "CoderID1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Favorites_CoderID1",
+                table: "Favorites",
+                column: "CoderID1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Favorites_ProblemID",
@@ -668,11 +692,23 @@ namespace ntucoderbe.Migrations
                 name: "IX_TestRuns_TestCaseID",
                 table: "TestRuns",
                 column: "TestCaseID");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Accounts_Coders_CoderID",
+                table: "Accounts",
+                column: "CoderID",
+                principalTable: "Coders",
+                principalColumn: "CoderID",
+                onDelete: ReferentialAction.Cascade);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Accounts_Coders_CoderID",
+                table: "Accounts");
+
             migrationBuilder.DropTable(
                 name: "Announcements");
 
