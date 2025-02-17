@@ -156,8 +156,7 @@ namespace ntucoderbe.Migrations
                     Status = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     Duration = table.Column<int>(type: "int", nullable: false),
                     RankingFinished = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
-                    FrozenTime = table.Column<int>(type: "int", nullable: true),
-                    CoderID1 = table.Column<int>(type: "int", nullable: true)
+                    FrozenTime = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -168,11 +167,6 @@ namespace ntucoderbe.Migrations
                         principalTable: "Coders",
                         principalColumn: "CoderID",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Contest_Coders_CoderID1",
-                        column: x => x.CoderID1,
-                        principalTable: "Coders",
-                        principalColumn: "CoderID");
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -303,8 +297,7 @@ namespace ntucoderbe.Migrations
                 {
                     CoderID = table.Column<int>(type: "int", nullable: false),
                     ProblemID = table.Column<int>(type: "int", nullable: false),
-                    Note = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    CoderID1 = table.Column<int>(type: "int", nullable: true)
+                    Note = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -315,11 +308,6 @@ namespace ntucoderbe.Migrations
                         principalTable: "Coders",
                         principalColumn: "CoderID",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Favorites_Coders_CoderID1",
-                        column: x => x.CoderID1,
-                        principalTable: "Coders",
-                        principalColumn: "CoderID");
                     table.ForeignKey(
                         name: "FK_Favorites_Problems_ProblemID",
                         column: x => x.ProblemID,
@@ -592,16 +580,6 @@ namespace ntucoderbe.Migrations
                 name: "IX_Contest_CoderID",
                 table: "Contest",
                 column: "CoderID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Contest_CoderID1",
-                table: "Contest",
-                column: "CoderID1");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Favorites_CoderID1",
-                table: "Favorites",
-                column: "CoderID1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Favorites_ProblemID",

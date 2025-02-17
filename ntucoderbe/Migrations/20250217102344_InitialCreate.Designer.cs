@@ -11,7 +11,7 @@ using ntucoderbe.Models;
 namespace ntucoderbe.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250217095609_InitialCreate")]
+    [Migration("20250217102344_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -245,9 +245,6 @@ namespace ntucoderbe.Migrations
                     b.Property<int>("CoderID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CoderID1")
-                        .HasColumnType("int");
-
                     b.Property<string>("ContestDescription")
                         .HasColumnType("longtext");
 
@@ -293,8 +290,6 @@ namespace ntucoderbe.Migrations
 
                     b.HasIndex("CoderID");
 
-                    b.HasIndex("CoderID1");
-
                     b.ToTable("Contest");
                 });
 
@@ -306,16 +301,11 @@ namespace ntucoderbe.Migrations
                     b.Property<int>("ProblemID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CoderID1")
-                        .HasColumnType("int");
-
                     b.Property<string>("Note")
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
                     b.HasKey("CoderID", "ProblemID");
-
-                    b.HasIndex("CoderID1");
 
                     b.HasIndex("ProblemID");
 
@@ -750,14 +740,10 @@ namespace ntucoderbe.Migrations
             modelBuilder.Entity("ntucoderbe.Models.ERD.Contest", b =>
                 {
                     b.HasOne("ntucoderbe.Models.ERD.Coder", "Coder")
-                        .WithMany()
+                        .WithMany("Contests")
                         .HasForeignKey("CoderID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("ntucoderbe.Models.ERD.Coder", null)
-                        .WithMany("Contests")
-                        .HasForeignKey("CoderID1");
 
                     b.Navigation("Coder");
                 });
@@ -765,14 +751,10 @@ namespace ntucoderbe.Migrations
             modelBuilder.Entity("ntucoderbe.Models.ERD.Favourite", b =>
                 {
                     b.HasOne("ntucoderbe.Models.ERD.Coder", "Coder")
-                        .WithMany()
+                        .WithMany("Favourites")
                         .HasForeignKey("CoderID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("ntucoderbe.Models.ERD.Coder", null)
-                        .WithMany("Favourites")
-                        .HasForeignKey("CoderID1");
 
                     b.HasOne("ntucoderbe.Models.ERD.Problem", "Problem")
                         .WithMany("Favourites")

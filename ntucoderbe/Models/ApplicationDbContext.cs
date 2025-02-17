@@ -224,12 +224,14 @@ namespace ntucoderbe.Models
                       .HasForeignKey(p => p.CoderID);
 
                 entity.HasMany(c => c.Contests)
-                      .WithOne(co => co.Coder)
-                      .HasForeignKey(co => co.CoderID);
+                       .WithOne(co => co.Coder)
+                       .HasForeignKey(co => co.CoderID)
+                       .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasMany(c => c.Favourites)
                       .WithOne(f => f.Coder)
-                      .HasForeignKey(f => f.CoderID);
+                      .HasForeignKey(f => f.CoderID)
+                      .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasMany(c => c.Participations)
                       .WithOne(p => p.Coder)
@@ -274,7 +276,7 @@ namespace ntucoderbe.Models
                       .HasColumnType("int");
 
                 entity.HasOne(c => c.Coder)
-                      .WithMany()
+                      .WithMany(c =>c.Contests)
                       .HasForeignKey(c => c.CoderID)
                       .OnDelete(DeleteBehavior.Restrict);
 
@@ -300,7 +302,7 @@ namespace ntucoderbe.Models
                       .HasMaxLength(50);
 
                 entity.HasOne(f => f.Coder)
-                      .WithMany()
+                      .WithMany(c=> c.Favourites)
                       .HasForeignKey(f => f.CoderID)
                       .OnDelete(DeleteBehavior.Restrict);
 
