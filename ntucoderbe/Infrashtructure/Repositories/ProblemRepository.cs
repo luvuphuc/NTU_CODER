@@ -8,16 +8,18 @@ using ntucoderbe.Validator;
 using Newtonsoft.Json;
 using FluentValidation;
 using FluentValidation.Results;
+using ntucoderbe.Infrashtructure.Services;
 
 namespace ntucoderbe.Infrashtructure.Repositories
 {
     public class ProblemRepository : IProblemRepository
     {
         private readonly ApplicationDbContext _context;
-
-        public ProblemRepository(ApplicationDbContext context)
+        private readonly AuthService _authService;
+        public ProblemRepository(ApplicationDbContext context, AuthService authService)
         {
             _context = context;
+            _authService = authService;
         }
 
         public async Task<PagedResponse<ProblemDTO>> GetAllProblemsAsync(QueryObject query, string? sortField = null, bool ascending = true)
@@ -76,11 +78,11 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 ProblemExplanation = dto.ProblemExplanation!,
                 TestType = dto.TestType!,
                 TestCode = dto.TestCode!,
-                CoderID = dto.CoderID ?? 10,
+                CoderID = _authService.GetUserIdFromSession()!.Value,
                 Published = 0,
                 TestCompilerID = dto.TestCompilerID ?? 1!,
                 TestProgCompile = dto.TestProgCompile
-            };
+            };;
 
             _context.Problems.Add(problem);
             await _context.SaveChangesAsync();

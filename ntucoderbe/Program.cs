@@ -5,8 +5,10 @@ using ntuCategorybe.Infrashtructure.Repositories;
 using ntucoderbe.Infrashtructure.Repositories;
 using ntucoderbe.Infrashtructure.Services;
 using ntucoderbe.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -14,7 +16,27 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options=>
+{
+    var jwtSecurityScheme = new OpenApiSecurityScheme
+    {
+        BearerFormat = "JWT",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = JwtBearerDefaults.AuthenticationScheme,
+        Reference = new OpenApiReference
+        {
+            Id = JwtBearerDefaults.AuthenticationScheme,
+            Type = ReferenceType.SecurityScheme,
+        }
+    };
+    options.AddSecurityDefinition("Bearer",jwtSecurityScheme);
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {jwtSecurityScheme,Array.Empty<string>() }
+    });
+});
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<ICoderRepository, CoderRepository>();
@@ -25,6 +47,8 @@ builder.Services.AddScoped<ICompilerService,CompilerService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProblemRepository, ProblemRepository>();
 builder.Services.AddScoped<IProblemService, ProblemService>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<AuthService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowMyOrigin", builder =>
@@ -34,6 +58,36 @@ builder.Services.AddCors(options =>
                .AllowAnyMethod();
     });
 });
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+builder.Services.AddAuthentication(options =>
+{ 
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    }).AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false;
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtConfig:SecretKey"]!)),
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidIssuer = builder.Configuration["JwtConfig:Issuer"],
+            ValidAudience = builder.Configuration["JwtConfig:Audience"]
+        };
+});
+
+builder.Services.AddAuthorization();
+
 //check connectionstring
 var conString = builder.Configuration.GetConnectionString("DefaultConnection") ??
      throw new InvalidOperationException("Connection string 'DefaultConnection'" +
@@ -55,9 +109,9 @@ FirebaseApp.Create(new AppOptions
 });
 app.UseCors("AllowMyOrigin");
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseSession();
 app.MapControllers();
 
 app.Run();
