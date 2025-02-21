@@ -16,6 +16,7 @@ import ProblemIndex from 'views/admin/problem';
 import ProblemDetail from 'views/admin/problem/components/Detail';
 import ProblemCreate from 'views/admin/problem/components/Create';
 import CompilerIndex from 'views/admin/compiler';
+import ProblemPage from 'views/user/problem/problem';
 const routes = [
   {
     name: 'Người dùng',
@@ -84,6 +85,48 @@ const routes = [
     ),
     secondary: true,
     component: <CompilerIndex/>
+  },
+  {
+    name: 'TRANG CHỦ',
+    layout: '/user',
+    path: '/',
+    secondary: true,
+    component: <ProblemPage/>
+  },
+  {
+    name: 'BÀI TẬP',
+    layout: '/user',
+    path: '/problem',
+    secondary: true,
+    component: <ProblemPage/>
+  },
+  {
+    name: 'KÌ THI',
+    layout: '/user',
+    path: '/contest',
+    secondary: true,
+    component: <ProblemPage/>
+  },
+  {
+    name: 'HỎI & ĐÁP',
+    layout: '/user',
+    path: '/question',
+    secondary: true,
+    component: <ProblemPage/>
+  },
+  {
+    name: 'BẢNG CHẤM BÀI',
+    layout: '/user',
+    path: '/submisstion',
+    secondary: true,
+    component: <ProblemPage/>
+  },
+  {
+    name: 'BÀI VIẾT',
+    layout: '/user',
+    path: '/blog',
+    secondary: true,
+    component: <ProblemPage/>
   },
 ];
 
