@@ -44,16 +44,16 @@ namespace ntucoderbe.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCompiler(CompilerDTO compilerDto)
+        public async Task<IActionResult> CreateCoder([FromBody] CompilerDTO dto)
         {
-            if (compilerDto == null)
+            if (dto == null)
             {
                 return BadRequest(new { Errors = new List<string> { "Dữ liệu không hợp lệ." } });
             }
             try
             {
-                var result = await _compilerRepository.CreateCompilerAsync(compilerDto);
-                return CreatedAtAction(nameof(CompilerDTO), new { id = result.CompilerID }, result);
+                var result = await _compilerRepository.CreateCompilerAsync(dto);
+                return CreatedAtAction(nameof(CreateCoder), new { id = result.CompilerID }, result);
             }
             catch (ValidationException ex)
             {
@@ -99,9 +99,26 @@ namespace ntucoderbe.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCompiler(int id)
         {
-            var result = await _compilerRepository.DeleteCompilerAsync(id);
-            if (!result) return NotFound();
-            return NoContent();
+            try
+            {
+                var isDeleted = await _compilerRepository.DeleteCompilerAsync(id);
+
+                if (isDeleted)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Error = ex.Message
+                });
+            }
         }
     }
 }

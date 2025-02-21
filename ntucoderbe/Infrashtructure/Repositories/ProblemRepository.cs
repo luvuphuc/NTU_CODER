@@ -24,7 +24,9 @@ namespace ntucoderbe.Infrashtructure.Repositories
         public async Task<PagedResponse<ProblemDTO>> GetAllProblemsAsync(QueryObject query, string? sortField = null, bool ascending = true)
         {
             var problemQuery = _context.Problems
-                .Include(p=>p.Coder)
+                .Include(p => p.Coder)
+                .Include(p => p.ProblemCategories)
+                    .ThenInclude(pc => pc.Category)
                 .Select(p => new ProblemDTO
                 {
                     ProblemID = p.ProblemID,
@@ -33,7 +35,10 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     TestType = p.TestType,
                     Published = p.Published,
                     CoderID = p.CoderID,
-                    CoderName = p.Coder.CoderName
+                    CoderName = p.Coder.CoderName,
+                    ProblemContent = p.ProblemContent,
+                    SelectedCategoryIDs = p.ProblemCategories.Select(pc => pc.CategoryID).ToList(),
+                    SelectedCategoryNames = p.ProblemCategories.Select(pc => pc.Category.CatName).ToList()
                 });
 
             problemQuery = ApplySorting(problemQuery, sortField, ascending);
@@ -43,6 +48,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 query.PageSize);
             return problems;
         }
+
 
         public IQueryable<ProblemDTO> ApplySorting(IQueryable<ProblemDTO> query, string? sortField, bool ascending)
         {
@@ -70,7 +76,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 ProblemExplanation = dto.ProblemExplanation!,
                 TestType = dto.TestType!,
                 TestCode = dto.TestCode!,
-                CoderID = _authService.GetUserIdFromSession()!.Value,
+                CoderID = 1,
                 Published = 0,
                 TestCompilerID = dto.TestCompilerID ?? 1!,
                 TestProgCompile = dto.TestProgCompile
