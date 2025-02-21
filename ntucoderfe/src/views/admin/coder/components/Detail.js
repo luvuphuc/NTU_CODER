@@ -313,7 +313,7 @@ const CoderDetail = () => {
             <GridItem>
               <VStack align="stretch" spacing={4}>
                 <Text fontSize="lg">
-                <strong>Ngày tạo:</strong> {moment.utc(coderDetail.updatedAt).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY HH:mm:ss')}
+                <strong>Ngày tạo:</strong> {moment.utc(coderDetail.createdAt).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY HH:mm:ss')}
                 </Text>
                 <Text fontSize="lg">
                   <strong>Người tạo:</strong> {coderDetail.createdBy}

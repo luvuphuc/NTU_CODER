@@ -20,7 +20,8 @@ import {
   ModalCloseButton,
   ModalBody,
   ModalFooter,
-  useDisclosure
+  useDisclosure,
+  Switch
 } from '@chakra-ui/react';
 import { BiSort, BiSortUp, BiSortDown, BiSolidDetail } from 'react-icons/bi';
 import { MdDelete } from 'react-icons/md';
@@ -37,10 +38,46 @@ export default function CompilerTable({ tableData, onSort, sortField, ascending,
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(false);
-  const [currentcompiler, setCurrentcompiler] = useState(null);
+  const [currentcompilerID, setcurrentcompilerID] = useState(null);
+  const handleTogglePublished = async (compilerID, currentValue) => {
+    try {
+      const newValue = currentValue === 0 ? 1 : 0;
+      const updatedTableData = tableData.map(compiler =>
+        compiler.compilerID === compilerID ? { ...compiler, published: newValue } : compiler
+      );
+    
+      refetchData(updatedTableData);
 
-  const handleDetailClick = (compiler) => {
-    navigate(`/admin/compiler/detail/${compiler}`);
+      const response = await api.put(`/Compiler/${compilerID}`, { published: newValue });
+    
+      if (response.status === 200) {
+        toast({
+          title: "Cập nhật thành công!",
+          description: `Trạng thái đã được cập nhật.`,
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+          position: "top-right",
+        });
+        refetchData();
+      } else {
+        throw new Error("Có lỗi xảy ra khi cập nhật trạng thái.");
+      }
+    } catch (error) {
+      const revertedTableData = tableData.map(compiler =>
+        compiler.compilerID === compilerID ? { ...compiler, published: currentValue } : compiler
+      );
+      refetchData(revertedTableData);
+    
+      toast({
+        title: "Lỗi",
+        description: error.message || "Có lỗi xảy ra khi cập nhật trạng thái.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top-right",
+      });
+    }
   };
 
   const handleDeleteClick = async () => {
@@ -48,11 +85,11 @@ export default function CompilerTable({ tableData, onSort, sortField, ascending,
       setLoading(true);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const response = await api.delete(`/Compiler/${currentcompiler}`);
+      const response = await api.delete(`/Compiler/${currentcompilerID}`);
       if (response.status === 200) {
         toast({
           title: "Xóa thành công!",
-          description: "Trình biên dịch đã bị xóa.",
+          description: "Bài tập đã bị xóa.",
           status: "success",
           duration: 5000,
           isClosable: true,
@@ -87,6 +124,7 @@ export default function CompilerTable({ tableData, onSort, sortField, ascending,
     {
       Header: 'Tên trình biên dịch',
       accessor: 'compilerName',
+      sortField: 'compilerName',
     },
     {
       Header: 'Đường dẫn',
@@ -108,21 +146,11 @@ export default function CompilerTable({ tableData, onSort, sortField, ascending,
           <Button
             variant="solid"
             size="sm"
-            colorScheme="facebook"
-            borderRadius="md"
-            minW="auto"
-            onClick={() => handleDetailClick(row.compiler)}
-          >
-            <BiSolidDetail size="18" />
-          </Button>
-          <Button
-            variant="solid"
-            size="sm"
             colorScheme="red"
             borderRadius="md"
             minW="auto"
             onClick={() => {
-              setCurrentcompiler(row.compiler);
+              setcurrentcompilerID(row.compilerID);
               onOpen();
             }}
           >
@@ -134,17 +162,23 @@ export default function CompilerTable({ tableData, onSort, sortField, ascending,
   ];
 
   const renderSortIcon = (field) => {
-    if (sortField !== field) return <BiSort size="18px" />;
-    return ascending ? (
+    return sortField === field ? (
+      ascending ? (
+        <Box as="span" fontWeight="bold">
+          <AiOutlineSortAscending size="20px" />
+        </Box>
+      ) : (
+        <Box as="span" fontWeight="bold">
+          <AiOutlineSortDescending size="20px" />
+        </Box>
+      )
+    ) : (
       <Box as="span" fontWeight="bold">
         <AiOutlineSortAscending size="20px" />
       </Box>
-    ) : (
-      <Box as="span" fontWeight="bold">
-        <AiOutlineSortDescending size="20px" />
-      </Box>
     );
   };
+  
 
   return (
     <>
@@ -164,9 +198,9 @@ export default function CompilerTable({ tableData, onSort, sortField, ascending,
                         <Text fontSize={{ sm: '10px', lg: '12px' }} fontWeight="bold" color={textColor}>
                           {column.Header}
                         </Text>
-                        {column.accessor === 'compilerName' && onSort && (
-                          <Box onClick={() => onSort(column.accessor)} cursor="pointer">
-                            {renderSortIcon(column.accessor)}
+                        {column.sortField && onSort && (
+                          <Box onClick={() => onSort(column.sortField)} cursor="pointer">
+                            {renderSortIcon(column.sortField)}
                           </Box>
                         )}
                       </Flex>
@@ -194,7 +228,6 @@ export default function CompilerTable({ tableData, onSort, sortField, ascending,
           )}
         </Box>
       </Card>
-
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
@@ -216,3 +249,4 @@ export default function CompilerTable({ tableData, onSort, sortField, ascending,
     </>
   );
 }
+

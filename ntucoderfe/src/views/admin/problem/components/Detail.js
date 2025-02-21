@@ -25,6 +25,7 @@ import 'react-quill/dist/quill.snow.css';
 import Editor from "@monaco-editor/react";
 const ProblemDetail = () => {
   const { id } = useParams();
+  const [errors, setErrors] = useState({});
   const [problemDetail, setProblemDetail] = useState(null);
   const [editField, setEditField] = useState(null);
   const [editableValues, setEditableValues] = useState({});
@@ -80,31 +81,63 @@ const ProblemDetail = () => {
   };
 
   const handleSave = async () => {
+    setErrors({});
+    const { problemCode, problemName, timeLimit, memoryLimit, problemContent, problemExplanation, testCode, testCompilerID } = editableValues;
+    const inputs = { problemCode, problemName, timeLimit, memoryLimit, problemContent, problemExplanation, testCode, testCompilerID, selectedCategoryIDs };
+    
+    const newErrors = {};
+    const problemCodeRegex = /^[A-Za-z0-9]+$/;
+  
+    // Kiểm tra problemCode
+    if (!problemCode.match(problemCodeRegex)) {
+      newErrors.problemCode = "Mã bài toán chỉ chấp nhận chữ và số.";
+    }
+  
+    // Kiểm tra timeLimit và memoryLimit
+    if (parseFloat(timeLimit) <= 0) {
+      newErrors.timeLimit = "Giới hạn thời gian phải lớn hơn 0.";
+    }
+    if (parseFloat(memoryLimit) <= 0) {
+      newErrors.memoryLimit = "Giới hạn bộ nhớ phải lớn hơn 0.";
+    }
+  
+    // Kiểm tra không bỏ trống
+    Object.keys(inputs).forEach((key) => {
+      if (!inputs[key] || (Array.isArray(inputs[key]) && inputs[key].length === 0)) {
+        newErrors[key] = "Không được bỏ trống.";
+      }
+    });
+  
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      Object.values(newErrors).forEach((msg) => {
+        toast({
+          title: "Lỗi xác thực",
+          description: msg,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top-right",
+        });
+      });
+      return;
+    }
+  
     try {
-      const formData = new FormData();
-      formData.append("ProblemID", id);
-      Object.keys(editableValues).forEach((field) => {
-        if (editableValues[field] !== problemDetail[field]) {
-          formData.append(field, editableValues[field]);
-        }
-      });
-      const updatedValues = { 
-        ...editableValues, 
-        selectedCategoryIDs 
-      };
+      const updatedValues = { ...editableValues, selectedCategoryIDs };
       await api.put(`/Problem/${id}`, updatedValues, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
+  
       setProblemDetail((prev) => ({
         ...prev,
         ...editableValues,
-        testCompilerName: compilers.find(c => c.compilerID == testCompilerID)?.compilerName || prev.testCompilerName,
+        testCompilerName: compilers.find((c) => c.compilerID == testCompilerID)?.compilerName || prev.testCompilerName,
         selectedCategoryNames: categories
-        .filter((cat) => selectedCategoryIDs.includes(cat.categoryID))
-        .map((cat) => cat.catName),
+          .filter((cat) => selectedCategoryIDs.includes(cat.categoryID))
+          .map((cat) => cat.catName),
       }));
+  
       setEditField(null);
       toast({
         title: "Cập nhật thành công!",
@@ -114,9 +147,18 @@ const ProblemDetail = () => {
         position: "top-right",
       });
     } catch (error) {
-      const errorMessage = error.response?.data?.errors;
-      if (Array.isArray(errorMessage)) {
-        errorMessage.forEach((msg, index) => {
+      console.error("Lỗi cập nhật:", error);
+      
+      if (error.response && error.response.data.errors) {
+        const errorMessages = error.response.data.errors;
+        const newErrors = {};
+        
+        if (errorMessages.some((errorMessage) => errorMessage.includes('Mã bài tập'))) {
+          newErrors.problemCode = errorMessages.find((errorMessage) => errorMessage.includes('Mã bài tập'));
+        }
+  
+        setErrors(newErrors);
+        Object.values(newErrors).forEach((msg) => {
           toast({
             title: "Lỗi khi cập nhật.",
             description: msg,
@@ -124,7 +166,6 @@ const ProblemDetail = () => {
             duration: 3000,
             isClosable: true,
             position: "top-right",
-            key: index,
           });
         });
       } else {
@@ -139,6 +180,7 @@ const ProblemDetail = () => {
       }
     }
   };
+  
   
   if (!problemDetail) {
     return <Text>Loading...</Text>;

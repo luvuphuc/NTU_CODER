@@ -63,6 +63,40 @@ export default function ProblemCreate() {
   }, []);
 
   const handleSubmit = async () => {
+    setErrors({});
+    const inputs = { 
+      problemName, 
+      problemCode, 
+      timeLimit, 
+      memoryLimit, 
+      problemContent, 
+      problemExplanation, 
+      testCode, 
+      testCompilerID, 
+      selectedCategoryIDs 
+    };
+    
+    const newErrors = {};
+    const problemCodeRegex = /^[A-Za-z0-9]+$/;
+    if (!problemCode.match(problemCodeRegex)) {
+      newErrors.problemCode = "Mã bài toán chỉ chấp nhận chữ và số.";
+    }
+    if (parseFloat(timeLimit) <= 0) {
+      newErrors.timeLimit = "Giới hạn thời gian phải lớn hơn 0.";
+    }
+    if (parseFloat(memoryLimit) <= 0) {
+      newErrors.memoryLimit = "Giới hạn bộ nhớ phải lớn hơn 0.";
+    }
+    Object.keys(inputs).forEach((key) => {
+      if (!inputs[key] || (Array.isArray(inputs[key]) && inputs[key].length === 0)) {
+        newErrors[key] = "Không được bỏ trống.";
+      }
+    });
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
     try {
       const response = await api.post("/Problem/create", {
         problemName,
@@ -94,17 +128,9 @@ export default function ProblemCreate() {
       if (error.response && error.response.data.errors) {
         const errorMessages = error.response.data.errors;
         const newErrors = {};
-        errorMessages.forEach((errorMessage) => {
-          if (errorMessage.includes('Tên bài tập')) newErrors.problemName = errorMessage;
-          if (errorMessage.includes('Mã bài tập')) newErrors.problemCode = errorMessage;
-          if (errorMessage.includes('Giới hạn thời gian')) newErrors.timeLimit = errorMessage;
-          if (errorMessage.includes('Giới hạn bộ nhớ')) newErrors.memoryLimit = errorMessage;
-          if (errorMessage.includes('Nội dung')) newErrors.problemContent = errorMessage;
-          if (errorMessage.includes('Giải thích bài tập')) newErrors.problemExplanation = errorMessage;
-          if (errorMessage.includes('Mã kiểm tra')) newErrors.testCode = errorMessage;
-          if (errorMessage.includes('Ghi chú')) newErrors.note = errorMessage;
-        });
-  
+        if (errorMessages.some((errorMessage) => errorMessage.includes('Mã bài tập'))) {
+          newErrors.problemCode = errorMessages.find((errorMessage) => errorMessage.includes('Mã bài tập'));
+        }        
         setErrors(newErrors);
       } else {
         toast({
