@@ -11,8 +11,10 @@ import {
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons'
 import logo from '../../../assets/img/ntu-coders.png';
 import { DesktopNav,MobileNav } from '../navbar/navigation';
+import { Link, useLocation } from 'react-router-dom';
 export default function Header() {
-const { isOpen, onToggle } = useDisclosure()
+    const location = useLocation();
+    const { isOpen, onToggle } = useDisclosure()
     return (
         <Box
         bg={useColorModeValue('white', 'gray.800')}
@@ -52,8 +54,9 @@ const { isOpen, onToggle } = useDisclosure()
                 justify={'flex-end'}
                 direction={'row'}
                 spacing={6}>
-                <Button as={'a'} _hover={{ textDecoration: "none" }} fontSize={'md'} fontWeight={400} variant={'link'} href={'#'}>
-                Đăng nhập
+                
+                <Button as={'a'} _hover={{ textDecoration: "none" }} fontSize={'md'} fontWeight={400} variant={'link'}><Link to="/login">
+                Đăng nhập</Link>
                 </Button>
                 <Button
                 as={'a'} 

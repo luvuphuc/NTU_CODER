@@ -21,6 +21,8 @@ import React from 'react';
 import { MdNotificationsNone} from 'react-icons/md';
 import { IoMdMoon, IoMdSunny } from 'react-icons/io';
 import routes from 'routes';
+import api from 'utils/api';
+import { useNavigate } from 'react-router-dom';
 export default function HeaderLinks(props) {
   const { secondary } = props;
   const { colorMode, toggleColorMode } = useColorMode();
@@ -37,6 +39,20 @@ export default function HeaderLinks(props) {
     '14px 17px 40px 4px rgba(112, 144, 176, 0.18)',
     '14px 17px 40px 4px rgba(112, 144, 176, 0.06)',
   );
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      const response = await api.get('/Auth/logout', {}, { withCredentials: true });
+      console.log(response);
+      if (response.status === 200) {
+        localStorage.removeItem('token');
+        navigate('/');
+      }
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
   return (
     <Flex
       w={{ sm: '100%', md: 'auto' }}
@@ -193,8 +209,9 @@ export default function HeaderLinks(props) {
               color="red.400"
               borderRadius="8px"
               px="14px"
+              onClick={handleLogout}
             >
-              <Text fontSize="sm">Log out</Text>
+              <Text fontSize="sm" >Log out</Text>
             </MenuItem>
           </Flex>
         </MenuList>

@@ -41,7 +41,7 @@ namespace ntucoderbe.Infrashtructure.Services
 
         public string GenerateJwtToken(Account user)
         {
-            var key = Encoding.UTF8.GetBytes(_config["JwtSettings:SecretKey"]);
+            var key = Encoding.UTF8.GetBytes(_config["JwtConfig:SecretKey"]);
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.AccountID.ToString()),
@@ -51,10 +51,10 @@ namespace ntucoderbe.Infrashtructure.Services
             };
             Console.WriteLine(string.Join(", ", claims.Select(c => $"{c.Type}: {c.Value}")));
             var token = new JwtSecurityToken(
-                issuer: _config["JwtSettings:Issuer"],
-                audience: _config["JwtSettings:Audience"],
+                issuer: _config["JwtConfig:Issuer"],
+                audience: _config["JwtConfig:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_config["JwtSettings:ExpireMinutes"])),
+                expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_config["JwtConfig:ExpireMinutes"])),
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
             );
 

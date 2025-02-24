@@ -70,7 +70,11 @@ namespace ntucoderbe.Migrations
                     AccountID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     UserName = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
-                    ReceiveEmail = table.Column<string>(type: "longtext", nullable: true),
+                    Password = table.Column<string>(type: "longtext", nullable: false),
+                    SaltMD5 = table.Column<string>(type: "longtext", nullable: false),
+                    PwdResetCode = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    PwdResetDate = table.Column<DateTime>(type: "datetime", nullable: true),
+                    ReceiveEmail = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     RoleID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -291,7 +295,7 @@ namespace ntucoderbe.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Favorites",
+                name: "Favourites",
                 columns: table => new
                 {
                     CoderID = table.Column<int>(type: "int", nullable: false),
@@ -300,15 +304,15 @@ namespace ntucoderbe.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Favorites", x => new { x.CoderID, x.ProblemID });
+                    table.PrimaryKey("PK_Favourites", x => new { x.CoderID, x.ProblemID });
                     table.ForeignKey(
-                        name: "FK_Favorites_Coders_CoderID",
+                        name: "FK_Favourites_Coders_CoderID",
                         column: x => x.CoderID,
                         principalTable: "Coders",
                         principalColumn: "CoderID",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Favorites_Problems_ProblemID",
+                        name: "FK_Favourites_Problems_ProblemID",
                         column: x => x.ProblemID,
                         principalTable: "Problems",
                         principalColumn: "ProblemID",
@@ -576,8 +580,8 @@ namespace ntucoderbe.Migrations
                 column: "CoderID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Favorites_ProblemID",
-                table: "Favorites",
+                name: "IX_Favourites_ProblemID",
+                table: "Favourites",
                 column: "ProblemID");
 
             migrationBuilder.CreateIndex(
@@ -676,7 +680,7 @@ namespace ntucoderbe.Migrations
                 name: "Comments");
 
             migrationBuilder.DropTable(
-                name: "Favorites");
+                name: "Favourites");
 
             migrationBuilder.DropTable(
                 name: "HasProblems");

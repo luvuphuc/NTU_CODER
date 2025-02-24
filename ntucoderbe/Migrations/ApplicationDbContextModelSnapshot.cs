@@ -25,12 +25,27 @@ namespace ntucoderbe.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PwdResetCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTime?>("PwdResetDate")
+                        .HasColumnType("datetime");
+
                     b.Property<string>("ReceiveEmail")
-                        .HasColumnType("longtext")
-                        .HasAnnotation("EmailAddress", true);
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<int>("RoleID")
                         .HasColumnType("int");
+
+                    b.Property<string>("SaltMD5")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -301,7 +316,7 @@ namespace ntucoderbe.Migrations
 
                     b.HasIndex("ProblemID");
 
-                    b.ToTable("Favorites");
+                    b.ToTable("Favourites");
                 });
 
             modelBuilder.Entity("ntucoderbe.Models.ERD.HasProblem", b =>

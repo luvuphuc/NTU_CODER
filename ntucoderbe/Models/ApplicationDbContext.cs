@@ -15,7 +15,7 @@ namespace ntucoderbe.Models
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Compiler> Compilers { get; set; }
         public DbSet<Contest> Contest { get; set; }
-        public DbSet<Favourite> Favorites { get; set; }
+        public DbSet<Favourite> Favourites { get; set; }
         public DbSet<HasProblem> HasProblems { get; set; }
         public DbSet<Participation> Participations { get; set; }
         public DbSet<Problem> Problems { get; set; }
@@ -30,27 +30,38 @@ namespace ntucoderbe.Models
         {
 
             //Account
-            modelBuilder.Entity<Account>()
-                .HasKey(a => a.AccountID);
-            modelBuilder.Entity<Account>()
-                .Property(a => a.UserName)
-                .IsRequired()
-                .HasMaxLength(30);
-            modelBuilder.Entity<Account>()
-                .Property(a => a.ReceiveEmail)
-                .HasAnnotation("EmailAddress", true);
-            modelBuilder.Entity<Account>()
-                .HasOne(a => a.Role)
-                .WithMany()
-                .HasForeignKey(a => a.RoleID)
-                .IsRequired();
+            modelBuilder.Entity<Account>(entity =>
+            {
+                entity.HasKey(a =>a.AccountID);
 
-            modelBuilder.Entity<Account>()
-                .Ignore(a => a.SaltMD5)
-                .Ignore(a => a.PwdResetCode)
-                .Ignore(a => a.PwdResetDate)
-                .Ignore(a => a.Password);
+                entity.Property(a => a.UserName)
+                      .IsRequired()
+                      .HasMaxLength(30);
 
+                entity.Property(a=> a.Password)
+                      .IsRequired();
+
+                entity.Property(c => c.SaltMD5)
+                      .IsRequired();
+
+                entity.Property(a => a.PwdResetCode)
+               .HasMaxLength(100);
+
+                entity.Property(a => a.ReceiveEmail)
+                    .HasMaxLength(100);
+
+                entity.Property(a => a.PwdResetDate)
+                    .HasColumnType("datetime");
+                entity.HasOne(a => a.Role)
+                    .WithMany(r => r.Accounts)
+                    .HasForeignKey(a => a.RoleID)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(a => a.Coder)
+                    .WithOne(c => c.Account)
+                    .HasForeignKey<Coder>(c => c.CoderID)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
             //announcement
             modelBuilder.Entity<Announcement>()
                 .HasKey(a => a.AnnouncementID);

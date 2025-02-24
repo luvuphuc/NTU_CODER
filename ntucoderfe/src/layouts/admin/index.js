@@ -16,6 +16,7 @@ import ProblemIndex from 'views/admin/problem';
 import ProblemDetail from 'views/admin/problem/components/Detail';
 import ProblemCreate from 'views/admin/problem/components/Create';
 import CompilerIndex from 'views/admin/compiler';
+import ProtectedRoute from 'views/admin/protectedRoute';
   // Custom Chakra theme
   export default function Dashboard(props) {
     const { ...rest } = props;
@@ -172,14 +173,14 @@ import CompilerIndex from 'views/admin/compiler';
                 >
                   <Routes>
                     {getRoutes(routes)}
-                    <Route path="/coder" element={<CoderIndex />} />
-                    <Route path="/coder/create" element={<CreateCoder />} />
-                    <Route path="/coder/detail/:id" element={<CoderDetail />} />
-                    <Route path="/category" element={<CategoryIndex />} />
-                    <Route path="/problem" element={<ProblemIndex />} />
-                    <Route path="/problem/create" element={<ProblemCreate />} />
-                    <Route path="/problem/detail/:id" element={<ProblemDetail />} />
-                    <Route path="/compiler" element={<CompilerIndex />} />
+                    <Route path="/coder" element={<ProtectedRoute><CoderIndex /></ProtectedRoute>} />
+                    <Route path="/coder/create" element={<ProtectedRoute><CreateCoder /></ProtectedRoute>} />
+                    <Route path="/coder/detail/:id" element={<ProtectedRoute><CoderDetail /></ProtectedRoute>} />
+                    <Route path="/category" element={<ProtectedRoute><CategoryIndex /></ProtectedRoute>} />
+                    <Route path="/problem" element={<ProtectedRoute><ProblemIndex /></ProtectedRoute>} />
+                    <Route path="/problem/create" element={<ProtectedRoute><ProblemCreate /></ProtectedRoute>} />
+                    <Route path="/problem/detail/:id" element={<ProtectedRoute><ProblemDetail /></ProtectedRoute>} />
+                    <Route path="/compiler" element={<ProtectedRoute><CompilerIndex /></ProtectedRoute>} />
                     
                     <Route path="/" element={<Navigate to="/admin/default" replace />} />
                   </Routes>
