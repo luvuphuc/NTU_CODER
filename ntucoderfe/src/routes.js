@@ -16,7 +16,8 @@ import ProblemIndex from 'views/admin/problem';
 import ProblemDetail from 'views/admin/problem/components/Detail';
 import ProblemCreate from 'views/admin/problem/components/Create';
 import CompilerIndex from 'views/admin/compiler';
-import ProblemPage from 'views/user/problem/problem';
+import ProblemPage from 'views/user/problem/problem_list';
+import Submission from 'views/user/problem/submission';
 const routes = [
   {
     name: 'Người dùng',
@@ -98,7 +99,14 @@ const routes = [
     layout: '/user',
     path: '/problem',
     secondary: true,
-    component: <ProblemPage/>
+    component: <ProblemPage/>,
+    items:[
+      {
+        name: 'Chi tiết bài tập',
+        path: 'problem/:id',
+        component: <Submission />,
+      },
+    ]
   },
   {
     name: 'KÌ THI',
@@ -117,7 +125,7 @@ const routes = [
   {
     name: 'BẢNG CHẤM BÀI',
     layout: '/user',
-    path: '/submisstion',
+    path: '/Submission',
     secondary: true,
     component: <ProblemPage/>
   },

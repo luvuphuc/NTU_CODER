@@ -10,7 +10,7 @@ import {
   } from '@chakra-ui/react'
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons'
 import logo from '../../../assets/img/ntu-coders.png';
-import { DesktopNav,MobileNav } from '../navbar/navigation';
+import { DesktopNav,MobileNav } from './navigation';
 import { Link, useLocation } from 'react-router-dom';
 export default function Header() {
     const location = useLocation();

@@ -5,9 +5,10 @@ import { ChakraProvider } from '@chakra-ui/react';
 import HomePage from 'layouts/user';
 import initialTheme from './theme/theme'; //  { themeGreen }
 import { useState } from 'react';
-import ProblemPage from 'views/user/problem/problem';
+import ProblemPage from 'views/user/problem/problem_list';
 import LoginPage from 'views/auth/login';
 import ProtectedRoute from 'views/admin/protectedRoute';
+import Submission from 'views/user/problem/submission';
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
   return (
@@ -15,8 +16,16 @@ export default function Main() {
       <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/problem" element={<ProblemPage />} />
+      <Route path="/problem/:id" element={<Submission/>} />
       <Route path="/login" element={<LoginPage />} />
-      <Route path="admin/*" element={<ProtectedRoute element={<AdminLayout theme={currentTheme} setTheme={setCurrentTheme} />} />}></Route>
+      <Route
+          path="admin/*"
+          element={
+            <ProtectedRoute>
+              <AdminLayout theme={currentTheme} setTheme={setCurrentTheme} />
+            </ProtectedRoute>
+          }
+        />
       <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </ChakraProvider>

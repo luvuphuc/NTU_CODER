@@ -12,9 +12,9 @@ import {
   Button,
   useBreakpointValue,
 } from '@chakra-ui/react'
-import Navigation from 'views/user/navbar/navigation';
-import Header from 'views/user/header/header';
-import FooterUser from 'views/user/footer/footer';
+import Navigation from 'views/user/common/navigation';
+import Header from 'views/user/common/header';
+import FooterUser from 'views/user/common/footer';
 export default function HomePage() {
   return (
     <Box>

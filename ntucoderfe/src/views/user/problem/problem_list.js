@@ -18,12 +18,12 @@ import {
   Wrap,
   WrapItem,
 } from '@chakra-ui/react';
-import Navigation from 'views/user/navbar/navigation';
-import Header from 'views/user/header/header';
+import Navigation from '../common/navigation';
+import Header from '../common/header';
 import { IoMdHeartEmpty } from "react-icons/io";
-import FooterUser from '../footer/footer';
+import FooterUser from '../common/footer';
 import api from '../../../utils/api';
-
+import {Link} from 'react-router-dom';
 export default function ProblemPage() {
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,7 +52,6 @@ export default function ProblemPage() {
     };
     fetchProblems();
   }, []);
-
   return (
     <Box>
       <Header />
@@ -107,9 +106,11 @@ export default function ProblemPage() {
                           <Text color="gray.600" fontSize="md">{problem.problemContent}</Text>
                         </Stack>
                         <Flex align="center" ml={4}>
+                        <Link to={`/problem/${problem.problemID}`}>
                           <Button colorScheme="blue" size="md" mr={2} borderRadius="10">
                             Giải bài tập
                           </Button>
+                        </Link>
                           <IconButton
                             aria-label="Yêu thích"
                             icon={<IoMdHeartEmpty size={24} color="red" />}
