@@ -1,6 +1,4 @@
 import React from "react";
-
-// chakra imports
 import {
   Box,
   Flex,
@@ -27,13 +25,12 @@ import { IoMenuOutline } from "react-icons/io5";
 
 function Sidebar(props) {
   const { routes } = props;
-
+  const filterRoutes = routes.filter(route => !route.hidden);
   let variantChange = "0.2s linear";
   let shadow = useColorModeValue(
     "14px 17px 40px 4px rgba(112, 144, 176, 0.08)",
     "unset"
   );
-  // Chakra Color Mode
   let sidebarBg = useColorModeValue("white", "navy.800");
   let sidebarMargins = "0px";
 
@@ -54,7 +51,7 @@ function Sidebar(props) {
           renderTrackVertical={renderTrack}
           renderThumbVertical={renderThumb}
           renderView={renderView}>
-          <Content routes={routes} />
+          <Content routes={filterRoutes} />
         </Scrollbars>
       </Box>
     </Box>

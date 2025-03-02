@@ -615,14 +615,14 @@ namespace ntucoderbe.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("PreTest")
-                        .HasColumnType("longtext");
+                    b.Property<int>("PreTest")
+                        .HasColumnType("int");
 
                     b.Property<int>("ProblemID")
                         .HasColumnType("int");
 
-                    b.Property<string>("SampleTest")
-                        .HasColumnType("longtext");
+                    b.Property<int>("SampleTest")
+                        .HasColumnType("int");
 
                     b.Property<int>("TestCaseOrder")
                         .HasColumnType("int");

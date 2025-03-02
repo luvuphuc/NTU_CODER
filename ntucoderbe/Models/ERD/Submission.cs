@@ -11,7 +11,7 @@
         public DateTime SubmitTime { get; set; }
         public string SubmissionCode { get; set; }
 
-        public int SubmissionStatus { get; set; } = 0;
+        public int SubmissionStatus { get; set; }
 
         public int? SubmitLineCount { get; set; }
 

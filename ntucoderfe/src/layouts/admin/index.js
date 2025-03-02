@@ -17,6 +17,7 @@ import ProblemDetail from 'views/admin/problem/components/Detail';
 import ProblemCreate from 'views/admin/problem/components/Create';
 import CompilerIndex from 'views/admin/compiler';
 import ProtectedRoute from 'views/admin/protectedRoute';
+import TestCaseIndex from 'views/admin/testcase';
   // Custom Chakra theme
   export default function Dashboard(props) {
     const { ...rest } = props;
@@ -180,6 +181,7 @@ import ProtectedRoute from 'views/admin/protectedRoute';
                     <Route path="/problem" element={<ProtectedRoute><ProblemIndex /></ProtectedRoute>} />
                     <Route path="/problem/create" element={<ProtectedRoute><ProblemCreate /></ProtectedRoute>} />
                     <Route path="/problem/detail/:id" element={<ProtectedRoute><ProblemDetail /></ProtectedRoute>} />
+                    <Route path="/testcase/:problemID" element={<ProtectedRoute><TestCaseIndex /></ProtectedRoute>} />
                     <Route path="/compiler" element={<ProtectedRoute><CompilerIndex /></ProtectedRoute>} />
                     
                     <Route path="/" element={<Navigate to="/admin/default" replace />} />

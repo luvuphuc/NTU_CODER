@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -23,9 +23,9 @@ import {
   useDisclosure,
   Switch
 } from '@chakra-ui/react';
-import { BiSort, BiSortUp, BiSortDown, BiSolidDetail } from 'react-icons/bi';
+import { BiSolidDetail } from 'react-icons/bi';
 import { MdDelete } from 'react-icons/md';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Card from 'components/card/Card';
 import api from 'utils/api';
 import { AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai";
@@ -39,7 +39,7 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(false);
   const [currentproblemID, setCurrentproblemID] = useState(null);
-
+  const [testCaseCounts, setTestCaseCounts] = useState({});
   const handleDetailClick = (problemID) => {
     navigate(`/admin/problem/detail/${problemID}`);
   };
@@ -70,8 +70,7 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
       }
     } catch (error) {
       const revertedTableData = tableData.map(problem =>
-        problem.problemID === problemID ? { ...problem, published: currentValue } : problem
-      );
+        problem.problemID === problemID ? { ...problem, published: currentValue } : problem);
       refetchData(revertedTableData);
     
       toast({
@@ -118,7 +117,24 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
       setLoading(false);
     }
   };
+  useEffect(() => {
+    const fetchTestCaseCounts = async () => {
+      try {
+        const counts = {};
+        for (const problem of tableData) {
+          const response = await api.get(`/TestCase/count?problemId=${problem.problemID}`);
+          counts[problem.problemID] = response.data.totalTestCases || 0;
+        }
+        setTestCaseCounts(counts);
+      } catch (error) {
+        console.error("Lỗi khi lấy số lượng test case:", error);
+      }
+    };
 
+    if (tableData.length > 0) {
+      fetchTestCaseCounts();
+    }
+  }, [tableData]);
   const columnsData = [
     {
       Header: 'Mã bài tập',
@@ -137,6 +153,17 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
     {
       Header: 'Kiểu test',
       accessor: 'testType',
+    },
+    {
+      Header: 'Testcase',
+      accessor: 'testCaseCount',
+      Cell: ({ row }) => (
+        <Link to={`/admin/testcase/${row.problemID}`}>
+          <Text color="blue">
+            {testCaseCounts[row.problemID] ?? 'Đang tải...'}
+          </Text>
+        </Link>
+      ),
     },
     {
       Header: 'Trạng thái',

@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using ntucoderbe.Infrashtructure.Middlewares;
+using AddressManagementSystem.Infrashtructure.Middlewares;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -41,8 +43,10 @@ builder.Services.AddScoped<CoderRepository>();
 builder.Services.AddScoped<CompilerRepository>();
 builder.Services.AddScoped<CategoryRepository>();
 builder.Services.AddScoped<ProblemRepository>();
+builder.Services.AddScoped<TestCaseRepository>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<AuthService>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowMyOrigin", builder =>
@@ -101,6 +105,8 @@ FirebaseApp.Create(new AppOptions
 {
     Credential = GoogleCredential.FromFile("luvuphuc-firebase-790e8-firebase-adminsdk-axcoh-03ea884b0e.json") 
 });
+app.UseMiddleware<JwtMiddleware>();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseCors("AllowMyOrigin");
 app.UseHttpsRedirection();
 app.UseAuthentication();

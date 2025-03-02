@@ -408,8 +408,8 @@ namespace ntucoderbe.Migrations
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     ProblemID = table.Column<int>(type: "int", nullable: false),
                     TestCaseOrder = table.Column<int>(type: "int", nullable: false),
-                    SampleTest = table.Column<string>(type: "longtext", nullable: true),
-                    PreTest = table.Column<string>(type: "longtext", nullable: true),
+                    SampleTest = table.Column<int>(type: "int", nullable: false),
+                    PreTest = table.Column<int>(type: "int", nullable: false),
                     Input = table.Column<string>(type: "longtext", nullable: false),
                     Output = table.Column<string>(type: "longtext", nullable: false)
                 },

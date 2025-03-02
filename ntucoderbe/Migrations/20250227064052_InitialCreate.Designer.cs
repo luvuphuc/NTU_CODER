@@ -11,7 +11,7 @@ using ntucoderbe.Models;
 namespace ntucoderbe.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250224075718_InitialCreate")]
+    [Migration("20250227064052_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -618,14 +618,14 @@ namespace ntucoderbe.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("PreTest")
-                        .HasColumnType("longtext");
+                    b.Property<int>("PreTest")
+                        .HasColumnType("int");
 
                     b.Property<int>("ProblemID")
                         .HasColumnType("int");
 
-                    b.Property<string>("SampleTest")
-                        .HasColumnType("longtext");
+                    b.Property<int>("SampleTest")
+                        .HasColumnType("int");
 
                     b.Property<int>("TestCaseOrder")
                         .HasColumnType("int");

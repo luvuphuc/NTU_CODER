@@ -73,6 +73,13 @@ const routes = [
     ]
   },
   {
+    name: 'TestCase',
+    layout: '/admin',
+    path: 'testcase',
+    hidden: true,
+    
+  },
+  {
     name: 'Trình biên dịch',
     layout: '/admin',
     path: '/compiler',

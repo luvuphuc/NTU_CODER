@@ -49,7 +49,7 @@ namespace ntucoderbe.Infrashtructure.Services
                 new Claim(ClaimTypes.Role, Enum.GetName(typeof(RoleEnum), user.RoleID))
 
             };
-            Console.WriteLine(string.Join(", ", claims.Select(c => $"{c.Type}: {c.Value}")));
+
             var token = new JwtSecurityToken(
                 issuer: _config["JwtConfig:Issuer"],
                 audience: _config["JwtConfig:Audience"],
@@ -57,7 +57,6 @@ namespace ntucoderbe.Infrashtructure.Services
                 expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_config["JwtConfig:ExpireMinutes"])),
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
             );
-
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
         public int? GetUserIdFromSession()
