@@ -6,7 +6,7 @@
         public int CoderID { get; set; }
         public int CompilerID { get; set; }
         public int ProblemID { get; set; }
-        public int TakePartID { get; set; }
+        public int? TakePartID { get; set; }
 
         public DateTime SubmitTime { get; set; }
         public string SubmissionCode { get; set; }

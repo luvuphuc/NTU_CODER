@@ -44,6 +44,7 @@ builder.Services.AddScoped<CompilerRepository>();
 builder.Services.AddScoped<CategoryRepository>();
 builder.Services.AddScoped<ProblemRepository>();
 builder.Services.AddScoped<TestCaseRepository>();
+builder.Services.AddScoped<SubmissionRepository>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<AuthService>();
 

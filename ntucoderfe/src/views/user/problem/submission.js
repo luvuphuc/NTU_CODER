@@ -21,15 +21,29 @@ const Submission = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Gọi API lấy thông tin bài toán
         const problemRes = await api.get(`/Problem/${id}`);
-        setProblemDetail(problemRes.data);
+        const problemData = problemRes.data;
+  
+        // Gọi API lấy test case mẫu
+        const testCaseRes = await api.get(`/TestCase/sampleTest?problemId=${id}`);
+        const testCaseData = testCaseRes.data;
+  
+        // Hợp nhất dữ liệu từ cả hai API
+        setProblemDetail({
+          ...problemData, 
+          sampleInput: testCaseData.input || "Không có dữ liệu",  // Gán thêm dữ liệu test case
+          sampleOutput: testCaseData.output || "Không có dữ liệu",
+        });
+  
       } catch (error) {
         console.error("Đã xảy ra lỗi", error);
       }
     };
-
+  
     if (id) fetchData();
   }, [id]);
+  
 
   if (!problem) {
     return <Spinner size="xl" />;

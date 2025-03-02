@@ -3,17 +3,40 @@ import { Box, Select, HStack, Menu, MenuButton, MenuList, MenuItem, Button } fro
 import { CheckIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import Editor from "@monaco-editor/react";
 
+const sampleCode = {
+  cpp: `#include <stdio.h>
+int main() {
+    printf("Hello world");
+    return 0;
+}`,
+  python: `print("Hello, World!")`,
+  java: `public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}`,
+};
+
 const EditorTab = () => {
-  const [code, setCode] = useState("// Viết code của bạn ở đây...");
-  const [language, setLanguage] = useState("python");
+  const [language, setLanguage] = useState("cpp");
   const [theme, setTheme] = useState("vs-light");
+  const [code, setCode] = useState(sampleCode[language]); 
+
+  // Xử lý thay đổi ngôn ngữ
+  const handleLanguageChange = (e) => {
+    const newLanguage = e.target.value;
+    setLanguage(newLanguage);
+    if (code === sampleCode[language]) {
+      setCode(sampleCode[newLanguage]);
+    }
+  };
 
   return (
     <Box display="flex" flexDirection="column" p={4}>
       <HStack justify="end" mb={4}>
-        <Select value={language} onChange={(e) => setLanguage(e.target.value)} width="150px">
-          <option value="python">Python</option>
+        <Select value={language} onChange={handleLanguageChange} width="150px">
           <option value="cpp">C/C++</option>
+          <option value="python">Python</option>
           <option value="java">Java</option>
         </Select>
         <Menu>
