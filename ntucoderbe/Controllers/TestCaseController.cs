@@ -71,7 +71,19 @@ namespace ntucoderbe.Controllers
             var count = await _repository.GetTotalTestCasesByProblemIdAsync(problemId);
             return Ok(new { TotalTestCases = count });
         }
-
+        [HttpGet("sampleTest")]
+        public async Task<IActionResult> GetSampleTest(int problemId)
+        {
+            try
+            {
+                var detail = await _repository.GetSampleTestByProblemIdAsync(problemId);
+                return Ok(detail);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTestCase(int id)
         {

@@ -10,10 +10,13 @@ import {
   ModalBody,
   ModalFooter,
   Input,
-  Switch,
+  Checkbox,
+  FormLabel,
   useToast,
   Text,
   VisuallyHiddenInput,
+  Textarea,
+  FormControl
 } from '@chakra-ui/react';
 import { HiUpload } from "react-icons/hi";
 import api from 'utils/api';
@@ -49,10 +52,11 @@ export default function CreateTestCaseModal({ isOpen, onClose, refetchData, prob
   };
 
   const handleCreateTestCase = async () => {
-    if (!newTestCase.testCaseOrder || isNaN(newTestCase.testCaseOrder) || parseInt(newTestCase.testCaseOrder) <= 0) {
+   
+    if (!newTestCase.testCaseOrder || !newTestCase.input || !newTestCase.output) {
       toast({
         title: 'Lỗi',
-        description: 'TestCase Order phải là số nguyên lớn hơn 0.',
+        description: 'Không được để trống.',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -60,10 +64,10 @@ export default function CreateTestCaseModal({ isOpen, onClose, refetchData, prob
       });
       return;
     }
-    if (!newTestCase.input || !newTestCase.output) {
+    if (!newTestCase.testCaseOrder || isNaN(newTestCase.testCaseOrder) || parseInt(newTestCase.testCaseOrder) <= 0) {
       toast({
         title: 'Lỗi',
-        description: 'Không được để trống Input hoặc Output.',
+        description: 'TestCase Order phải là số nguyên lớn hơn 0.',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -112,31 +116,34 @@ export default function CreateTestCaseModal({ isOpen, onClose, refetchData, prob
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Box mb={4}>
-            <Input name="testCaseOrder" placeholder="TestCase Order" value={newTestCase.testCaseOrder} onChange={handleChange} />
-          </Box>
-          <Box mb={4}>
-            <Input name="input" placeholder="Input" value={newTestCase.input} onChange={handleChange} />
-            <Button mt={2} leftIcon={<HiUpload />} as="label" cursor="pointer">
+          <FormControl mb={4}>
+            <FormLabel fontWeight="bold">TestCase Order</FormLabel>
+            <Input name="testCaseOrder" placeholder="Nhập thứ tự TestCase" value={newTestCase.testCaseOrder} onChange={handleChange} />
+          </FormControl>
+          <FormControl mb={4}>
+            <FormLabel fontWeight="bold">Input</FormLabel>
+            <Textarea name="input" placeholder="Nhập dữ liệu đầu vào" value={newTestCase.input} onChange={handleChange} h="50px" />
+            <Button mt={2} bg="gray.200" borderRadius={3} leftIcon={<HiUpload />} as="label" cursor="pointer">
               Import File
-              <VisuallyHiddenInput type="file" onChange={(e) => handleFileUpload(e, 'input')} />
+              <VisuallyHiddenInput type="file" accept=".txt" onChange={(e) => handleFileUpload(e, 'input')} />
             </Button>
-          </Box>
-          <Box mb={4}>
-            <Input name="output" placeholder="Output" value={newTestCase.output} onChange={handleChange} />
-            <Button mt={2} borderRadius={2} bg="gray.300" leftIcon={<HiUpload />} as="label" cursor="pointer">
+          </FormControl>
+          <FormControl mb={4} fontWeight="bold">
+            <FormLabel fontWeight="bold">Output</FormLabel>
+            <Textarea name="output" placeholder="Nhập dữ liệu đầu ra" value={newTestCase.output} onChange={handleChange} />
+            <Button mt={2} bg="gray.200" borderRadius={3} leftIcon={<HiUpload />} as="label" cursor="pointer">
               Import File
-              <VisuallyHiddenInput type="file" onChange={(e) => handleFileUpload(e, 'output')} />
+              <VisuallyHiddenInput type="file" accept=".txt" onChange={(e) => handleFileUpload(e, 'output')} />
             </Button>
-          </Box>
-          <Box display="flex" alignItems="center" gap={2} mb={4}>
-            <Switch isChecked={newTestCase.sampleTest === 1} onChange={() => handleToggle('sampleTest')} />
-            <Text>Sample Test</Text>
-          </Box>
-          <Box display="flex" alignItems="center" gap={2} mb={4}>
-            <Switch isChecked={newTestCase.preTest === 1} onChange={() => handleToggle('preTest')} />
-            <Text>Pre Test</Text>
-          </Box>
+          </FormControl>
+          <FormControl display="flex" justifyContent="space-between" mb={4} fontWeight="bold">
+            <Checkbox isChecked={newTestCase.sampleTest === 1} onChange={() => handleToggle('sampleTest')}>
+              Sample Test
+            </Checkbox>
+            <Checkbox isChecked={newTestCase.preTest === 1} onChange={() => handleToggle('preTest')}>
+              Pre Test
+            </Checkbox>
+          </FormControl>
         </ModalBody>
         <ModalFooter>
           <Button colorScheme="gray" onClick={onClose}>Hủy</Button>

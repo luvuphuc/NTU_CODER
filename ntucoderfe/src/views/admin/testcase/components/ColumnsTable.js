@@ -30,7 +30,7 @@ import { useNavigate } from 'react-router-dom';
 import Card from 'components/card/Card';
 import api from 'utils/api';
 import { AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai";
-
+import EditTestCaseModal from './Update';
 export default function TestCaseTable({ tableData, onSort, sortField, ascending, refetchData }) {
   const { colorMode } = useColorMode();
   const textColor = colorMode === 'light' ? 'black' : 'white';
@@ -40,7 +40,11 @@ export default function TestCaseTable({ tableData, onSort, sortField, ascending,
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
   const [loading, setLoading] = useState(false);
-  const [currenttestcaseID, setCurrenttestcaseID] = useState(null);
+  const [currentTestCaseID, setCurrentTestCaseID] = useState(null);
+  const handleEditClick = (testCaseID) => {
+    setCurrentTestCaseID(testCaseID);
+    onEditOpen();
+  };
   const handleToggleStatus = async (testCaseID, field, currentValue) => {
     try {
       const newValue = currentValue === 0 ? 1 : 0;
@@ -87,7 +91,7 @@ export default function TestCaseTable({ tableData, onSort, sortField, ascending,
       setLoading(true);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const response = await api.delete(`/TestCase/${currenttestcaseID}`);
+      const response = await api.delete(`/TestCase/${currentTestCaseID}`);
       if (response.status === 200) {
         toast({
           title: "Xóa thành công!",
@@ -165,7 +169,7 @@ export default function TestCaseTable({ tableData, onSort, sortField, ascending,
             colorScheme="facebook"
             borderRadius="md"
             minW="auto"
-            
+            onClick={() => handleEditClick(row.testCaseID)}
           >
             <BiEdit size="18" />
           </Button>
@@ -176,7 +180,7 @@ export default function TestCaseTable({ tableData, onSort, sortField, ascending,
             borderRadius="md"
             minW="auto"
             onClick={() => {
-              setCurrenttestcaseID(row.testCaseID);
+              setCurrentTestCaseID(row.testCaseID);
               onOpen();
             }}
           >
@@ -260,6 +264,14 @@ export default function TestCaseTable({ tableData, onSort, sortField, ascending,
           </ModalFooter>
         </ModalContent>
       </Modal>
+      {currentTestCaseID !== null && (
+        <EditTestCaseModal 
+          isOpen={isEditOpen} 
+          onClose={onEditClose} 
+          testCaseID={currentTestCaseID} 
+          refetchData={refetchData} 
+        />
+      )}
     </>
   );
 }

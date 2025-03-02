@@ -142,6 +142,18 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
             return true;
         }
-
+        public async Task<TestCaseDTO> GetSampleTestByProblemIdAsync(int problemId)
+        {
+            var obj = await _context.TestCases.FirstOrDefaultAsync(tc => tc.ProblemID == problemId && tc.SampleTest == 1);
+            if (obj == null)
+            {
+                throw new KeyNotFoundException("Không tìm thấy.");
+            }
+            return new TestCaseDTO
+            {
+                Input = obj.Input,
+                Output = obj.Output,
+            };
+        }
     }
 }
