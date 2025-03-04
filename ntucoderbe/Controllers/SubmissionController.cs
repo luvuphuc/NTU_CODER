@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
 using ntucoderbe.Infrashtructure.Repositories;
+using ntucoderbe.Infrashtructure.Services;
 
 namespace ntucoderbe.Controllers
 {
@@ -11,11 +12,15 @@ namespace ntucoderbe.Controllers
     public class SubmissionController : ControllerBase
     {
         private readonly SubmissionRepository _submissionRepository;
+        private readonly CodeExecutionService _codeExecutionService;
 
-        public SubmissionController(SubmissionRepository submissionRepository)
+        public SubmissionController(SubmissionRepository submissionRepository, CodeExecutionService codeExecutionService)
         {
             _submissionRepository = submissionRepository;
+            _codeExecutionService = codeExecutionService;
+
         }
+
         [HttpGet("all")]
         public async Task<IActionResult> GetAllSubmissions([FromQuery] QueryObject query, string? sortField = null, bool ascending = true)
         {
@@ -71,7 +76,7 @@ namespace ntucoderbe.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProblem(int id, [FromBody] SubmissionDTO dto)
+        public async Task<IActionResult> UpdateSubmission(int id, [FromBody] SubmissionDTO dto)
         {
             if (dto == null)
             {
@@ -99,7 +104,7 @@ namespace ntucoderbe.Controllers
 
         // Delete a problem by ID
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProblem(int id)
+        public async Task<IActionResult> DeleteSubmission(int id)
         {
             try
             {

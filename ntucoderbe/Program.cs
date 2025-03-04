@@ -9,7 +9,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using ntucoderbe.Infrashtructure.Middlewares;
-using AddressManagementSystem.Infrashtructure.Middlewares;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -47,6 +46,8 @@ builder.Services.AddScoped<TestCaseRepository>();
 builder.Services.AddScoped<SubmissionRepository>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<CodeExecutionService>();
+builder.Services.AddScoped<TestRunRepository>();
 
 builder.Services.AddCors(options =>
 {

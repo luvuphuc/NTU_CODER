@@ -1,4 +1,6 @@
-﻿namespace ntucoderbe.Models.ERD
+﻿using System.Text.Json.Serialization;
+
+namespace ntucoderbe.Models.ERD
 {
     public class Submission
     {
@@ -25,6 +27,7 @@
         public virtual Compiler Compiler { get; set; }
         public virtual TakePart TakePart { get; set; }
         public virtual Problem Problem { get; set; }
+        [JsonIgnore]
         public virtual ICollection<TestRun> TestRuns { get; set; } = new HashSet<TestRun>();
     }
 

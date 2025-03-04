@@ -1,4 +1,6 @@
-﻿namespace ntucoderbe.Models.ERD
+﻿using System.Text.Json.Serialization;
+
+namespace ntucoderbe.Models.ERD
 {
     public class TestRun
     {
@@ -10,8 +12,9 @@
         public string TestOutput { get; set; }
         public string Result { get; set; }
         public string CheckerLog { get; set; }
-
+        [JsonIgnore]
         public virtual Submission Submission { get; set; }
+        [JsonIgnore]
         public virtual TestCase TestCase { get; set; }
     }
 
