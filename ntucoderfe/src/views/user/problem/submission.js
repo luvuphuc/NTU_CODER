@@ -21,18 +21,15 @@ const Submission = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Gọi API lấy thông tin bài toán
         const problemRes = await api.get(`/Problem/${id}`);
         const problemData = problemRes.data;
   
-        // Gọi API lấy test case mẫu
         const testCaseRes = await api.get(`/TestCase/sampleTest?problemId=${id}`);
         const testCaseData = testCaseRes.data;
   
-        // Hợp nhất dữ liệu từ cả hai API
         setProblemDetail({
           ...problemData, 
-          sampleInput: testCaseData.input || "Không có dữ liệu",  // Gán thêm dữ liệu test case
+          sampleInput: testCaseData.input || "Không có dữ liệu",  
           sampleOutput: testCaseData.output || "Không có dữ liệu",
         });
   
@@ -55,7 +52,6 @@ const Submission = () => {
       <Navigation />
 
       <Container maxW="container.xl" py={3} flex="1" bg="white" borderRadius="lg" boxShadow="lg" my={6}>
-        {/* Chia phần Tabs (40%) và Editor (60%) */}
         <Split className="split" sizes={[40, 60]} minSize={300} gutterSize={10} direction="horizontal">
           {/* Tabs: Bài tập, Xếp hạng, Thảo luận */}
           <Box width="40%" position="relative">
@@ -123,7 +119,6 @@ const Submission = () => {
                 </MotionTab>
               </TabList>
 
-              {/* Tạo khoảng trống phía trên nội dung để tránh bị che mất bởi TabList */}
               <Box pt="50px">
                 <TabPanels
                   as={motion.div}

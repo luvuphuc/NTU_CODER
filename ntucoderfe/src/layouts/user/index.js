@@ -11,6 +11,7 @@ import {
   Stack,
   Button,
   useBreakpointValue,
+  Flex,
 } from '@chakra-ui/react'
 import Navigation from 'views/user/common/navigation';
 import Header from 'views/user/common/header';
@@ -30,10 +31,10 @@ export default function HomePage() {
         borderBottom="1px solid"
         borderColor="gray.200">
         <Heading fontSize={{ base: '3xl', md: '5xl' }} fontWeight="bold">
-          Welcome to Our Website
+          Chào mừng đến với <Text color="blue">NTU-CODER</Text>
         </Heading>
         <Text mt={4} fontSize={{ base: 'lg', md: 'xl' }} color="gray.600">
-          Discover amazing designs, get inspired, and learn from the best!
+            Giải mã những thách thức, tạo ra giải pháp.
         </Text>
         <Button
           mt={8}
@@ -41,7 +42,7 @@ export default function HomePage() {
           size="lg"
           _hover={{ bg: 'pink.300' }}
         >
-          Get Started
+          Bắt đầu
         </Button>
       </Box>
 
