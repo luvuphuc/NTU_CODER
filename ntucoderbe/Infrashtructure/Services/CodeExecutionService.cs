@@ -3,6 +3,7 @@ using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace ntucoderbe.Infrashtructure.Services
 {
@@ -46,11 +47,32 @@ namespace ntucoderbe.Infrashtructure.Services
             string tempFilePath = Path.Combine(Path.GetTempPath(), $"{tempFileName}{submission.Compiler.CompilerExtension}");
             await File.WriteAllTextAsync(tempFilePath, submission.SubmissionCode);
 
-            string dockerCommand = GetDockerCommand(submission.Compiler, tempFileName, testCase.Input);
+            (string dockerCommand, string containerName) = GetDockerCommand(submission.Compiler, tempFileName, testCase.Input);
             var stopwatch = Stopwatch.StartNew();
-            var result = await RunProcessAsync(dockerCommand);
+
+            //tuple multi value
+            (bool isSuccess, string output, string error) result;
+            try
+            {
+                result = await RunProcessAsync(dockerCommand,containerName);
+            }
+            finally
+            {
+                if (File.Exists(tempFilePath))
+                    File.Delete(tempFilePath);
+            }
             stopwatch.Stop();
-            File.Delete(tempFilePath);
+            string testResult;
+            if (!result.isSuccess)
+            {
+                bool isRuntimeError = !string.IsNullOrEmpty(result.error);
+                testResult = isRuntimeError ? "Runtime Error" : "Compilation Error";
+            }
+            else
+            {
+                bool isCorrect = string.Equals(result.output.Trim(), testCase.Output.Trim(), StringComparison.OrdinalIgnoreCase);
+                testResult = isCorrect ? "Accepted" : "Wrong Answer";
+            }
 
             return new TestRun
             {
@@ -58,14 +80,15 @@ namespace ntucoderbe.Infrashtructure.Services
                 TestCaseID = testCase.TestCaseID,
                 TimeDuration = (int)stopwatch.ElapsedMilliseconds,
                 MemorySize = 0,
-                TestOutput = result.Output,
-                Result = result.IsSuccess ? (result.Output.Trim() == testCase.Output.Trim() ? "Accepted" : "Wrong Answer") : "Compilation Error",
-                CheckerLog = result.Error
+                TestOutput = result.output.Trim(),
+                Result = testResult,
+                CheckerLog = result.error.Trim()
             };
         }
 
-        private string GetDockerCommand(Compiler compiler, string fileName, string input)
+        private (string,string) GetDockerCommand(Compiler compiler, string fileName, string input)
         {
+            string containerName = $"code_runner_{Guid.NewGuid()}".Replace("-", "");
             string volumeMount = $"-v \"{Path.GetTempPath()}:/source\"";
             string dockerImage = compiler.CompilerName.ToLower() switch
             {
@@ -77,15 +100,15 @@ namespace ntucoderbe.Infrashtructure.Services
 
             string command = compiler.CompilerName.ToLower() switch
             {
-                "gcc" => $"docker run --rm {volumeMount} {dockerImage} sh -c \"gcc /source/{fileName}{compiler.CompilerExtension} -o /source/{fileName}.out && echo '{input}' | /source/{fileName}.out\"",
-                "java" => $"docker run --rm {volumeMount} {dockerImage} sh -c \"javac /source/{fileName}{compiler.CompilerExtension} && echo '{input}' | java -cp /source {fileName}\"",
-                "python" => $"docker run --rm {volumeMount} {dockerImage} sh -c \"echo '{input}' | python3 /source/{fileName}{compiler.CompilerExtension}\"",
+                "gcc" => $"docker run --rm --name {containerName} {volumeMount} {dockerImage} sh -c \"gcc /source/{fileName}{compiler.CompilerExtension} -o /source/{fileName}.out && echo '{input}' | /source/{fileName}.out\"",
+                "java" => $"docker run --rm --name {containerName} {volumeMount} {dockerImage} sh -c \"javac /source/{fileName}{compiler.CompilerExtension} && echo '{input}' | java -cp /source {fileName}\"",
+                "python" => $"docker run --rm --name {containerName} {volumeMount} {dockerImage} sh -c \"echo '{input}' | python3 /source/{fileName}{compiler.CompilerExtension}\"",
                 _ => throw new Exception($"Compiler {compiler.CompilerName} không được hỗ trợ.")
             };
-            return command;
+            return (command, containerName);
         }
 
-        private async Task<(bool IsSuccess, string Output, string Error)> RunProcessAsync(string command)
+        private async Task<(bool IsSuccess, string Output, string Error)> RunProcessAsync(string command, string containerName, int timeMs =3000)
         {
             var psi = new ProcessStartInfo
             {
@@ -99,18 +122,44 @@ namespace ntucoderbe.Infrashtructure.Services
 
             using var process = new Process { StartInfo = psi };
             process.Start();
+            var outputTask = process.StandardOutput.ReadToEndAsync();
+            var errorTask = process.StandardError.ReadToEndAsync();
+            var waitTask = process.WaitForExitAsync();
 
-            string output = await process.StandardOutput.ReadToEndAsync();
-            string error = await process.StandardError.ReadToEndAsync();
-            await process.WaitForExitAsync();
+            var timeoutTask = Task.Delay(timeMs);
+            if (await Task.WhenAny(waitTask, timeoutTask) == timeoutTask)
+            {
+                try
+                {
+                    // Dừng container nếu quá thời gian
+                    var killProcess = new ProcessStartInfo
+                    {
+                        FileName = "cmd.exe",
+                        Arguments = $"/c docker rm -f {containerName}",
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
 
+                    using var kill = new Process { StartInfo = killProcess };
+                    kill.Start();
+                    await kill.WaitForExitAsync();
+                }
+                catch { }
+                return (false, string.Empty, "Runtime Error: Time Limit Exceeded");
+            }
+
+            string output = await outputTask;
+            string error = await errorTask;
             return (string.IsNullOrEmpty(error), output.Trim(), error);
         }
+
+
         private string ExtractJavaClassName(string code)
         {
             var match = Regex.Match(code, @"public\s+class\s+(\w+)");
-            return match.Success ? match.Groups[1].Value : "Main"; 
+            return match.Success ? match.Groups[1].Value : "Main";
         }
-
     }
 }
