@@ -25,7 +25,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 {
                     CompilerID = c.CompilerID,
                     CompilerName = c.CompilerName,
-                    CompilerPath = c.CompilerPath,
                     CompilerOption = c.CompilerOption,
                     CompilerExtension = c.CompilerExtension
                 });
@@ -53,7 +52,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
             var compiler = new Compiler
             {
                 CompilerName = compilerDto.CompilerName!,
-                CompilerPath = compilerDto.CompilerPath!,
                 CompilerOption = compilerDto.CompilerOption ?? 0,
                 CompilerExtension = compilerDto.CompilerExtension
             };
@@ -84,7 +82,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 {
                     CompilerID = c.CompilerID,
                     CompilerName = c.CompilerName,
-                    CompilerPath = c.CompilerPath,
                     CompilerOption = c.CompilerOption,
                     CompilerExtension = c.CompilerExtension
                 })
@@ -100,9 +97,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
             if (existingCompiler == null) return null;
             if (!string.IsNullOrEmpty(compilerDto.CompilerName))
                 existingCompiler.CompilerName = compilerDto.CompilerName;
-
-            if (!string.IsNullOrEmpty(compilerDto.CompilerPath))
-                existingCompiler.CompilerPath = compilerDto.CompilerPath;
 
             if (compilerDto.CompilerOption != 0)
                 existingCompiler.CompilerOption = compilerDto.CompilerOption?? 0;

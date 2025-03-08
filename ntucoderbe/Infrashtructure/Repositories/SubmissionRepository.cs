@@ -101,7 +101,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 SubmissionCode = obj.SubmissionCode,
                 SubmitTime = obj.SubmitTime,
                 SubmissionStatus = obj.SubmissionStatus,
-                SubmitLineCount = obj.SubmitLineCount,
                 TestRunCount = obj.TestRunCount,
                 TestResult = obj.TestResult,
                 MaxMemorySize = obj.MaxMemorySize,
@@ -120,7 +119,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
             obj.SubmissionCode = string.IsNullOrEmpty(dto.SubmissionCode) ? obj.SubmissionCode : dto.SubmissionCode;
             obj.SubmitTime = DateTime.UtcNow;
             obj.SubmissionStatus = dto.SubmissionStatus != 0 ? dto.SubmissionStatus : obj.SubmissionStatus;
-            obj.SubmitLineCount = dto.SubmitLineCount ?? obj.SubmitLineCount;
             obj.TestRunCount = dto.TestRunCount ?? obj.TestRunCount;
             obj.TestResult = string.IsNullOrEmpty(dto.TestResult) ? obj.TestResult : dto.TestResult;
             obj.MaxMemorySize = string.IsNullOrEmpty(dto.MaxMemorySize) ? obj.MaxMemorySize : dto.MaxMemorySize;
@@ -134,7 +132,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 SubmissionCode = obj.SubmissionCode,
                 SubmitTime = obj.SubmitTime,
                 SubmissionStatus = obj.SubmissionStatus,
-                SubmitLineCount = obj.SubmitLineCount,
                 TestRunCount = obj.TestRunCount,
                 TestResult = obj.TestResult,
                 MaxMemorySize = obj.MaxMemorySize,
