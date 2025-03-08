@@ -1,24 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Box, Select, HStack, Menu, MenuButton, MenuList, MenuItem, Button, 
   Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, 
-  useDisclosure, Text
+  useDisclosure, Text,
+  Flex
 } from "@chakra-ui/react";
 import { CheckIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import Editor from "@monaco-editor/react";
 import api from "utils/api";
 import { useParams } from "react-router-dom";
 
-const sampleCode = {
-  1: `#include <stdio.h>\nint main() {\n    printf(\"Hello world\");\n    return 0;\n}`,
-  2: `print(\"Hello, World!\")`,
-  3: `public class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}`,
+const defaultSampleCode = {
+  ".cpp": `#include <stdio.h>\nint main() {\n    printf("Hello world");\n    return 0;\n}`,
+  ".py": `print("Hello, World!")`,
+  ".java": `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}`
 };
 
 const EditorTab = () => {
-  const [language, setLanguage] = useState(1);
+  const [compilers, setCompilers] = useState([]);
+  const [selectedCompiler, setSelectedCompiler] = useState(null);
   const [theme, setTheme] = useState("vs-light");
-  const [code, setCode] = useState(sampleCode[language]); 
+  const [code, setCode] = useState(""); 
   const { id: problemId } = useParams();
 
   // State cho Modal
@@ -26,23 +28,62 @@ const EditorTab = () => {
   const [modalTitle, setModalTitle] = useState("");
   const [modalMessage, setModalMessage] = useState("");
   const [modalStatus, setModalStatus] = useState("success"); // success | error
-
+  useEffect(() => {
+    const fetchCompilers = async () => {
+      try {
+        const response = await api.get("/Compiler/all?ascending=true");
+        if (response.status === 200) {
+          setCompilers(response.data.data);
+          if (response.data.data.length > 0) {
+            const firstCompiler = response.data.data[0];
+            setSelectedCompiler(firstCompiler);
+            setCode(defaultSampleCode[firstCompiler.compilerExtension] || ""); 
+          }
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách compiler:", error);
+      }
+    };
+    fetchCompilers();
+  }, []);
   // Xử lý thay đổi ngôn ngữ
-  const handleLanguageChange = (e) => {
-    const newLanguage = Number(e.target.value);
-    setLanguage(newLanguage);
-    if (code === sampleCode[language]) {
-      setCode(sampleCode[newLanguage]);
+  const handleCompilerChange = (e) => {
+    const compilerId = Number(e.target.value);
+    const newCompiler = compilers.find(c => c.compilerID === compilerId);
+    if (newCompiler) {
+      setSelectedCompiler(newCompiler);
+      setCode(defaultSampleCode[newCompiler.compilerExtension] || "");
     }
   };
-
+  const validateCodeSyntax = () => {
+    if (!selectedCompiler) return false;
+  
+    const extension = selectedCompiler.compilerExtension;
+    if (extension === ".cpp" || extension === ".c") {
+      return /#include\s+<\w+>|int\s+main\s*\(\)/.test(code);
+    }
+    if (extension === ".java") {
+      return /public\s+class\s+\w+|public\s+static\s+void\s+main/.test(code);
+    }
+    if (extension === ".py") {
+      return !/#include\s+<\w+>|int\s+main\s*\(\)/.test(code);
+    }
+    return true;
+  };
   // Xử lý gửi bài
   const handleSubmit = async () => {
+    if (!validateCodeSyntax()) {
+      setModalTitle("Lỗi cú pháp!");
+      setModalMessage("Mã nguồn không phù hợp với trình biên dịch đã chọn.");
+      setModalStatus("error");
+      onOpen();
+      return;
+    }
     try {
       const response = await api.post("/Submission/create", {
         problemId: problemId,
         coderId: 1,
-        compilerId: language,
+        compilerId: selectedCompiler.compilerID,
         submitTime: new Date().toISOString(),
         submissionCode: code,
         submissionStatus: 0
@@ -67,21 +108,34 @@ const EditorTab = () => {
   return (
     <Box display="flex" flexDirection="column" p={4}>
       <HStack justify="end" mb={4}>
-        <Select value={language} onChange={handleLanguageChange} width="150px">
-          <option value={1}>C/C++</option>
-          <option value={2}>Python</option>
-          <option value={3}>Java</option>
+      <Select value={selectedCompiler?.compilerID || ""} onChange={handleCompilerChange} width="150px">
+          {compilers.map((compiler) => (
+            <option key={compiler.compilerID} value={compiler.compilerID}>
+              {compiler.compilerName}
+            </option>
+          ))}
         </Select>
-        <Menu>
-          <MenuButton as={Button} rightIcon={<ChevronDownIcon />} colorScheme="purple">
-            Giao diện
-          </MenuButton>
-          <MenuList>
-            <MenuItem onClick={() => setTheme("vs-light")}>VS Light {theme === "vs-light" && <CheckIcon />}</MenuItem>
-            <MenuItem onClick={() => setTheme("vs-dark")}>VS Dark {theme === "vs-dark" && <CheckIcon />}</MenuItem>
-            <MenuItem onClick={() => setTheme("hc-black")}>High Contrast {theme === "hc-black" && <CheckIcon />}</MenuItem>
-          </MenuList>
-        </Menu>
+       <Menu>
+        <MenuButton as={Button} rightIcon={<ChevronDownIcon />} colorScheme="purple">
+          Giao diện
+        </MenuButton>
+        <MenuList>
+          {[
+            { key: "vs-light", label: "VS Light" },
+            { key: "vs-dark", label: "VS Dark" },
+            { key: "hc-black", label: "High Contrast" },
+          ].map(({ key, label }) => (
+            <MenuItem key={key} onClick={() => setTheme(key)}>
+              <HStack justify="space-between" width="full">
+                <Text fontWeight={theme === key ? "bold" : "normal"} color={theme === key ? "blue.500" : "inherit"}>
+                  {label}
+                </Text>
+                {theme === key && <CheckIcon color="blue.500" />}
+              </HStack>
+            </MenuItem>
+          ))}
+        </MenuList>
+      </Menu>
       </HStack>
 
       {/* Trình soạn thảo */}
@@ -89,7 +143,7 @@ const EditorTab = () => {
         <Editor
           width="100%"
           height="400px"
-          language={language === 1 ? "cpp" : language === 2 ? "python" : "java"}
+          language={selectedCompiler?.compilerExtension.replace(".", "") || "plaintext"}
           theme={theme}
           value={code}
           onChange={(newValue) => setCode(newValue)}

@@ -83,9 +83,9 @@ export default function ProblemPage() {
           </Box>
 
           {/* Danh sách bài tập */}
-          <Box w="full" display="flex" flexDirection="column">
+          <Box w="full" display="flex" flexDirection="column" bg="white" overflowY="auto" boxShadow="md" borderRadius="md">
             {loading ? (
-              <Flex justify="center" align="center" minH="200px">
+              <Flex justify="center" align="center" minH="365px" maxH="700px">
                 <Spinner size="xl" color="blue.500" />
               </Flex>
             ) : (
@@ -103,7 +103,7 @@ export default function ProblemPage() {
                               </WrapItem>
                             ))}
                           </Wrap>
-                          <Text color="gray.600" fontSize="md">{problem.problemContent}</Text>
+                          <Box color="gray.600" fontSize="md" dangerouslySetInnerHTML={{ __html: problem.problemContent }} />
                         </Stack>
                         <Flex align="center" ml={4}>
                         <Link to={`/problem/${problem.problemID}`}>

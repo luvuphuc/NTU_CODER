@@ -23,16 +23,26 @@ const Submission = () => {
       try {
         const problemRes = await api.get(`/Problem/${id}`);
         const problemData = problemRes.data;
-  
-        const testCaseRes = await api.get(`/TestCase/sampleTest?problemId=${id}`);
-        const testCaseData = testCaseRes.data;
-  
+        var sampleTest = null;
+        try {
+          const testCaseRes = await api.get(`/TestCase/sampleTest?problemId=${id}`);
+          if (testCaseRes.data && testCaseRes.data.input && testCaseRes.data.output) {
+            sampleTest = {
+              sampleInput: testCaseRes.data.input,
+              sampleOutput: testCaseRes.data.output,
+            };
+          }
+        } catch (error) {
+          if (error.response && error.response.status === 404) {
+            console.warn("Không tìm thấy test case mẫu, ẩn phần test case.");
+          } else {
+            console.error("Lỗi khi tải test case mẫu:", error);
+          }
+        }
         setProblemDetail({
-          ...problemData, 
-          sampleInput: testCaseData.input || "Không có dữ liệu",  
-          sampleOutput: testCaseData.output || "Không có dữ liệu",
+          ...problemData,
+          ...(sampleTest ? sampleTest : {}), 
         });
-  
       } catch (error) {
         console.error("Đã xảy ra lỗi", error);
       }
