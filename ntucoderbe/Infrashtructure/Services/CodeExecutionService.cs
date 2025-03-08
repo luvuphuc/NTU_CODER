@@ -2,13 +2,14 @@
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace ntucoderbe.Infrashtructure.Services
 {
     public class CodeExecutionService
     {
         private readonly ApplicationDbContext _context;
-        private const string dockerImage = "gcc:12";
+
         public CodeExecutionService(ApplicationDbContext context)
         {
             _context = context;
@@ -18,6 +19,7 @@ namespace ntucoderbe.Infrashtructure.Services
         {
             var submission = await _context.Submissions
                 .Include(s => s.Problem)
+                .Include(s => s.Compiler)
                 .FirstOrDefaultAsync(s => s.SubmissionID == submissionId)
                 ?? throw new Exception($"Submission ID {submissionId} không tồn tại.");
 
@@ -37,15 +39,18 @@ namespace ntucoderbe.Infrashtructure.Services
 
         private async Task<TestRun> ExecuteTestCase(Submission submission, TestCase testCase)
         {
-            string tempFilePath = Path.Combine(Path.GetTempPath(), $"code_{Guid.NewGuid()}.c");
-            string input = testCase.Input;
+            string tempFileName = submission.Compiler.CompilerName.ToLower() == "java"
+                ? ExtractJavaClassName(submission.SubmissionCode)
+                : $"code_{Guid.NewGuid()}";
+
+            string tempFilePath = Path.Combine(Path.GetTempPath(), $"{tempFileName}{submission.Compiler.CompilerExtension}");
             await File.WriteAllTextAsync(tempFilePath, submission.SubmissionCode);
 
-            string dockerCommand = $"docker run --rm -v \"{tempFilePath}:/code.c\" {dockerImage} sh -c \"gcc /code.c -o /code.out && echo '{input}' | /code.out\"";
+            string dockerCommand = GetDockerCommand(submission.Compiler, tempFileName, testCase.Input);
             var stopwatch = Stopwatch.StartNew();
-            var result = await RunProcessAsync(dockerCommand, testCase.Input);
+            var result = await RunProcessAsync(dockerCommand);
             stopwatch.Stop();
-            File.Delete(tempFilePath); 
+            File.Delete(tempFilePath);
 
             return new TestRun
             {
@@ -59,12 +64,33 @@ namespace ntucoderbe.Infrashtructure.Services
             };
         }
 
-        private async Task<(bool IsSuccess, string Output, string Error)> RunProcessAsync(string command, string input)
+        private string GetDockerCommand(Compiler compiler, string fileName, string input)
+        {
+            string volumeMount = $"-v \"{Path.GetTempPath()}:/source\"";
+            string dockerImage = compiler.CompilerName.ToLower() switch
+            {
+                "gcc" or "g++" => "gcc:12",
+                "java" => "openjdk:17-alpine",
+                "python" => "python:3.9.21-alpine",
+                _ => throw new Exception($"Compiler {compiler.CompilerName} không được hỗ trợ.")
+            };
+
+            string command = compiler.CompilerName.ToLower() switch
+            {
+                "gcc" => $"docker run --rm {volumeMount} {dockerImage} sh -c \"gcc /source/{fileName}{compiler.CompilerExtension} -o /source/{fileName}.out && echo '{input}' | /source/{fileName}.out\"",
+                "java" => $"docker run --rm {volumeMount} {dockerImage} sh -c \"javac /source/{fileName}{compiler.CompilerExtension} && echo '{input}' | java -cp /source {fileName}\"",
+                "python" => $"docker run --rm {volumeMount} {dockerImage} sh -c \"echo '{input}' | python3 /source/{fileName}{compiler.CompilerExtension}\"",
+                _ => throw new Exception($"Compiler {compiler.CompilerName} không được hỗ trợ.")
+            };
+            return command;
+        }
+
+        private async Task<(bool IsSuccess, string Output, string Error)> RunProcessAsync(string command)
         {
             var psi = new ProcessStartInfo
             {
                 FileName = "cmd.exe",
-                Arguments = $"/c echo {input} | {command}",
+                Arguments = $"/c {command}",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -80,5 +106,11 @@ namespace ntucoderbe.Infrashtructure.Services
 
             return (string.IsNullOrEmpty(error), output.Trim(), error);
         }
+        private string ExtractJavaClassName(string code)
+        {
+            var match = Regex.Match(code, @"public\s+class\s+(\w+)");
+            return match.Success ? match.Groups[1].Value : "Main"; 
+        }
+
     }
 }

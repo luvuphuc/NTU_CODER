@@ -106,7 +106,86 @@ namespace ntucoderbe.Models
                 .WithOne(c => c.Blog)
                 .HasForeignKey(c => c.BlogID)
                 .OnDelete(DeleteBehavior.Cascade);
-            
+
+            //coder
+            modelBuilder.Entity<Coder>(entity =>
+            {
+                entity.HasKey(c => c.CoderID);
+
+                entity.Property(c => c.CoderName)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(c => c.CoderEmail)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(c => c.PhoneNumber)
+                      .HasMaxLength(10);
+
+                entity.Property(c => c.Avatar)
+                      .HasMaxLength(255);
+
+                entity.Property(c => c.Description)
+                      .HasMaxLength(100);
+
+                entity.Property(c => c.CreatedAt)
+                      .IsRequired()
+                      .HasColumnType("datetime");
+
+                entity.Property(c => c.CreatedBy)
+                      .HasMaxLength(100);
+
+                entity.Property(c => c.UpdatedAt)
+                      .HasColumnType("datetime");
+
+                entity.Property(c => c.UpdatedBy)
+                      .HasMaxLength(100);
+
+                entity.Property(c => c.Gender)
+                      .HasConversion<int>();
+
+                entity.HasOne(c => c.Account)
+                      .WithOne(a => a.Coder)
+                      .HasForeignKey<Coder>(c => c.CoderID)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(c => c.Blogs)
+                      .WithOne(b => b.Coder)
+                      .HasForeignKey(b => b.CoderID);
+
+                entity.HasMany(c => c.Comments)
+                      .WithOne(cmt => cmt.Coder)
+                      .HasForeignKey(cmt => cmt.CoderID);
+
+                entity.HasMany(c => c.Submissions)
+                      .WithOne(s => s.Coder)
+                      .HasForeignKey(s => s.CoderID);
+
+                entity.HasMany(c => c.Solveds)
+                      .WithOne(s => s.Coder)
+                      .HasForeignKey(s => s.CoderID);
+
+                entity.HasMany(c => c.Problems)
+                      .WithOne(p => p.Coder)
+                      .HasForeignKey(p => p.CoderID);
+
+                entity.HasMany(c => c.Contests)
+                       .WithOne(co => co.Coder)
+                       .HasForeignKey(co => co.CoderID)
+                       .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasMany(c => c.Favourites)
+                      .WithOne(f => f.Coder)
+                      .HasForeignKey(f => f.CoderID)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(c => c.Participations)
+                      .WithOne(p => p.Coder)
+                      .HasForeignKey(p => p.CoderID);
+            });
+
+
             //comment
             modelBuilder.Entity<Comment>()
                 .HasKey(c => c.CommentID);
@@ -136,9 +215,6 @@ namespace ntucoderbe.Models
                       .IsRequired()
                       .HasMaxLength(20);
 
-                entity.Property(c => c.CompilerPath)
-                      .IsRequired();
-
                 entity.Property(c => c.CompilerOption)
                       .IsRequired();
 
@@ -152,7 +228,31 @@ namespace ntucoderbe.Models
                 entity.HasMany(c => c.Problems)
                       .WithOne()
                       .HasForeignKey(p => p.TestCompilerID);
+                entity.HasData(
+                      new Compiler
+                      {
+                         CompilerID = 1,
+                         CompilerName = "GCC",
+                         CompilerOption = 0,
+                         CompilerExtension = ".cpp"
+                      },
+                      new Compiler
+                      {
+                         CompilerID = 2,
+                         CompilerName = "Java",
+                         CompilerOption = 0,
+                         CompilerExtension = ".java"
+                      },
+                      new Compiler
+                      {
+                         CompilerID = 3,
+                         CompilerName = "Python",
+                         CompilerOption = 0,
+                         CompilerExtension = ".py"
+                      }
+                );
             });
+
             //category
             modelBuilder.Entity<Category>(entity =>
             {
@@ -542,6 +642,5 @@ namespace ntucoderbe.Models
                 .WithMany(tc => tc.TestRuns)
                 .HasForeignKey(tr => tr.TestCaseID);
         }
-
     }
 }

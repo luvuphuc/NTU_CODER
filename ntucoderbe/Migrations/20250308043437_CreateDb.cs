@@ -9,7 +9,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace ntucoderbe.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class CreateDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -39,7 +39,6 @@ namespace ntucoderbe.Migrations
                     CompilerID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     CompilerName = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
-                    CompilerPath = table.Column<string>(type: "longtext", nullable: false),
                     CompilerOption = table.Column<int>(type: "int", nullable: false),
                     CompilerExtension = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: true)
                 },
@@ -466,16 +465,14 @@ namespace ntucoderbe.Migrations
                     CoderID = table.Column<int>(type: "int", nullable: false),
                     CompilerID = table.Column<int>(type: "int", nullable: false),
                     ProblemID = table.Column<int>(type: "int", nullable: false),
-                    TakePartID = table.Column<int>(type: "int", nullable: false),
+                    TakePartID = table.Column<int>(type: "int", nullable: true),
                     SubmitTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     SubmissionCode = table.Column<string>(type: "longtext", nullable: false),
                     SubmissionStatus = table.Column<int>(type: "int", nullable: false),
-                    SubmitLineCount = table.Column<int>(type: "int", nullable: true),
                     TestRunCount = table.Column<int>(type: "int", nullable: true),
                     TestResult = table.Column<string>(type: "longtext", nullable: true),
                     MaxMemorySize = table.Column<string>(type: "longtext", nullable: true),
-                    MaxTimeDuration = table.Column<string>(type: "longtext", nullable: true),
-                    SubmitMinute = table.Column<string>(type: "longtext", nullable: true)
+                    MaxTimeDuration = table.Column<string>(type: "longtext", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -502,8 +499,7 @@ namespace ntucoderbe.Migrations
                         name: "FK_Submissions_TakeParts_TakePartID",
                         column: x => x.TakePartID,
                         principalTable: "TakeParts",
-                        principalColumn: "TakePartID",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "TakePartID");
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -538,6 +534,16 @@ namespace ntucoderbe.Migrations
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.InsertData(
+                table: "Compilers",
+                columns: new[] { "CompilerID", "CompilerExtension", "CompilerName", "CompilerOption" },
+                values: new object[,]
+                {
+                    { 1, ".cpp", "GCC", 0 },
+                    { 2, ".java", "Java", 0 },
+                    { 3, ".py", "Python", 0 }
+                });
 
             migrationBuilder.InsertData(
                 table: "Roles",

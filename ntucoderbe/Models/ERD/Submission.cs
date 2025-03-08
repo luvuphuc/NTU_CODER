@@ -15,14 +15,10 @@ namespace ntucoderbe.Models.ERD
 
         public int SubmissionStatus { get; set; }
 
-        public int? SubmitLineCount { get; set; }
-
         public int? TestRunCount { get; set; }
         public string? TestResult { get; set; }
         public string? MaxMemorySize { get; set; }
         public string? MaxTimeDuration { get; set; }
-        public string? SubmitMinute { get; set; }
-
         public virtual Coder Coder { get; set; }
         public virtual Compiler Compiler { get; set; }
         public virtual TakePart TakePart { get; set; }

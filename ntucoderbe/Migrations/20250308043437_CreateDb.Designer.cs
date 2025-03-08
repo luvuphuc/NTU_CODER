@@ -11,8 +11,8 @@ using ntucoderbe.Models;
 namespace ntucoderbe.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250227064052_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250308043437_CreateDb")]
+    partial class CreateDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -237,13 +237,32 @@ namespace ntucoderbe.Migrations
                     b.Property<int>("CompilerOption")
                         .HasColumnType("int");
 
-                    b.Property<string>("CompilerPath")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.HasKey("CompilerID");
 
                     b.ToTable("Compilers");
+
+                    b.HasData(
+                        new
+                        {
+                            CompilerID = 1,
+                            CompilerExtension = ".cpp",
+                            CompilerName = "GCC",
+                            CompilerOption = 0
+                        },
+                        new
+                        {
+                            CompilerID = 2,
+                            CompilerExtension = ".java",
+                            CompilerName = "Java",
+                            CompilerOption = 0
+                        },
+                        new
+                        {
+                            CompilerID = 3,
+                            CompilerExtension = ".py",
+                            CompilerName = "Python",
+                            CompilerOption = 0
+                        });
                 });
 
             modelBuilder.Entity("ntucoderbe.Models.ERD.Contest", b =>
@@ -537,16 +556,10 @@ namespace ntucoderbe.Migrations
                     b.Property<int>("SubmissionStatus")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SubmitLineCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SubmitMinute")
-                        .HasColumnType("longtext");
-
                     b.Property<DateTime>("SubmitTime")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("TakePartID")
+                    b.Property<int?>("TakePartID")
                         .HasColumnType("int");
 
                     b.Property<string>("TestResult")
@@ -886,9 +899,7 @@ namespace ntucoderbe.Migrations
 
                     b.HasOne("ntucoderbe.Models.ERD.TakePart", "TakePart")
                         .WithMany("Submissions")
-                        .HasForeignKey("TakePartID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TakePartID");
 
                     b.Navigation("Coder");
 
