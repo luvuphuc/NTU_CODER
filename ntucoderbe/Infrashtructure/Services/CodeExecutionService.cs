@@ -2,6 +2,7 @@
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
 using System.Diagnostics;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -47,7 +48,7 @@ namespace ntucoderbe.Infrashtructure.Services
             string tempFilePath = Path.Combine(Path.GetTempPath(), $"{tempFileName}{submission.Compiler.CompilerExtension}");
             await File.WriteAllTextAsync(tempFilePath, submission.SubmissionCode);
 
-            (string dockerCommand, string containerName) = GetDockerCommand(submission.Compiler, tempFileName, testCase.Input);
+            (string dockerCommand, string containerName) = GetDockerCommand(submission.Compiler,submission.SubmissionCode, tempFileName, testCase.Input);
             var stopwatch = Stopwatch.StartNew();
 
             //tuple multi value
@@ -86,10 +87,9 @@ namespace ntucoderbe.Infrashtructure.Services
             };
         }
 
-        private (string,string) GetDockerCommand(Compiler compiler, string fileName, string input)
+        private (string, string) GetDockerCommand(Compiler compiler, string sourceCode, string fileName, string input)
         {
             string containerName = $"code_runner_{Guid.NewGuid()}".Replace("-", "");
-            string volumeMount = $"-v \"{Path.GetTempPath()}:/source\"";
             string dockerImage = compiler.CompilerName.ToLower() switch
             {
                 "gcc" or "g++" => "gcc:12",
@@ -97,16 +97,22 @@ namespace ntucoderbe.Infrashtructure.Services
                 "python" => "python:3.9.21-alpine",
                 _ => throw new Exception($"Compiler {compiler.CompilerName} không được hỗ trợ.")
             };
+            string enCode = Convert.ToBase64String(Encoding.UTF8.GetBytes(sourceCode));
 
             string command = compiler.CompilerName.ToLower() switch
             {
-                "gcc" => $"docker run --rm --name {containerName} {volumeMount} {dockerImage} sh -c \"gcc /source/{fileName}{compiler.CompilerExtension} -o /source/{fileName}.out && echo '{input}' | /source/{fileName}.out\"",
-                "java" => $"docker run --rm --name {containerName} {volumeMount} {dockerImage} sh -c \"javac /source/{fileName}{compiler.CompilerExtension} && echo '{input}' | java -cp /source {fileName}\"",
-                "python" => $"docker run --rm --name {containerName} {volumeMount} {dockerImage} sh -c \"echo '{input}' | python3 /source/{fileName}{compiler.CompilerExtension}\"",
+                "gcc" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"mkdir -p /source && echo '{enCode}' | base64 -d > /source/{fileName}{compiler.CompilerExtension} && gcc /source/{fileName}{compiler.CompilerExtension} -o /source/{fileName}.out && echo '{input.Replace("\"", "\\\"")}' | /source/{fileName}.out\"",
+
+                "java" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"mkdir -p /source && echo '{enCode}' | base64 -d > /source/{fileName}{compiler.CompilerExtension} && javac /source/{fileName}{compiler.CompilerExtension} && echo '{input.Replace("\"", "\\\"")}' | java -cp /source {fileName}\"",
+
+                "python" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"mkdir -p /source && echo '{enCode}' | base64 -d > /source/{fileName}{compiler.CompilerExtension} && echo '{input.Replace("\"", "\\\"")}' | python3 /source/{fileName}{compiler.CompilerExtension}\"",
+
                 _ => throw new Exception($"Compiler {compiler.CompilerName} không được hỗ trợ.")
             };
+
             return (command, containerName);
         }
+
 
         private async Task<(bool IsSuccess, string Output, string Error)> RunProcessAsync(string command, string containerName, int timeMs =3000)
         {
