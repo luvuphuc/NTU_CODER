@@ -41,15 +41,22 @@ namespace ntucoderbe.Infrastructure.Services
         {
             try
             {
-                var imagePath = imageUrl.Split(new[] { "firebaseapp.com/" }, StringSplitOptions.None)[1];
-                var firebaseStorage = new FirebaseStorage(_bucket);
-                await firebaseStorage.Child("ntucoder").Child(imagePath).DeleteAsync();
+                var uri = new Uri(imageUrl);
+
+                var imagePath = Uri.UnescapeDataString(uri.AbsolutePath.Split(new[] { "/o/" }, StringSplitOptions.None)[1]);
+                imagePath = imagePath.Split('?')[0];
+
+                Console.WriteLine($"Deleting image: {imagePath}");
+
+                var firebaseStorage = new FirebaseStorage("luvuphuc-firebase-790e8.appspot.com");
+                await firebaseStorage.Child(imagePath).DeleteAsync();
             }
             catch (Exception ex)
             {
-                // Handle error, log it if needed
+                Console.WriteLine($"Error deleting image: {ex.Message}");
                 throw new InvalidOperationException("Error deleting image from Firebase Storage", ex);
             }
         }
+
     }
 }
