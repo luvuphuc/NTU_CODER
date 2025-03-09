@@ -48,14 +48,16 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CodeExecutionService>();
 builder.Services.AddScoped<TestRunRepository>();
+var allowedOrigins = builder.Configuration["CorsSettings:AllowedOrigins"]?.Split(",") ?? new[] { "http://localhost:3000" };
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowMyOrigin", builder =>
+    options.AddPolicy("AllowMyOrigin", policy =>
     {
-        builder.WithOrigins("http://localhost:3000")
-               .AllowAnyHeader()
-               .AllowAnyMethod();
+        policy.WithOrigins(allowedOrigins) 
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 builder.Services.AddDistributedMemoryCache();
@@ -92,7 +94,7 @@ builder.Services.AddAuthorization();
 var conString = builder.Configuration.GetConnectionString("DefaultConnection") ??
      throw new InvalidOperationException("Connection string 'DefaultConnection'" +
     " not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
     options.UseMySQL(conString));
 
 var app = builder.Build();
@@ -107,7 +109,6 @@ FirebaseApp.Create(new AppOptions
 {
     Credential = GoogleCredential.FromFile("luvuphuc-firebase-790e8-firebase-adminsdk-axcoh-03ea884b0e.json") 
 });
-app.UseMiddleware<JwtMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseCors("AllowMyOrigin");
 app.UseHttpsRedirection();

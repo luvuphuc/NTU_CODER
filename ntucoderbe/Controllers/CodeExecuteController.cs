@@ -38,6 +38,25 @@ namespace ntucoderbe.Controllers
                 return StatusCode(500, new { message = "Lỗi server: " + ex.Message });
             }
         }
+        [HttpPost("multi-sub")]
+        public async Task<IActionResult> ExecuteMultipleCodes([FromBody] List<int> submissionIds)
+        {
+            try
+            {
+                if (submissionIds == null || !submissionIds.Any())
+                {
+                    return BadRequest(new { message = "Danh sách submissions không hợp lệ." });
+                }
+
+                var testRunResults = await _codeExecutionService.ExecuteSubmissionsAsync(submissionIds);
+
+                return Ok(testRunResults);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi server: " + ex.Message });
+            }
+        }
 
 
     }

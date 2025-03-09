@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,15 +11,16 @@ namespace ntucoderbe.Infrashtructure.Services
 {
     public class CodeExecutionService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
 
-        public CodeExecutionService(ApplicationDbContext context)
+        public CodeExecutionService(IDbContextFactory<ApplicationDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         public async Task<List<TestRun>> ExecuteSubmissionAsync(int submissionId)
         {
+            await using var _context = _contextFactory.CreateDbContext();
             var submission = await _context.Submissions
                 .Include(s => s.Problem)
                 .Include(s => s.Compiler)
@@ -29,14 +31,37 @@ namespace ntucoderbe.Infrashtructure.Services
                 .Where(tc => tc.ProblemID == submission.ProblemID)
                 .ToListAsync();
 
-            var testRuns = new List<TestRun>();
-            foreach (var testCase in testCases)
-                testRuns.Add(await ExecuteTestCase(submission, testCase));
+            var testRunTasks = testCases.Select(testCase => ExecuteTestCase(submission, testCase));
+            var testRuns = await Task.WhenAll(testRunTasks);
 
             await _context.TestRuns.AddRangeAsync(testRuns);
             await _context.SaveChangesAsync();
 
-            return testRuns;
+            return testRuns.ToList();
+        }
+        public async Task<List<TestRun>> ExecuteSubmissionsAsync(List<int> submissionIds)
+        {
+            var testRuns = new ConcurrentBag<TestRun>();
+            var semaphore = new SemaphoreSlim(3);
+
+            await Parallel.ForEachAsync(submissionIds, async (submissionId, _) =>
+            {
+                await semaphore.WaitAsync();
+                try
+                {
+                    var results = await ExecuteSubmissionAsync(submissionId);
+                    foreach (var result in results)
+                    {
+                        testRuns.Add(result);
+                    }
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            });
+
+            return testRuns.ToList();
         }
 
         private async Task<TestRun> ExecuteTestCase(Submission submission, TestCase testCase)
@@ -112,9 +137,7 @@ namespace ntucoderbe.Infrashtructure.Services
 
             return (command, containerName);
         }
-
-
-        private async Task<(bool IsSuccess, string Output, string Error)> RunProcessAsync(string command, string containerName, int timeMs =3000)
+        private async Task<(bool IsSuccess, string Output, string Error)> RunProcessAsync(string command, string containerName, int timeMs = 5000)
         {
             var psi = new ProcessStartInfo
             {
@@ -132,12 +155,16 @@ namespace ntucoderbe.Infrashtructure.Services
             var errorTask = process.StandardError.ReadToEndAsync();
             var waitTask = process.WaitForExitAsync();
 
-            var timeoutTask = Task.Delay(timeMs);
-            if (await Task.WhenAny(waitTask, timeoutTask) == timeoutTask)
+            if (await Task.WhenAny(waitTask, Task.Delay(timeMs)) == waitTask)
+            {
+                string output = await outputTask;
+                string error = await errorTask;
+                return (string.IsNullOrEmpty(error), output.Trim(), error);
+            }
+            else
             {
                 try
                 {
-                    // Dừng container nếu quá thời gian
                     var killProcess = new ProcessStartInfo
                     {
                         FileName = "cmd.exe",
@@ -153,13 +180,11 @@ namespace ntucoderbe.Infrashtructure.Services
                     await kill.WaitForExitAsync();
                 }
                 catch { }
+
                 return (false, string.Empty, "Runtime Error: Time Limit Exceeded");
             }
-
-            string output = await outputTask;
-            string error = await errorTask;
-            return (string.IsNullOrEmpty(error), output.Trim(), error);
         }
+
 
 
         private string ExtractJavaClassName(string code)
