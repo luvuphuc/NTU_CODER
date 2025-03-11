@@ -71,14 +71,8 @@ namespace ntucoderbe.Infrashtructure.Services
 
         private async Task<TestRun> ExecuteTestCase(Submission submission, TestCase testCase)
         {
-            string tempFileName = submission.Compiler.CompilerName.ToLower() == "java"
-                ? ExtractJavaClassName(submission.SubmissionCode)
-                : $"code_{Guid.NewGuid()}";
-
-            string tempFilePath = Path.Combine(Path.GetTempPath(), $"{tempFileName}{submission.Compiler.CompilerExtension}");
-            await File.WriteAllTextAsync(tempFilePath, submission.SubmissionCode);
-
-            (string dockerCommand, string containerName) = GetDockerCommand(submission.Compiler,submission.SubmissionCode, tempFileName, testCase.Input);
+            (string dockerCommand, string containerName) = GetDockerCommand(submission.Compiler, submission.SubmissionCode, testCase.Input);
+           
             var stopwatch = Stopwatch.StartNew();
 
             //tuple multi value
@@ -89,14 +83,13 @@ namespace ntucoderbe.Infrashtructure.Services
             }
             finally
             {
-                if (File.Exists(tempFilePath))
-                    File.Delete(tempFilePath);
+               
             }
             stopwatch.Stop();
             string testResult;
             if (!result.isSuccess)
             {
-                bool isRuntimeError = !string.IsNullOrEmpty(result.error);
+                bool isRuntimeError = Regex.IsMatch(result.error, @"Exception in thread|Error:");
                 testResult = isRuntimeError ? "Runtime Error" : "Compilation Error";
             }
             else
@@ -117,7 +110,7 @@ namespace ntucoderbe.Infrashtructure.Services
             };
         }
 
-        private (string, string) GetDockerCommand(Compiler compiler, string sourceCode, string fileName, string input)
+        private (string, string) GetDockerCommand(Compiler compiler, string sourceCode, string input)
         {
             string containerName = $"code_runner_{Guid.NewGuid()}".Replace("-", "");
             string dockerImage = compiler.CompilerName.ToLower() switch
@@ -127,21 +120,24 @@ namespace ntucoderbe.Infrashtructure.Services
                 "python" => "python:3.9.21-alpine",
                 _ => throw new Exception($"Compiler {compiler.CompilerName} không được hỗ trợ.")
             };
-            string enCode = Convert.ToBase64String(Encoding.UTF8.GetBytes(sourceCode));
+
+            string encodedSource = Convert.ToBase64String(Encoding.UTF8.GetBytes(sourceCode));
 
             string command = compiler.CompilerName.ToLower() switch
             {
-                "gcc" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"mkdir -p /source && echo '{enCode}' | base64 -d > /source/{fileName}{compiler.CompilerExtension} && gcc /source/{fileName}{compiler.CompilerExtension} -o /source/{fileName}.out && echo '{input.Replace("\"", "\\\"")}' | /source/{fileName}.out\"",
+                "gcc" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"echo '{encodedSource}' | base64 -d | tee temp.c | gcc -x c - -o temp.out && echo '{input.Replace("\"", "\\\"")}' | ./temp.out\"",
 
-                "java" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"mkdir -p /source && echo '{enCode}' | base64 -d > /source/{fileName}{compiler.CompilerExtension} && javac /source/{fileName}{compiler.CompilerExtension} && echo '{input.Replace("\"", "\\\"")}' | /usr/bin/time -v java -cp /source {fileName}\"",
+                "java" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"echo '{encodedSource}' | base64 -d > Main.java && javac Main.java && echo '{input.Replace("\"", "\\\"")}' | java Main\"",
 
-                "python" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"mkdir -p /source && echo '{enCode}' | base64 -d > /source/{fileName}{compiler.CompilerExtension} && echo '{input.Replace("\"", "\\\"")}' | python3 /source/{fileName}{compiler.CompilerExtension}\"",
+                "python" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"echo '{encodedSource}' | base64 -d | python3 -\"",
 
                 _ => throw new Exception($"Compiler {compiler.CompilerName} không được hỗ trợ.")
             };
 
             return (command, containerName);
         }
+
+
         private async Task<(bool IsSuccess, string Output, string Error)> RunProcessAsync(string command, string containerName, int timeMs = 5000)
         {
             var psi = new ProcessStartInfo
@@ -195,14 +191,6 @@ namespace ntucoderbe.Infrashtructure.Services
 
                 return (false, string.Empty, "Runtime Error: Time Limit Exceeded");
             }
-        }
-
-
-
-        private string ExtractJavaClassName(string code)
-        {
-            var match = Regex.Match(code, @"public\s+class\s+(\w+)");
-            return match.Success ? match.Groups[1].Value : "Main";
         }
     }
 }
