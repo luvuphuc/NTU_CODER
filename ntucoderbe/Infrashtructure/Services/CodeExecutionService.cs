@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ntucoderbe.Infrashtructure.Repositories;
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
 using System.Collections.Concurrent;
@@ -36,7 +37,8 @@ namespace ntucoderbe.Infrashtructure.Services
 
             await _context.TestRuns.AddRangeAsync(testRuns);
             await _context.SaveChangesAsync();
-
+            var submissionRepo = new SubmissionRepository(_context);
+            await submissionRepo.UpdateSubmissionAfterTestRunAsync(submissionId);
             return testRuns.ToList();
         }
         public async Task<List<TestRun>> ExecuteSubmissionsAsync(List<int> submissionIds)
@@ -54,6 +56,9 @@ namespace ntucoderbe.Infrashtructure.Services
                     {
                         testRuns.Add(result);
                     }
+                    await using var _context = _contextFactory.CreateDbContext();
+                    var submissionRepo = new SubmissionRepository(_context);
+                    await submissionRepo.UpdateSubmissionAfterTestRunAsync(submissionId);
                 }
                 finally
                 {
@@ -128,7 +133,7 @@ namespace ntucoderbe.Infrashtructure.Services
             {
                 "gcc" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"mkdir -p /source && echo '{enCode}' | base64 -d > /source/{fileName}{compiler.CompilerExtension} && gcc /source/{fileName}{compiler.CompilerExtension} -o /source/{fileName}.out && echo '{input.Replace("\"", "\\\"")}' | /source/{fileName}.out\"",
 
-                "java" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"mkdir -p /source && echo '{enCode}' | base64 -d > /source/{fileName}{compiler.CompilerExtension} && javac /source/{fileName}{compiler.CompilerExtension} && echo '{input.Replace("\"", "\\\"")}' | java -cp /source {fileName}\"",
+                "java" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"mkdir -p /source && echo '{enCode}' | base64 -d > /source/{fileName}{compiler.CompilerExtension} && javac /source/{fileName}{compiler.CompilerExtension} && echo '{input.Replace("\"", "\\\"")}' | /usr/bin/time -v java -cp /source {fileName}\"",
 
                 "python" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"mkdir -p /source && echo '{enCode}' | base64 -d > /source/{fileName}{compiler.CompilerExtension} && echo '{input.Replace("\"", "\\\"")}' | python3 /source/{fileName}{compiler.CompilerExtension}\"",
 
@@ -178,8 +183,15 @@ namespace ntucoderbe.Infrashtructure.Services
                     using var kill = new Process { StartInfo = killProcess };
                     kill.Start();
                     await kill.WaitForExitAsync();
+                    if (!process.HasExited)
+                    {
+                        process.Kill();
+                    }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    return (false, string.Empty, $"Runtime Error: {ex.Message}");
+                }
 
                 return (false, string.Empty, "Runtime Error: Time Limit Exceeded");
             }

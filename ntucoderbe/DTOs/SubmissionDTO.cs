@@ -15,7 +15,7 @@
         public int SubmissionStatus { get; set; }
         public int? TestRunCount { get; set; }
         public string? TestResult { get; set; }
-        public string? MaxMemorySize { get; set; }
-        public string? MaxTimeDuration { get; set; }
+        public int? MaxMemorySize { get; set; }
+        public int? MaxTimeDuration { get; set; }
     }
 }

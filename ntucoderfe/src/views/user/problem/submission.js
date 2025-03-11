@@ -9,7 +9,7 @@ import FooterUser from "../common/footer";
 import api from "utils/api";
 import ProblemTab from "../components/problem_tab";
 import RankingTab from "../components/ranking_tab";
-import DiscussionTab from "../components/discussion_tab";
+import HistorySubTab from "../components/historysub_tab";
 import EditorTab from "../components/editor_tab";
 
 const MotionTab = motion(Tab);
@@ -125,7 +125,7 @@ const Submission = () => {
                   whileTap={{ scale: 0.95 }}
                   transition={{ duration: 0.2 }}
                 >
-                  Thảo luận
+                  Lịch sử làm bài
                 </MotionTab>
               </TabList>
 
@@ -143,7 +143,7 @@ const Submission = () => {
                     <RankingTab />
                   </TabPanel>
                   <TabPanel>
-                    <DiscussionTab />
+                    <HistorySubTab />
                   </TabPanel>
                 </TabPanels>
               </Box>

@@ -110,19 +110,33 @@ namespace ntucoderbe.Infrashtructure.Repositories
         }
         public async Task<SubmissionDTO> UpdateSubmissionAsync(int id, SubmissionDTO dto)
         {
-            var obj = await _context.Submissions.FirstOrDefaultAsync(o => o.SubmissionID == id);
+            var obj = await _context.Submissions
+                .Include(s => s.TestRuns)
+                .FirstOrDefaultAsync(o => o.SubmissionID == id);
+
             if (obj == null)
             {
-                throw new KeyNotFoundException("Không tìm thấy");
+                throw new KeyNotFoundException("Không tìm thấy Submission.");
             }
+
             obj.CompilerID = dto.CompilerID != 0 ? dto.CompilerID : obj.CompilerID;
             obj.SubmissionCode = string.IsNullOrEmpty(dto.SubmissionCode) ? obj.SubmissionCode : dto.SubmissionCode;
             obj.SubmitTime = DateTime.UtcNow;
             obj.SubmissionStatus = dto.SubmissionStatus != 0 ? dto.SubmissionStatus : obj.SubmissionStatus;
             obj.TestRunCount = dto.TestRunCount ?? obj.TestRunCount;
             obj.TestResult = string.IsNullOrEmpty(dto.TestResult) ? obj.TestResult : dto.TestResult;
-            obj.MaxMemorySize = string.IsNullOrEmpty(dto.MaxMemorySize) ? obj.MaxMemorySize : dto.MaxMemorySize;
-            obj.MaxTimeDuration = string.IsNullOrEmpty(dto.MaxTimeDuration) ? obj.MaxTimeDuration : dto.MaxTimeDuration;
+
+            if (obj.TestRuns.Any())
+            {
+                obj.MaxTimeDuration = obj.TestRuns.Max(tr => tr.TimeDuration);
+                obj.MaxMemorySize = obj.TestRuns.Max(tr => tr.MemorySize);
+            }
+            else
+            {
+                obj.MaxTimeDuration = 0;
+                obj.MaxMemorySize = 0;
+            }
+
             await _context.SaveChangesAsync();
 
             return new SubmissionDTO
@@ -138,6 +152,36 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 MaxTimeDuration = obj.MaxTimeDuration
             };
         }
+        public async Task UpdateSubmissionAfterTestRunAsync(int submissionId)
+        {
+            var obj = await _context.Submissions
+                .Include(s => s.TestRuns)
+                .FirstOrDefaultAsync(s => s.SubmissionID == submissionId);
+
+            if (obj == null)
+            {
+                throw new KeyNotFoundException("Không tìm thấy Submission.");
+            }
+
+            obj.TestRunCount = obj.TestRuns.Count;
+            if (obj.TestRuns.Any())
+            {
+                obj.MaxTimeDuration = obj.TestRuns.Max(tr => tr.TimeDuration);
+                obj.MaxMemorySize = obj.TestRuns.Max(tr => tr.MemorySize);
+                obj.TestResult = obj.TestRuns.Any(tr => tr.Result != "Accepted") ? "Failed" : "Accepted";
+            }
+            else
+            {
+                obj.MaxTimeDuration = 0;
+                obj.MaxMemorySize = 0;
+                obj.TestResult = "No Test Runs";
+            }
+
+            obj.SubmissionStatus = 1;
+
+            await _context.SaveChangesAsync();
+        }
+
 
     }
 }

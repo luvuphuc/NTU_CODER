@@ -17,8 +17,8 @@ namespace ntucoderbe.Models.ERD
 
         public int? TestRunCount { get; set; }
         public string? TestResult { get; set; }
-        public string? MaxMemorySize { get; set; }
-        public string? MaxTimeDuration { get; set; }
+        public int? MaxMemorySize { get; set; }
+        public int? MaxTimeDuration { get; set; }
         public virtual Coder Coder { get; set; }
         public virtual Compiler Compiler { get; set; }
         public virtual TakePart TakePart { get; set; }
