@@ -3,6 +3,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using ntucoderbe.DTOs;
+using ntucoderbe.Infrashtructure.Services;
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
 
@@ -21,7 +22,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
         {
             if (await CheckTitleExist(dto.Title!))
             {
-                throw new ValidationException("Tên bài viết đã tồn tại");
+                throw new InvalidOperationException("Tên blog đã tồn tại");
             }
             var blog = new Blog
             {
@@ -30,6 +31,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 BlogDate = DateTime.UtcNow,
                 PinHome = 0,
                 Published = 0,
+                CoderID = 1,
             };
 
             _context.Blogs.Add(blog);
@@ -40,9 +42,16 @@ namespace ntucoderbe.Infrashtructure.Repositories
         {
             return await _context.Blogs.AnyAsync(p => p.Title == title);
         }
-        public Task<bool> DeleteBlogAsync(int id)
+        public async Task<bool> DeleteBlogAsync(int id)
         {
-            throw new NotImplementedException();
+            var obj = await _context.Blogs.FirstOrDefaultAsync(o => o.BlogID == id);
+            if (obj == null)
+            {
+                return false;
+            }
+            _context.Blogs.Remove(obj);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<PagedResponse<BlogDTO>> GetAllBlogsAsync(QueryObject query, string? sortField = null, bool ascending = true)
@@ -74,14 +83,53 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 _ => query.OrderBy(p => p.BlogID),
             };
         }
-        public Task<BlogDTO> GetBlogByIdAsync(int id)
+        public async Task<BlogDTO> GetBlogByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var obj = await _context.Blogs
+                .Include(o => o.Coder)
+                .FirstOrDefaultAsync(o => o.BlogID == id);
+            if (obj == null)
+            {
+                throw new KeyNotFoundException("Không tìm thấy");
+            }
+
+            return new BlogDTO
+            {
+                BlogID = obj.BlogID,
+                Content = obj.Content,
+                CoderID = obj.CoderID,
+                Title = obj.Title,
+                BlogDate = obj.BlogDate,
+                PinHome = obj.PinHome,
+                Published = obj.Published,
+                CoderName = obj.Coder.CoderName
+            };
         }
 
-        public Task<BlogDTO> UpdateBlogAsync(int id, BlogDTO dto)
+        public async Task<BlogDTO> UpdateBlogAsync(int id, BlogDTO dto)
         {
-            throw new NotImplementedException();
+            var obj = await _context.Blogs
+                .Include(s => s.Coder)
+                .FirstOrDefaultAsync(o => o.BlogID == id);
+
+            if (obj == null)
+            {
+                throw new KeyNotFoundException("Không tìm thấy.");
+            }
+            obj.Title = string.IsNullOrEmpty(dto.Title) ? obj.Title : dto.Title;
+            obj.Published = dto.Published != 0 ? dto.Published : obj.Published;
+            obj.PinHome = dto.PinHome != 0 ? dto.PinHome : obj.PinHome;
+            await _context.SaveChangesAsync();
+
+            return new BlogDTO
+            {
+                BlogID = obj.BlogID,
+                Title = obj.Title,
+                BlogDate = obj.BlogDate,
+                PinHome = obj.PinHome,
+                Published = obj.Published,
+                CoderName = obj.Coder.CoderName
+            };
         }
     }
 }

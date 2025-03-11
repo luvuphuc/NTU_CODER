@@ -15,6 +15,7 @@ namespace ntucoderbe.DTOs
     public class CreateCoderDTO : CoderDTO
     {
         public string Password { get; set; }
+        public int Role {  get; set; }
     }
     public class CoderDetailDTO: CoderDTO
     {

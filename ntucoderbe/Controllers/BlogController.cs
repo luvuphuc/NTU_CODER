@@ -1,32 +1,31 @@
 ﻿using AddressManagementSystem.Infrashtructure.Helpers;
-using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
 using ntucoderbe.Infrashtructure.Repositories;
-using ntucoderbe.Infrashtructure.Services;
+using System.ComponentModel.DataAnnotations;
 
 namespace ntucoderbe.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoryController : ControllerBase
+    public class BlogController : ControllerBase
     {
-        private readonly CategoryRepository _categoryRepository;
+        private readonly BlogRepository _blogRepository;
 
-        public CategoryController(CategoryRepository categoryRepository)
+        public BlogController(BlogRepository blogRepository)
         {
-            _categoryRepository = categoryRepository;
+            _blogRepository = blogRepository;
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllCategories([FromQuery] QueryObject query,string? sortField = null,bool ascending = true)
+        public async Task<IActionResult> GetAllBlogs([FromQuery] QueryObject query, string? sortField = null, bool ascending = true)
         {
-            var categories = await _categoryRepository.GetAllCategoriesAsync(query, sortField, ascending);
+            var categories = await _blogRepository.GetAllBlogsAsync(query, sortField, ascending);
             return Ok(categories);
         }
         [HttpPost("create")]
-        public async Task<IActionResult> CreateCategory([FromBody] CategoryDTO dto)
+        public async Task<IActionResult> CreateBlog([FromBody] BlogDTO dto)
         {
             if (dto == null)
             {
@@ -34,8 +33,8 @@ namespace ntucoderbe.Controllers
             }
             try
             {
-                var createdCategory = await _categoryRepository.CreateCategoryAsync(dto);
-                return CreatedAtAction(nameof(GetCategoryById), new { id = createdCategory.CategoryID }, createdCategory);
+                var created = await _blogRepository.CreateBlogAsync(dto);
+                return CreatedAtAction(nameof(GetBlogById), new { id = created.BlogID }, created);
             }
             catch (InvalidOperationException ex)
             {
@@ -43,11 +42,11 @@ namespace ntucoderbe.Controllers
             }
         }
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetCategoryById(int id)
+        public async Task<IActionResult> GetBlogById(int id)
         {
             try
             {
-                var category = await _categoryRepository.GetCategoryByIdAsync(id);
+                var category = await _blogRepository.GetBlogByIdAsync(id);
                 return Ok(category);
             }
             catch (KeyNotFoundException ex)
@@ -56,11 +55,11 @@ namespace ntucoderbe.Controllers
             }
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryDTO dto)
+        public async Task<IActionResult> UpdateBlog(int id, [FromBody] BlogDTO dto)
         {
             try
             {
-                var updatedCategory = await _categoryRepository.UpdateCategoryAsync(id, dto);
+                var updatedCategory = await _blogRepository.UpdateBlogAsync(id, dto);
                 return Ok(updatedCategory);
             }
             catch (KeyNotFoundException ex)
@@ -69,11 +68,11 @@ namespace ntucoderbe.Controllers
             }
         }
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<IActionResult> DeleteBlog(int id)
         {
             try
             {
-                var isDeleted = await _categoryRepository.DeleteCategoryAsync(id);
+                var isDeleted = await _blogRepository.DeleteBlogAsync(id);
 
                 if (isDeleted)
                 {

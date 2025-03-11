@@ -48,6 +48,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CodeExecutionService>();
 builder.Services.AddScoped<TestRunRepository>();
+builder.Services.AddScoped<BlogRepository>();
 var allowedOrigins = builder.Configuration["CorsSettings:AllowedOrigins"]?.Split(",") ?? new[] { "http://localhost:3000" };
 
 builder.Services.AddCors(options =>

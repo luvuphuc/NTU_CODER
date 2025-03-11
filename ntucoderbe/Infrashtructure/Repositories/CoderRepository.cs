@@ -74,7 +74,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 UserName = dto.UserName!,
                 Password = hashedPassword,
                 SaltMD5 = salt,
-                RoleID = 2
+                RoleID = dto.Role,
             };
 
             _context.Accounts.Add(account);

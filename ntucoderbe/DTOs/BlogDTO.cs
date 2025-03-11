@@ -9,7 +9,7 @@
         public int Published { get; set; }
         public int PinHome { get; set; }
         public int? CoderID { get; set; }
-        public string CoderName { get; set; }
+        public string? CoderName { get; set; }
         
     }
 }
