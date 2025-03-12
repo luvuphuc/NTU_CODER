@@ -11,10 +11,10 @@
         public DateTime EndTime { get; set; }
         public string? RuleType { get; set; }
         public string? FailedPenalty { get; set; }
-        public int Published { get; set; } = 0;
-        public int Status { get; set; } = 0;
+        public int Published { get; set; }
+        public int Status { get; set; }
         public int Duration { get; set; }
-        public string? RankingFinished { get; set; }
+        public int? RankingFinished { get; set; }
         public int? FrozenTime { get; set; }
         public virtual Coder Coder { get; set; }
         public virtual ICollection<Participation> Participations { get; set; } = new HashSet<Participation>();
