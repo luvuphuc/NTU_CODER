@@ -5,11 +5,10 @@ import {
   useDisclosure, Text,
   Flex
 } from "@chakra-ui/react";
-import { CheckIcon, ChevronDownIcon } from "@chakra-ui/icons";
+import { CheckIcon, ChevronDownIcon,ChevronLeftIcon } from "@chakra-ui/icons";
 import Editor from "@monaco-editor/react";
 import api from "utils/api";
-import { useParams } from "react-router-dom";
-
+import { useParams,useNavigate } from "react-router-dom";
 const defaultSampleCode = {
   ".cpp": `#include <stdio.h>\nint main() {\n    printf("Hello world");\n    return 0;\n}`,
   ".py": `print("Hello, World!")`,
@@ -22,7 +21,7 @@ const EditorTab = () => {
   const [theme, setTheme] = useState("vs-light");
   const [code, setCode] = useState(""); 
   const { id: problemId } = useParams();
-
+  const navigate = useNavigate();
   // State cho Modal
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [modalTitle, setModalTitle] = useState("");
@@ -107,42 +106,66 @@ const EditorTab = () => {
 
   return (
     <Box display="flex" flexDirection="column" p={4}>
-      <HStack justify="end" mb={4}>
-      <Select value={selectedCompiler?.compilerID || ""} onChange={handleCompilerChange} width="150px">
+      <HStack justify="space-between" mb={4}>
+  {/* Nhóm 2 nút chọn compiler và giao diện */}
+      <HStack>
+        <Select value={selectedCompiler?.compilerID || ""} onChange={handleCompilerChange} width="150px">
           {compilers.map((compiler) => (
             <option key={compiler.compilerID} value={compiler.compilerID}>
               {compiler.compilerName}
             </option>
           ))}
         </Select>
-       <Menu>
-        <MenuButton as={Button} rightIcon={<ChevronDownIcon />} colorScheme="purple">
-          Giao diện
-        </MenuButton>
-        <MenuList>
-          {[
-            { key: "vs-light", label: "VS Light" },
-            { key: "vs-dark", label: "VS Dark" },
-            { key: "hc-black", label: "High Contrast" },
-          ].map(({ key, label }) => (
-            <MenuItem key={key} onClick={() => setTheme(key)}>
-              <HStack justify="space-between" width="full">
-                <Text fontWeight={theme === key ? "bold" : "normal"} color={theme === key ? "blue.500" : "inherit"}>
-                  {label}
-                </Text>
-                {theme === key && <CheckIcon color="blue.500" />}
-              </HStack>
-            </MenuItem>
-          ))}
-        </MenuList>
-      </Menu>
+
+        <Menu>
+          <MenuButton as={Button} rightIcon={<ChevronDownIcon />} colorScheme="purple">
+            Giao diện
+          </MenuButton>
+          <MenuList>
+            {[
+              { key: "vs-light", label: "VS Light" },
+              { key: "vs-dark", label: "VS Dark" },
+              { key: "hc-black", label: "High Contrast" },
+            ].map(({ key, label }) => (
+              <MenuItem key={key} onClick={() => setTheme(key)}>
+                <HStack justify="space-between" width="full">
+                  <Text fontWeight={theme === key ? "bold" : "normal"} color={theme === key ? "blue.500" : "inherit"}>
+                    {label}
+                  </Text>
+                  {theme === key && <CheckIcon color="blue.500" />}
+                </HStack>
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
       </HStack>
+
+      {/* Nút Quay lại */}
+      <Button
+        leftIcon={<ChevronLeftIcon boxSize={6}/>}
+        colorScheme="gray"
+        variant="solid"
+        onClick={() => navigate("/problem")}
+        _hover={{ bg: "gray.300", transform: "scale(1.05)" }}
+        _active={{ bg: "gray.400", transform: "scale(0.95)" }}
+        bg="gray.400"
+        color="black"
+        borderRadius={5}
+        boxShadow="md"
+        px={4}
+        py={2}
+        size="md"
+      >
+        Quay lại
+      </Button>
+    </HStack>
+
 
       {/* Trình soạn thảo */}
       <Box borderRadius="md" overflow="hidden" border="1px solid #ddd">
         <Editor
           width="100%"
-          height="400px"
+          height="450px"
           language={selectedCompiler?.compilerExtension.replace(".", "") || "plaintext"}
           theme={theme}
           value={code}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Container, Spinner, Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
+import { Box, Container, Spinner, Tabs, TabList, TabPanels, Tab, TabPanel,Button } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import Split from "react-split";
 import Header from "../common/header";
@@ -11,6 +11,7 @@ import ProblemTab from "../components/problem_tab";
 import RankingTab from "../components/ranking_tab";
 import HistorySubTab from "../components/historysub_tab";
 import EditorTab from "../components/editor_tab";
+
 
 const MotionTab = motion(Tab);
 
@@ -55,13 +56,12 @@ const Submission = () => {
   if (!problem) {
     return <Spinner size="xl" />;
   }
-
   return (
     <Box minH="100vh" display="flex" flexDirection="column" bg="#f4f4f4">
       <Header />
       <Navigation />
 
-      <Container maxW="container.xl" py={3} flex="1" bg="white" borderRadius="lg" boxShadow="lg" my={6}>
+      <Container maxW="full" py={3} flex="1" mx="3" bg="white" borderRadius="lg" boxShadow="lg" my={6}>
         <Split className="split" sizes={[40, 60]} minSize={300} gutterSize={10} direction="horizontal">
           {/* Tabs: Bài tập, Xếp hạng, Thảo luận */}
           <Box width="40%" position="relative">
@@ -70,7 +70,7 @@ const Submission = () => {
                 position="absolute"
                 top="-3"
                 left="-4"
-                width="103%"
+                width="102.7%"
                 borderBottom="1px solid #C0C0C0"
                 bg="#E3E3E3"
                 display="flex"
@@ -139,11 +139,11 @@ const Submission = () => {
                   <TabPanel>
                     <ProblemTab problem={problem} />
                   </TabPanel>
-                  <TabPanel>
+                  <TabPanel  ml={0} pl={0}>
                     <RankingTab />
                   </TabPanel>
-                  <TabPanel>
-                    <HistorySubTab />
+                  <TabPanel ml={0} pl={0}>
+                    <HistorySubTab/>
                   </TabPanel>
                 </TabPanels>
               </Box>

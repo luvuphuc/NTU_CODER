@@ -7,7 +7,6 @@ import {
   Th,
   Td,
   TableContainer,
-  Text,
   VStack,
 } from "@chakra-ui/react";
 
@@ -18,37 +17,69 @@ const historyData = [
     language: "C",
     tests: "2/2",
     score: 100,
-    user: "luvu****@gmail.com",
+    executionTime: "0 ms",
+  },
+  {
+    stt: 2,
+    time: "12:47 09/12/2021",
+    language: "C",
+    tests: "2/2",
+    score: 100,
     executionTime: "0 ms",
   },
 ];
 
 const HistorySubTab = () => {
   return (
-    <VStack align="start" spacing={4} w="full">
-      <TableContainer w="full" overflow="auto">
-        <Table variant="simple" size="md">
-          <Thead>
-            <Tr>
-              <Th>STT</Th>
-              <Th>Thời gian nộp</Th>
-              <Th>Ngôn ngữ</Th>
-              <Th>Kiểm thử</Th>
-              <Th>Điểm</Th>
-              <Th>Người nộp</Th>
-              <Th>Thời gian thực thi (ms)</Th>
+    <VStack spacing={1} w="full" align="stretch">
+      <TableContainer w="full" minW="max-content" overflowX="auto" px={0} pl={0} mx={0} borderRadius="md" boxShadow="md">
+        <Table variant="striped" colorScheme='blue' size="sm" w="full" minW="max-content" showColumnBorder="true">
+          {/* Header */}
+          <Thead bg="gray.300">
+            <Tr borderBottom="2px solid gray.600">
+              <Th p={2} fontSize="xs" textAlign="center" whiteSpace="normal" maxW="40px">
+                STT
+              </Th>
+              <Th p={2} fontSize="xs" textAlign="left" whiteSpace="normal" maxW="80px">
+                Thời gian
+              </Th>
+              <Th p={2} fontSize="xs" textAlign="center" whiteSpace="normal" maxW="80px">
+                Ngôn ngữ
+              </Th>
+              <Th p={2} fontSize="xs" textAlign="center" whiteSpace="normal" maxW="80px">
+                Kiểm thử
+              </Th>
+              <Th p={2} fontSize="xs" textAlign="center" whiteSpace="normal" maxW="60px">
+                Điểm
+              </Th>
+              <Th p={2} fontSize="xs" textAlign="center" whiteSpace="normal" maxW="100px">
+                Thời gian (ms)
+              </Th>
             </Tr>
           </Thead>
+
+          {/* Body */}
           <Tbody>
             {historyData.map((entry) => (
-              <Tr key={entry.stt}>
-                <Td>{entry.stt}</Td>
-                <Td>{entry.time}</Td>
-                <Td>{entry.language}</Td>
-                <Td>{entry.tests}</Td>
-                <Td>{entry.score}</Td>
-                <Td>{entry.user}</Td>
-                <Td>{entry.executionTime}</Td>
+              <Tr key={entry.stt} borderBottom="1px solid gray.400">
+                <Td p={2} fontSize="sm" textAlign="center" whiteSpace="nowrap" >
+                  {entry.stt}
+                </Td>
+                <Td p={2} fontSize="sm" textAlign="left" whiteSpace="nowrap" >
+                  {entry.time}
+                </Td>
+                <Td p={2} fontSize="sm" textAlign="center" whiteSpace="nowrap" >
+                  {entry.language}
+                </Td>
+                <Td p={2} fontSize="sm" textAlign="center" whiteSpace="nowrap" >
+                  {entry.tests}
+                </Td>
+                <Td p={2} fontSize="sm" textAlign="center" whiteSpace="nowrap">
+                  {entry.score}
+                </Td>
+                <Td p={2} fontSize="sm" textAlign="center" whiteSpace="nowrap">
+                  {entry.executionTime}
+                </Td>
               </Tr>
             ))}
           </Tbody>
