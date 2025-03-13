@@ -152,7 +152,7 @@ export default function ProblemCreate() {
       <Box bg="white" p="6" borderRadius="lg" boxShadow="lg" maxW="1000px" mx="auto">
         <Flex mb="8px" justifyContent="end" align="end" px="25px">
           <Link>
-            <Button variant="solid" size="lg" colorScheme="messenger" borderRadius="md" onClick={() => navigate(`/admin/problem/`)}>
+            <Button variant="solid" size="lg" colorScheme="blue" borderRadius="md" onClick={() => navigate(`/admin/problem/`)}>
               Quay lại <MdOutlineArrowBack />
             </Button>
           </Link>
