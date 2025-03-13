@@ -9,21 +9,23 @@ import ProblemPage from 'views/user/problem/problem_list';
 import LoginPage from 'views/auth/login';
 import ProtectedRoute from 'views/admin/protectedRoute';
 import Submission from 'views/user/problem/submission';
+import ContestPage from 'views/user/contest';
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
   return (
     <ChakraProvider theme={currentTheme}>
       <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/problem" element={<ProblemPage />} />
+      {/* <Route path="/problem" element={<ProblemPage />} />
       <Route path="/problem/:id" element={<Submission/>} />
+      <Route path="/contest" element={<ContestPage/>} /> */}
       <Route path="/login" element={<LoginPage />} />
       <Route
           path="admin/*"
           element={
-            <ProtectedRoute>
+            
               <AdminLayout theme={currentTheme} setTheme={setCurrentTheme} />
-            </ProtectedRoute>
+            
           }
         />
       <Route path="*" element={<Navigate to="/" replace />} />

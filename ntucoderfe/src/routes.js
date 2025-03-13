@@ -2,11 +2,13 @@ import React from 'react';
 
 import { Icon, layout } from '@chakra-ui/react';
 import {
-  MdBarChart,
   MdPerson,
   MdOutlineShoppingCart,
+  MdAssignment
 } from 'react-icons/md';
-
+import { BiCategory } from "react-icons/bi";
+import { GiProcessor } from "react-icons/gi";
+import { FaTrophy } from "react-icons/fa";
 // Admin Imports
 import CoderIndex from 'views/admin/coder/index';
 import CreateCoder from 'views/admin/coder/components/Create';
@@ -18,6 +20,10 @@ import ProblemCreate from 'views/admin/problem/components/Create';
 import CompilerIndex from 'views/admin/compiler';
 import ProblemPage from 'views/user/problem/problem_list';
 import Submission from 'views/user/problem/submission';
+import ContestPage from 'views/user/contest';
+import ContestIndex from 'views/admin/contest';
+import CreateContest from 'views/admin/contest/components/Create';
+import TestCaseIndex from 'views/admin/testcase';
 const routes = [
   {
     name: 'Người dùng',
@@ -28,12 +34,12 @@ const routes = [
     items: [
       {
         name: 'Tạo người dùng',
-        path: 'create',
+        path: '/create',
         component: <CreateCoder />,
       },
       {
         name: 'Chi tiết người dùng',
-        path: 'detail/:id',
+        path: '/detail/:id',
         component: <CoderDetail />,
       },
     ]
@@ -44,7 +50,7 @@ const routes = [
     path: '/category',
     icon: (
       <Icon
-        as={MdOutlineShoppingCart}
+        as={BiCategory}
         width="20px"
         height="20px"
         color="inherit"
@@ -57,27 +63,54 @@ const routes = [
     name: 'Bài tập',
     layout: '/admin',
     path: '/problem',
-    icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={MdAssignment} width="20px" height="20px" color="inherit" />,
     component: <ProblemIndex />,
     items:[
     {
       name: 'Tạo bài tập',
-      path: 'create',
+      path: '/create',
       component: <ProblemCreate />,
     },
     {
       name: 'Chi tiết bài tập',
-      path: 'detail/:id',
+      path: '/detail/:id',
       component: <ProblemDetail />,
     },
     ]
   },
   {
+    name: 'Cuộc thi',
+    layout: '/admin',
+    path: '/contest',
+    icon: (
+      <Icon
+        as={FaTrophy}
+        width="20px"
+        height="20px"
+        color="inherit"
+      />
+    ),
+    secondary: true,
+    component: <ContestIndex/>,
+    items:[
+      {
+        name: 'Tạo cuộc thi',
+        path: '/create',
+        component: <CreateContest />,
+      },
+      {
+        name: 'Chi tiết cuộc thi',
+        path: '/detail/:id',
+        component: <ProblemDetail />,
+      },
+      ]
+  },
+  {
     name: 'TestCase',
     layout: '/admin',
-    path: 'testcase',
+    path: 'testcase/:problemID',
     hidden: true,
-    
+    component: <TestCaseIndex/>
   },
   {
     name: 'Trình biên dịch',
@@ -85,7 +118,7 @@ const routes = [
     path: '/compiler',
     icon: (
       <Icon
-        as={MdOutlineShoppingCart}
+        as={GiProcessor}
         width="20px"
         height="20px"
         color="inherit"
@@ -120,7 +153,7 @@ const routes = [
     layout: '/user',
     path: '/contest',
     secondary: true,
-    component: <ProblemPage/>
+    component: <ContestPage/>
   },
   {
     name: 'HỎI & ĐÁP',

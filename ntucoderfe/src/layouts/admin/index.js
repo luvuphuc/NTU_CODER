@@ -97,31 +97,27 @@ import TestCaseIndex from 'views/admin/testcase';
       return activeNavbar;
     };
     const getRoutes = (routes) => {
-      return routes.map((route, key) => {
+      return routes.flatMap((route, key) => {
         if (route.layout === '/admin') {
-          if (route.item) {
-            // Nếu có sub-routes, render các sub-route trong item
-            return (
-              <>
-                <Route path={`${route.path}`} element={route.component} key={key} />
-                {route.item.map((subRoute, subKey) => (
-                  <Route
-                    key={subKey}
-                    path={`${route.path}/${subRoute.path}`}
-                    element={subRoute.component}
-                  />
-                ))}
-              </>
-            );
-          } else {
-            return (
-              <Route path={`${route.path}`} element={route.component} key={key} />
-            );
-          }
+          let mainRoute = <Route path={route.path} element={route.component} key={key} />;
+    
+          let subRoutes = route.items
+            ? route.items.map((subRoute, subKey) => (
+                <Route
+                  key={`${key}-${subKey}`}
+                  path={`${route.path}${subRoute.path}`} // Đảm bảo đúng đường dẫn
+                  element={subRoute.component}
+                />
+              ))
+            : [];
+    
+          return [mainRoute, ...subRoutes].filter(Boolean);
         }
-        return null;
+        return [];
       });
     };
+    
+    
     
     document.documentElement.dir = 'ltr';
     const { onOpen } = useDisclosure();
@@ -174,16 +170,6 @@ import TestCaseIndex from 'views/admin/testcase';
                 >
                   <Routes>
                     {getRoutes(routes)}
-                    <Route path="/coder" element={<ProtectedRoute><CoderIndex /></ProtectedRoute>} />
-                    <Route path="/coder/create" element={<ProtectedRoute><CreateCoder /></ProtectedRoute>} />
-                    <Route path="/coder/detail/:id" element={<ProtectedRoute><CoderDetail /></ProtectedRoute>} />
-                    <Route path="/category" element={<ProtectedRoute><CategoryIndex /></ProtectedRoute>} />
-                    <Route path="/problem" element={<ProtectedRoute><ProblemIndex /></ProtectedRoute>} />
-                    <Route path="/problem/create" element={<ProtectedRoute><ProblemCreate /></ProtectedRoute>} />
-                    <Route path="/problem/detail/:id" element={<ProtectedRoute><ProblemDetail /></ProtectedRoute>} />
-                    <Route path="/testcase/:problemID" element={<ProtectedRoute><TestCaseIndex /></ProtectedRoute>} />
-                    <Route path="/compiler" element={<ProtectedRoute><CompilerIndex /></ProtectedRoute>} />
-                    
                     <Route path="/" element={<Navigate to="/admin/default" replace />} />
                   </Routes>
                   
