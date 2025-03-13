@@ -16,6 +16,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
         }
         public async Task<PagedResponse<ContestDTO>> GetAllContestsAsync(QueryObject query, string? sortField = null, bool ascending = true)
         {
+            await UpdateContestStatusesAsync();
             var contestQuery = _context.Contest
                 .Include(c => c.Coder)
                 .Select(c => new ContestDTO
@@ -135,5 +136,24 @@ namespace ntucoderbe.Infrashtructure.Repositories
             dto.ContestID = existing.ContestID;
             return dto;
         }
+        private async Task UpdateContestStatusesAsync()
+        {
+            var now = DateTime.UtcNow;
+
+            var contests = await _context.Contest.ToListAsync();
+            foreach (var contest in contests)
+            {
+                int newStatus = contest.EndTime <= now ? 0 :
+                                contest.StartTime > now ? 2 : 1;
+
+                if (contest.Status != newStatus)
+                {
+                    contest.Status = newStatus;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
     }
 }
