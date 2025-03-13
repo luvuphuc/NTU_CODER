@@ -109,7 +109,7 @@ export default function CoderTable({ tableData, onSort, sortField, ascending, re
           <Button
             variant="solid"
             size="sm"
-            colorScheme="facebook"
+            colorScheme="blue"
             borderRadius="md"
             minW="auto"
             onClick={() => handleDetailClick(row.coderID)}

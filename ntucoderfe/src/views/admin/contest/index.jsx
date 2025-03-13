@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Box, Button, Flex } from "@chakra-ui/react";
 import api from "../../../utils/api"; 
-import ProblemTable from "./components/ColumnsTable";
 import ScrollToTop from "components/scroll/ScrollToTop";
 import { MdAdd } from "react-icons/md";
 import { Link } from "react-router-dom";
 import Pagination from "components/pagination/pagination";
+import ContestTable from "./components/ColumnsTable";
 
-export default function ProblemIndex() {
+export default function ContestIndex() {
   const [tableData, setTableData] = useState([]);
-  const [sortField, setSortField] = useState("problemCode");
+  const [sortField, setSortField] = useState("");
   const [ascending, setAscending] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -18,7 +18,7 @@ export default function ProblemIndex() {
 
   const fetchData = useCallback(async () => {
     try {
-      const response = await api.get('/problem/all', {
+      const response = await api.get('/Contest/all', {
         params: {
           Page: currentPage,
           PageSize: pageSize,
@@ -76,7 +76,7 @@ export default function ProblemIndex() {
             </Button>
           </Link>
         </Flex>
-        <ProblemTable
+        <ContestTable
           tableData={tableData}
           onSort={handleSort}
           sortField={sortField}

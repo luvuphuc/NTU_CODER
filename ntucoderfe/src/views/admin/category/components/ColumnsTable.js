@@ -141,7 +141,7 @@ export default function CategoryTable({ tableData, onSort, sortField, ascending,
           <Button
             variant="solid"
             size="sm"
-            colorScheme="facebook"
+            colorScheme="blue"
             borderRadius="md"
             minW="auto"
             onClick={() => handleEditClick(row)}

@@ -23,14 +23,14 @@ import {
   useDisclosure,
   Switch
 } from '@chakra-ui/react';
-import { BiSolidDetail } from "react-icons/bi";
+import { BiSolidDetail } from 'react-icons/bi';
 import { MdDelete } from 'react-icons/md';
 import { useNavigate, Link } from 'react-router-dom';
 import Card from 'components/card/Card';
 import api from 'utils/api';
 import { AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai";
-
-export default function ProblemTable({ tableData, onSort, sortField, ascending, refetchData }) {
+import moment from 'moment-timezone';
+export default function ContestTable({ tableData, onSort, sortField, ascending, refetchData }) {
   const { colorMode } = useColorMode();
   const textColor = colorMode === 'light' ? 'black' : 'white';
   const borderColor = colorMode === 'light' ? 'gray.200' : 'whiteAlpha.300';
@@ -38,22 +38,29 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(false);
-  const [currentproblemID, setCurrentproblemID] = useState(null);
+  const [currentcontestID, setCurrentcontestID] = useState(null);
   const [testCaseCounts, setTestCaseCounts] = useState({});
-  const handleDetailClick = (problemID) => {
-    navigate(`/admin/problem/detail/${problemID}`);
+  const handleDetailClick = (contestID) => {
+    navigate(`/admin/Contest/detail/${contestID}`);
   };
-
-  const handleTogglePublished = async (problemID, currentValue) => {
+  const getStatusColor = (status) => {
+    const statusMap = {
+      0: "red.500", // Đã kết thúc
+      1: "green.500", // Đang diễn ra
+      2: "blue.500", // Sắp diễn ra
+    };
+    return statusMap[status] || "gray.500";
+  };
+  const handleTogglePublished = async (contestID, currentValue) => {
     try {
       const newValue = currentValue === 0 ? 1 : 0;
-      const updatedTableData = tableData.map(problem =>
-        problem.problemID === problemID ? { ...problem, published: newValue } : problem
+      const updatedTableData = tableData.map(contest =>
+        contest.contestID === contestID ? { ...contest, published: newValue } : contest
       );
     
       refetchData(updatedTableData);
 
-      const response = await api.put(`/Problem/${problemID}`, { published: newValue });
+      const response = await api.put(`/Contest/${contestID}`, { published: newValue });
     
       if (response.status === 200) {
         toast({
@@ -69,8 +76,8 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
         throw new Error("Có lỗi xảy ra khi cập nhật trạng thái.");
       }
     } catch (error) {
-      const revertedTableData = tableData.map(problem =>
-        problem.problemID === problemID ? { ...problem, published: currentValue } : problem);
+      const revertedTableData = tableData.map(contest =>
+        contest.contestID === contestID ? { ...contest, published: currentValue } : contest);
       refetchData(revertedTableData);
     
       toast({
@@ -89,11 +96,11 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
       setLoading(true);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const response = await api.delete(`/Problem/${currentproblemID}`);
+      const response = await api.delete(`/Contest/${currentcontestID}`);
       if (response.status === 200) {
         toast({
           title: "Xóa thành công!",
-          description: "Bài tập đã bị xóa.",
+          description: "Cuộc thi đã bị xóa.",
           status: "success",
           duration: 5000,
           isClosable: true,
@@ -117,61 +124,57 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
       setLoading(false);
     }
   };
-  useEffect(() => {
-    const fetchTestCaseCounts = async () => {
-      try {
-        const counts = {};
-        for (const problem of tableData) {
-          const response = await api.get(`/TestCase/count?problemId=${problem.problemID}`);
-          counts[problem.problemID] = response.data.totalTestCases || 0;
-        }
-        setTestCaseCounts(counts);
-      } catch (error) {
-        console.error("Lỗi khi lấy số lượng test case:", error);
-      }
-    };
-
-    if (tableData.length > 0) {
-      fetchTestCaseCounts();
-    }
-  }, [tableData]);
   const columnsData = [
     {
-      Header: 'Mã bài tập',
-      accessor: 'problemCode',
-      sortField: 'problemCode',
+      Header: 'Tên cuộc thi',
+      accessor: 'contestName',
+      sortField: 'contestName',
     },
     {
-      Header: 'Tên bài tập',
-      accessor: 'problemName',
-      sortField: 'problemName',
-    },
-    {
-      Header: 'Tên ND',
-      accessor: 'coderName',
-    },
-    {
-      Header: 'Kiểu test',
-      accessor: 'testType',
-    },
-    {
-      Header: 'Testcase',
-      accessor: 'testCaseCount',
-      Cell: ({ row }) => (
-        <Link to={`/admin/testcase/${row.problemID}`}>
-          <Text color="blue">
-            {testCaseCounts[row.problemID] ?? 'Đang tải...'}
-          </Text>
-        </Link>
+      Header: 'Bắt đầu',
+      accessor: 'startTime',
+      sortField: 'startTime',
+      Cell: ({ value, row }) => (
+        <Text color={getStatusColor(row.status)}>
+          {moment.utc(value).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY HH:mm:ss')}
+        </Text>
       ),
     },
     {
+      Header: 'Kết thúc',
+      accessor: 'endTime',
+      Cell: ({ value, row }) => (
+        <Text color={getStatusColor(row.status)}>
+          {moment.utc(value).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY HH:mm:ss')}
+        </Text>
+      ),
+    },
+    {
+      Header: 'Người tạo',
+      accessor: 'coderName'
+    },
+    {
       Header: 'Trạng thái',
+      accessor: 'status',
+      Cell: ({ row }) => {
+        const statusMap = {
+          0: { label: "Đã kết thúc", color: "red.500" },
+          1: { label: "Đang diễn ra", color: "green.500" },
+          2: { label: "Sắp diễn ra", color: "blue.500" },
+        };
+    
+        const status = statusMap[row.status] || { label: "Không xác định", color: "gray.500" };
+    
+        return <Text color={status.color} fontWeight="bold">{status.label}</Text>;
+      },
+    },
+    {
+      Header: 'Công khai',
       accessor: 'published',
       Cell: ({ row }) => (
         <Switch
           isChecked={row.published === 1}
-          onChange={() => handleTogglePublished(row.problemID, row.published)}
+          onChange={() => handleTogglePublished(row.contestID, row.published)}
         />
       ),
     },
@@ -186,9 +189,9 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
             colorScheme="blue"
             borderRadius="md"
             minW="auto"
-            onClick={() => handleDetailClick(row.problemID)}
+            onClick={() => handleDetailClick(row.contestID)}
           >
-            <BiSolidDetail size="18" color="white"  />
+            <BiSolidDetail size="18" />
           </Button>
           <Button
             variant="solid"
@@ -197,7 +200,7 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
             borderRadius="md"
             minW="auto"
             onClick={() => {
-              setCurrentproblemID(row.problemID);
+              setCurrentcontestID(row.contestID);
               onOpen();
             }}
           >
