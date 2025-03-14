@@ -55,10 +55,10 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 ContestDescription = dto.ContestDescription,
                 StartTime = dto.StartTime!,
                 EndTime = dto.EndTime!,
-                RuleType = dto.RuleType,
-                FailedPenalty = dto.FailedPenalty,
+                RuleType = dto.RuleType!,
+                FailedPenalty = dto.FailedPenalty ?? 0,
                 Published = dto.Published?? 0,
-                Status = dto.Status ?? 0,
+                Status = dto.Status ?? 2,
                 Duration = dto.Duration ?? 0,
                 RankingFinished = dto.RankingFinished,
                 FrozenTime = dto.FrozenTime
@@ -123,14 +123,14 @@ namespace ntucoderbe.Infrashtructure.Repositories
             existing.ContestDescription = dto.ContestDescription ?? existing.ContestDescription;
             if (dto.StartTime != default(DateTime)) existing.StartTime = dto.StartTime;
             if (dto.EndTime != default(DateTime)) existing.EndTime = dto.EndTime;
-
+            if (dto.FrozenTime != default(DateTime)) existing.FrozenTime = dto.FrozenTime;
             existing.RuleType = dto.RuleType ?? existing.RuleType;
             existing.FailedPenalty = dto.FailedPenalty ?? existing.FailedPenalty;
             existing.Published = dto.Published ?? existing.Published;
             existing.Status = dto.Status ?? existing.Status;
             existing.Duration = dto.Duration ?? existing.Duration;
             existing.RankingFinished = dto.RankingFinished ?? existing.RankingFinished;
-            existing.FrozenTime = dto.FrozenTime ?? existing.FrozenTime;
+            
 
             await _context.SaveChangesAsync();
             dto.ContestID = existing.ContestID;

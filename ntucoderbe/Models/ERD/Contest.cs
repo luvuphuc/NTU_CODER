@@ -9,13 +9,13 @@
         public string? ContestDescription { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
-        public string? RuleType { get; set; }
-        public string? FailedPenalty { get; set; }
+        public string RuleType { get; set; }
+        public int FailedPenalty { get; set; }
         public int Published { get; set; }
         public int Status { get; set; }
         public int Duration { get; set; }
         public int? RankingFinished { get; set; }
-        public int? FrozenTime { get; set; }
+        public DateTime FrozenTime { get; set; }
         public virtual Coder Coder { get; set; }
         public virtual ICollection<Participation> Participations { get; set; } = new HashSet<Participation>();
         public virtual ICollection<HasProblem> HasProblems { get; set; } =  new HashSet<HasProblem>();

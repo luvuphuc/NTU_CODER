@@ -13,7 +13,14 @@ import {
   FormErrorMessage,
   Grid,
   GridItem,
-  Checkbox, // Thêm Checkbox từ Chakra UI
+  Checkbox,
+  HStack,
+  Select,
+  NumberInput,
+  NumberDecrementStepper,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import api from "utils/api";
@@ -25,7 +32,7 @@ export default function CreateContest() {
   const [contestDescription, setContestDescription] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
-  const [ruleType, setRuleType] = useState("");
+  const [ruleType, setRuleType] = useState("ACM Rule");
   const [failedPenalty, setFailedPenalty] = useState("");
   const [published, setPublished] = useState(0); // Mặc định chưa công khai
   const [duration, setDuration] = useState("");
@@ -99,53 +106,73 @@ export default function CreateContest() {
           </GridItem>
 
           <GridItem>
-            <FormControl isInvalid={errors.startTime} mb={4}>
+          <FormControl isInvalid={errors.startTime} flex="1">
               <FormLabel fontWeight="bold">Thời gian bắt đầu<Text as="span" color="red.500"> *</Text></FormLabel>
               <Input type="datetime-local" min={minDateTime} value={startTime} onChange={(e) => setStartTime(e.target.value)} />
               <FormErrorMessage>{errors.startTime}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={errors.endTime} mb={4}>
+            <FormControl isInvalid={errors.endTime} flex="1">
               <FormLabel fontWeight="bold">Thời gian kết thúc<Text as="span" color="red.500"> *</Text></FormLabel>
               <Input type="datetime-local" min={startTime || minDateTime} value={endTime} onChange={(e) => setEndTime(e.target.value)} />
               <FormErrorMessage>{errors.endTime}</FormErrorMessage>
+            </FormControl>  
+          <HStack spacing={4} align="start" mt={4}>
+            <FormControl isInvalid={errors.frozenTime} flex="1">
+              <FormLabel fontWeight="bold">Thời gian đóng băng<Text as="span" color="red.500"> *</Text></FormLabel>
+              <Input type="datetime-local" min={startTime || minDateTime} value={frozenTime} onChange={(e) => setFrozenTime(e.target.value)} />
+              <FormErrorMessage>{errors.frozenTime}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={errors.ruleType}>
-              <FormLabel fontWeight="bold">Loại luật<Text as="span" color="red.500"> *</Text></FormLabel>
-              <Input placeholder="Nhập loại luật" value={ruleType} onChange={(e) => setRuleType(e.target.value)} />
-              <FormErrorMessage>{errors.ruleType}</FormErrorMessage>
+
+            <FormControl isInvalid={errors.duration} flex="1">
+              <FormLabel fontWeight="bold">
+                Thời lượng (phút)<Text as="span" color="red.500"> *</Text>
+              </FormLabel>
+              <NumberInput 
+                min={1}
+                value={duration} 
+                onChange={(valueString) => setDuration(valueString)} 
+                maxW="full"
+              >
+                <NumberInputField placeholder="Nhập thời lượng" />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+              <FormErrorMessage>{errors.duration}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={errors.failedPenalty}>
-              <FormLabel fontWeight="bold">Hình phạt sai<Text as="span" color="red.500"> *</Text></FormLabel>
-              <Input placeholder="Nhập hình phạt" value={failedPenalty} onChange={(e) => setFailedPenalty(e.target.value)} />
-              <FormErrorMessage>{errors.failedPenalty}</FormErrorMessage>
-            </FormControl>
-            <Flex gap={4}>
-              <FormControl isInvalid={errors.duration} flex={1}>
+
+          </HStack>
+            <HStack spacing={4} align="start" mt={4}>
+              <FormControl isInvalid={errors.ruleType} flex="1">
                 <FormLabel fontWeight="bold">
-                  Thời lượng<Text as="span" color="red.500"> *</Text>
+                  Loại luật<Text as="span" color="red.500"> *</Text>
                 </FormLabel>
-                <Input
-                  type="number"
-                  placeholder="Nhập thời lượng"
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                />
-                <FormErrorMessage>{errors.duration}</FormErrorMessage>
+                <Select value={ruleType} onChange={(e) => setRuleType(e.target.value)}>
+                  <option value="ACM Rule">ACM Rule</option>
+                  <option value="Codeforces Rule">Codeforces Rule</option>
+                </Select>
+                <FormErrorMessage>{errors.ruleType}</FormErrorMessage>
               </FormControl>
 
-              <FormControl isInvalid={errors.frozenTime} flex={1}>
+              <FormControl isInvalid={errors.failedPenalty} flex="1">
                 <FormLabel fontWeight="bold">
-                  Thời gian đóng băng (m)<Text as="span" color="red.500"> *</Text>
+                  Hình phạt sai<Text as="span" color="red.500"> *</Text>
                 </FormLabel>
-                <Input
-                  type="number"
-                  placeholder="Nhập thời gian đóng băng"
-                  value={frozenTime}
-                  onChange={(e) => setFrozenTime(e.target.value)}
-                />
-                <FormErrorMessage>{errors.frozenTime}</FormErrorMessage>
+                  <NumberInput 
+                    value={failedPenalty} 
+                    onChange={(valueString) => setFailedPenalty(valueString)}
+                    maxW="full"
+                  >
+                    <NumberInputField placeholder="Nhập hình phạt" />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                  </NumberInput>
+                <FormErrorMessage>{errors.failedPenalty}</FormErrorMessage>
               </FormControl>
-            </Flex>
+            </HStack>
 
             <FormControl mb={4} mt={6}>
               <Checkbox 
