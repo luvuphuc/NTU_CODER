@@ -70,20 +70,18 @@ const ProblemDetail = () => {
   };
 
   const handleInputChange = (field, value) => {
-    setEditableValues((prev) => {
-      const updatedValues = { ...prev, [field]: value };
-      setProblemDetail((prevProblemDetail) => ({
-        ...prevProblemDetail,
-        [field]: value,
-      }));
-      return updatedValues;
-    });
+    setEditableValues((prev) => ({ ...prev, [field]: value }));
   };
+  
 
   const handleSave = async () => {
     setErrors({});
     const { problemCode, problemName, timeLimit, memoryLimit, problemContent, problemExplanation, testCode, testCompilerID } = editableValues;
-    const inputs = { problemCode, problemName, timeLimit, memoryLimit, problemContent, problemExplanation, testCode, testCompilerID, selectedCategoryIDs };
+    const inputs = {
+      problemCode, problemName, timeLimit, memoryLimit,
+      problemContent, problemExplanation, testCode, testCompilerID,
+      selectedCategoryIDs: selectedCategoryIDs || []
+    };
     
     const newErrors = {};
     const problemCodeRegex = /^[A-Za-z0-9]+$/;
@@ -103,10 +101,11 @@ const ProblemDetail = () => {
   
     // Kiểm tra không bỏ trống
     Object.keys(inputs).forEach((key) => {
-      if (!inputs[key] || (Array.isArray(inputs[key]) && inputs[key].length === 0)) {
+      if (!inputs[key] && key !== "selectedCategoryIDs") {
         newErrors[key] = "Không được bỏ trống.";
       }
     });
+    
   
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -124,11 +123,11 @@ const ProblemDetail = () => {
     }
   
     try {
-      const updatedValues = { ...editableValues, selectedCategoryIDs };
+      const updatedValues = { ...problemDetail, ...editableValues, selectedCategoryIDs };
       await api.put(`/Problem/${id}`, updatedValues, {
         headers: { "Content-Type": "application/json" },
       });
-  
+
       setProblemDetail((prev) => ({
         ...prev,
         ...editableValues,
@@ -151,6 +150,7 @@ const ProblemDetail = () => {
       
       if (error.response && error.response.data.errors) {
         const errorMessages = error.response.data.errors;
+        console.log(error.response.data)
         const newErrors = {};
         
         if (errorMessages.some((errorMessage) => errorMessage.includes('Mã bài tập'))) {
@@ -220,6 +220,7 @@ const ProblemDetail = () => {
                   <Flex key={field} align="center">
                     {editField === field ? (
                       <Input
+                        type={field === "timeLimit" || field === "memoryLimit" ? "number" : "text"}
                         value={editableValues[field] || ""}
                         onChange={(e) => handleInputChange(field, e.target.value)}
                         placeholder={`Chỉnh sửa ${field}`}
@@ -237,6 +238,7 @@ const ProblemDetail = () => {
                       </Text>
                     )}
                     <IconButton
+                      
                       aria-label="Edit"
                       icon={<MdEdit />}
                       ml={2}
@@ -264,7 +266,7 @@ const ProblemDetail = () => {
                     onChange={(value) => handleInputChange("problemContent", value)}
                   />
                 ) : (
-                  <Box p={2} dangerouslySetInnerHTML={{ __html: problemDetail.problemContent || "Chưa có thông tin" }} />
+                  <Box p={2} bg="gray.200" borderRadius="md" dangerouslySetInnerHTML={{ __html: problemDetail.problemContent || "Chưa có thông tin" }} />
                 )}
 
                 <Flex align="center">
@@ -285,19 +287,19 @@ const ProblemDetail = () => {
                     onChange={(value) => handleInputChange("problemExplanation", value)}
                   />
                 ) : (
-                  <Box p={2} dangerouslySetInnerHTML={{ __html: problemDetail.problemExplanation || "Chưa có thông tin" }} />
+                  <Box p={2} bg="gray.200" borderRadius="md" dangerouslySetInnerHTML={{ __html: problemDetail.problemExplanation || "Chưa có thông tin" }} />
                 )}
                 <Flex align="center">
                   {editField === "testType" ? (
                     <Select
-                      value={editableValues.testType || problemDetail.testType || ""}
-                      onChange={(e) => handleInputChange("testType", e.target.value)}
-                      placeholder="Chọn hình thức kiểm tra"
-                      width="50%"
-                    >
-                      <option value="Output Matching">Output Matching</option>
-                      <option value="Validate Output">Validate Output</option>
-                    </Select>
+                    value={editableValues.testType || problemDetail.testType || ""}
+                    onChange={(e) => handleInputChange("testType", e.target.value)}
+                    width="50%"
+                  >
+                    <option value="Output Matching">Output Matching</option>
+                    <option value="Validate Output">Validate Output</option>
+                  </Select>
+                  
                   ) : (
                     <Text fontSize="lg">
                       <strong>Hình thức kiểm tra:</strong>{" "}
@@ -406,6 +408,7 @@ const ProblemDetail = () => {
                   value={editableValues.testCode || ""}
                   onChange={(value) => handleInputChange("testCode", value)}
                   theme="vs"
+                  
                   options={{
                     selectOnLineNumbers: true,
                     minimap: { enabled: false },
@@ -415,7 +418,7 @@ const ProblemDetail = () => {
                   }}
                   />
                 ) : (
-                  <Box p={2} bg="gray.100" borderRadius="md" overflowX="auto">
+                  <Box p={2} bg="gray.200"  borderRadius="md" overflowX="auto">
                     <pre>
                       <code>{problemDetail.testCode || "Chưa có"}</code>
                     </pre>
