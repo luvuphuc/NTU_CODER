@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using FluentValidation;
 using FluentValidation.Results;
 using ntucoderbe.Infrashtructure.Services;
+using System.Security.Policy;
 
 namespace ntucoderbe.Infrashtructure.Repositories
 {
@@ -21,7 +22,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             _authService = authService;
         }
 
-        public async Task<PagedResponse<ProblemDTO>> GetAllProblemsAsync(QueryObject query, string? sortField = null, bool ascending = true)
+        public async Task<PagedResponse<ProblemDTO>> GetAllProblemsAsync(QueryObject query, string? sortField = null, bool ascending = true, bool published = true)
         {
             var problemQuery = _context.Problems
                 .Include(p => p.Coder)
@@ -40,7 +41,10 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     SelectedCategoryIDs = p.ProblemCategories.Select(pc => pc.CategoryID).ToList(),
                     SelectedCategoryNames = p.ProblemCategories.Select(pc => pc.Category.CatName).ToList()
                 });
-
+            if (published)
+            {
+                problemQuery = problemQuery.Where(p => p.Published == 1);
+            }
             problemQuery = ApplySorting(problemQuery, sortField, ascending);
             var problems = await PagedResponse<ProblemDTO>.CreateAsync(
                 problemQuery,
@@ -76,11 +80,11 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 ProblemExplanation = dto.ProblemExplanation!,
                 TestType = dto.TestType!,
                 TestCode = dto.TestCode!,
-                CoderID = (int)_authService.GetUserIdFromSession()!,
+                CoderID = 1,
                 Published = 0,
                 TestCompilerID = dto.TestCompilerID ?? 1!,
                 TestProgCompile = dto.TestProgCompile
-            };;
+            };
 
             _context.Problems.Add(problem);
             await _context.SaveChangesAsync();

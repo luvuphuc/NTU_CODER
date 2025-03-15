@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ntucoderbe.DTOs;
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
+using System;
 
 namespace ntucoderbe.Infrashtructure.Repositories
 {
@@ -14,7 +15,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
         {
             _context = context;
         }
-        public async Task<PagedResponse<ContestDTO>> GetAllContestsAsync(QueryObject query, string? sortField = null, bool ascending = true)
+        public async Task<PagedResponse<ContestDTO>> GetAllContestsAsync(QueryObject query, string? sortField = null, bool ascending = true, bool published = true)
         {
             await UpdateContestStatusesAsync();
             var contestQuery = _context.Contest
@@ -31,12 +32,14 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     Duration = c.Duration,
                     CoderName = c.Coder.CoderName
                 });
-
+            if (published)
+            {
+                contestQuery = contestQuery.Where(c => c.Published == 1);
+            }
             contestQuery = ApplySorting(contestQuery, sortField, ascending);
             var contests = await PagedResponse<ContestDTO>.CreateAsync(contestQuery, query.Page, query.PageSize);
             return contests;
         }
-
         public IQueryable<ContestDTO> ApplySorting(IQueryable<ContestDTO> query, string? sortField, bool ascending)
         {
             return sortField?.ToLower() switch
@@ -48,13 +51,17 @@ namespace ntucoderbe.Infrashtructure.Repositories
         }
         public async Task<ContestDTO> CreateContestAsync(ContestDTO dto)
         {
+            if (dto.EndTime <= dto.StartTime)
+            {
+                throw new InvalidOperationException("Thời gian kết thúc phải lớn hơn thời gian bắt đầu.");
+            }
             var contest = new Contest
             {
                 CoderID = 1,
                 ContestName = dto.ContestName!,
                 ContestDescription = dto.ContestDescription,
-                StartTime = dto.StartTime!,
-                EndTime = dto.EndTime!,
+                StartTime = dto.StartTime.ToUniversalTime(),
+                EndTime = dto.EndTime.ToUniversalTime(),
                 RuleType = dto.RuleType!,
                 FailedPenalty = dto.FailedPenalty ?? 0,
                 Published = dto.Published?? 0,
@@ -121,21 +128,36 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
             existing.ContestName = dto.ContestName ?? existing.ContestName;
             existing.ContestDescription = dto.ContestDescription ?? existing.ContestDescription;
-            if (dto.StartTime != default(DateTime)) existing.StartTime = dto.StartTime;
-            if (dto.EndTime != default(DateTime)) existing.EndTime = dto.EndTime;
-            if (dto.FrozenTime != default(DateTime)) existing.FrozenTime = dto.FrozenTime;
+
+            existing.StartTime = dto.StartTime != default(DateTime)
+                ? new DateTimeOffset(dto.StartTime, TimeSpan.FromHours(7)).UtcDateTime
+                : existing.StartTime;
+
+            existing.EndTime = dto.EndTime != default(DateTime)
+                ? new DateTimeOffset(dto.EndTime, TimeSpan.FromHours(7)).UtcDateTime
+                : existing.EndTime;
+
+            existing.FrozenTime = dto.FrozenTime != default(DateTime)
+                ? new DateTimeOffset(dto.FrozenTime, TimeSpan.FromHours(7)).UtcDateTime
+                : existing.FrozenTime;
+
             existing.RuleType = dto.RuleType ?? existing.RuleType;
             existing.FailedPenalty = dto.FailedPenalty ?? existing.FailedPenalty;
             existing.Published = dto.Published ?? existing.Published;
             existing.Status = dto.Status ?? existing.Status;
             existing.Duration = dto.Duration ?? existing.Duration;
             existing.RankingFinished = dto.RankingFinished ?? existing.RankingFinished;
-            
+
+            if (existing.EndTime <= existing.StartTime)
+            {
+                throw new InvalidOperationException("Thời gian kết thúc phải lớn hơn thời gian bắt đầu.");
+            }
 
             await _context.SaveChangesAsync();
             dto.ContestID = existing.ContestID;
             return dto;
         }
+
         private async Task UpdateContestStatusesAsync()
         {
             var now = DateTime.UtcNow;
