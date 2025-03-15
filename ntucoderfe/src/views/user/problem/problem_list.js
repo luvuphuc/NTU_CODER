@@ -24,10 +24,14 @@ import { IoMdHeartEmpty } from 'react-icons/io';
 import FooterUser from '../common/footer';
 import api from '../../../utils/api';
 import { Link } from 'react-router-dom';
+import Pagination from 'components/pagination/pagination';
 
 export default function ProblemPage() {
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [totalPages, setTotalPages] = useState(1);
   const [difficulty, setDifficulty] = useState({
     easy: false,
     medium: false,
@@ -42,9 +46,17 @@ export default function ProblemPage() {
 
   useEffect(() => {
     const fetchProblems = async () => {
+      setLoading(true);
       try {
-        const response = await api.get('/problem/all');
+        const response = await api.get('/problem/all', {
+          params: {
+            Page: currentPage,
+            PageSize: pageSize,
+            published: true,
+          },
+        });
         setProblems(response.data.data);
+        setTotalPages(response.data.totalPages || 1);
       } catch (error) {
         console.error('Error fetching problems:', error);
       } finally {
@@ -52,7 +64,7 @@ export default function ProblemPage() {
       }
     };
     fetchProblems();
-  }, []);
+  }, [currentPage, pageSize]);
 
   return (
     <Box>
@@ -69,24 +81,21 @@ export default function ProblemPage() {
           gap={6}
           alignItems="start"
         >
-          {/* Hiển thị Loading*/}
           {loading && (
             <Box
               w="full"
               display="flex"
               flexDirection="column"
               bg="white"
-              overflowY="auto"
               boxShadow="md"
               borderRadius="md"
             >
-              <Flex justify="center" align="center" minH="365px" maxH="700px">
+              <Flex justify="center" align="center" minH="365px">
                 <Spinner size="xl" color="blue.500" />
               </Flex>
             </Box>
           )}
 
-          {/* Danh sách bài tập */}
           {!loading && (
             <Stack spacing={6} w="full">
               {problems.map((problem) => (
@@ -96,7 +105,6 @@ export default function ProblemPage() {
                   boxShadow="md"
                   p={4}
                   minH="150px"
-                  h="200px"
                 >
                   <CardBody>
                     <Flex justify="space-between" align="center">
@@ -143,17 +151,22 @@ export default function ProblemPage() {
                   </CardBody>
                 </Card>
               ))}
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                pageSize={pageSize}
+                onPageSizeChange={setPageSize}
+              />
             </Stack>
           )}
 
-          {/*Bộ lọc */}
           <Box borderRadius="lg" boxShadow="md" p={4} bg="gray.100">
             <Stack spacing={3}>
               <Text fontWeight="bold" color="gray.600" fontSize="lg">
                 Độ khó
               </Text>
               <Checkbox
-                name="easy"
                 isChecked={difficulty.easy}
                 onChange={(e) =>
                   setDifficulty({ ...difficulty, easy: e.target.checked })
@@ -162,7 +175,6 @@ export default function ProblemPage() {
                 Dễ
               </Checkbox>
               <Checkbox
-                name="medium"
                 isChecked={difficulty.medium}
                 onChange={(e) =>
                   setDifficulty({ ...difficulty, medium: e.target.checked })
@@ -171,7 +183,6 @@ export default function ProblemPage() {
                 Trung bình
               </Checkbox>
               <Checkbox
-                name="hard"
                 isChecked={difficulty.hard}
                 onChange={(e) =>
                   setDifficulty({ ...difficulty, hard: e.target.checked })
@@ -179,14 +190,11 @@ export default function ProblemPage() {
               >
                 Khó
               </Checkbox>
-
               <Divider my={4} />
-
               <Text fontWeight="bold" color="gray.600">
                 Trạng thái
               </Text>
               <Checkbox
-                name="unsolved"
                 isChecked={status.unsolved}
                 onChange={(e) =>
                   setStatus({ ...status, unsolved: e.target.checked })
@@ -195,7 +203,6 @@ export default function ProblemPage() {
                 Chưa giải
               </Checkbox>
               <Checkbox
-                name="solved"
                 isChecked={status.solved}
                 onChange={(e) =>
                   setStatus({ ...status, solved: e.target.checked })
@@ -204,7 +211,6 @@ export default function ProblemPage() {
                 Đã giải
               </Checkbox>
               <Checkbox
-                name="attempted"
                 isChecked={status.attempted}
                 onChange={(e) =>
                   setStatus({ ...status, attempted: e.target.checked })
@@ -212,7 +218,6 @@ export default function ProblemPage() {
               >
                 Đã thử
               </Checkbox>
-
               <Checkbox
                 colorScheme="blue"
                 isChecked={showFavorites}
@@ -224,7 +229,6 @@ export default function ProblemPage() {
           </Box>
         </Grid>
       </Container>
-
       <FooterUser />
     </Box>
   );
