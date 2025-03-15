@@ -20,10 +20,11 @@ import {
 } from '@chakra-ui/react';
 import Navigation from '../common/navigation';
 import Header from '../common/header';
-import { IoMdHeartEmpty } from "react-icons/io";
+import { IoMdHeartEmpty } from 'react-icons/io';
 import FooterUser from '../common/footer';
 import api from '../../../utils/api';
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
+
 export default function ProblemPage() {
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,6 +53,7 @@ export default function ProblemPage() {
     };
     fetchProblems();
   }, []);
+
   return (
     <Box>
       <Header />
@@ -61,69 +63,164 @@ export default function ProblemPage() {
         <Heading textAlign="center" mb={10} color="gray.700">
           DANH SÁCH BÀI TẬP
         </Heading>
-        
-        <Grid templateColumns={{ base: '1fr', md: '3fr 7fr' }} gap={6} alignItems="start">
-          {/* Sidebar: Bộ lọc */}
-          <Box borderRadius="lg" boxShadow="md" p={4} bg="gray.100">
-            <Stack spacing={3}>
-              <Text fontWeight="bold" color="gray.600" fontSize="lg">Độ khó</Text>
-              <Checkbox name="easy" isChecked={difficulty.easy} onChange={(e) => setDifficulty({ ...difficulty, easy: e.target.checked })}>Dễ</Checkbox>
-              <Checkbox name="medium" isChecked={difficulty.medium} onChange={(e) => setDifficulty({ ...difficulty, medium: e.target.checked })}>Trung bình</Checkbox>
-              <Checkbox name="hard" isChecked={difficulty.hard} onChange={(e) => setDifficulty({ ...difficulty, hard: e.target.checked })}>Khó</Checkbox>
-              
-              <Divider my={4} />
 
-              <Text fontWeight="bold" color="gray.600">Trạng thái</Text>
-              <Checkbox name="unsolved" isChecked={status.unsolved} onChange={(e) => setStatus({ ...status, unsolved: e.target.checked })}>Chưa giải</Checkbox>
-              <Checkbox name="solved" isChecked={status.solved} onChange={(e) => setStatus({ ...status, solved: e.target.checked })}>Đã giải</Checkbox>
-              <Checkbox name="attempted" isChecked={status.attempted} onChange={(e) => setStatus({ ...status, attempted: e.target.checked })}>Đã thử</Checkbox>
-              
-              <Checkbox colorScheme="blue" isChecked={showFavorites} onChange={(e) => setShowFavorites(e.target.checked)}>Chỉ hiển thị bài tập yêu thích</Checkbox>
-            </Stack>
-          </Box>
-
-          {/* Danh sách bài tập */}
-          <Box w="full" display="flex" flexDirection="column" bg="white" overflowY="auto" boxShadow="md" borderRadius="md">
-            {loading ? (
+        <Grid
+          templateColumns={{ base: '1fr', md: '7fr 3fr' }}
+          gap={6}
+          alignItems="start"
+        >
+          {/* Hiển thị Loading*/}
+          {loading && (
+            <Box
+              w="full"
+              display="flex"
+              flexDirection="column"
+              bg="white"
+              overflowY="auto"
+              boxShadow="md"
+              borderRadius="md"
+            >
               <Flex justify="center" align="center" minH="365px" maxH="700px">
                 <Spinner size="xl" color="blue.500" />
               </Flex>
-            ) : (
-              <Stack spacing={6} w="full">
-                {problems.map((problem) => (
-                  <Card key={problem.problemId} borderRadius="lg" boxShadow="md" p={4} minH="150px">
-                    <CardBody>
-                      <Flex justify="space-between" align="center">
-                        <Stack spacing={3} flex="1">
-                          <Heading size="lg">{problem.problemName}</Heading>
-                          <Wrap>
-                            {problem.selectedCategoryNames.map((category, index) => (
+            </Box>
+          )}
+
+          {/* Danh sách bài tập */}
+          {!loading && (
+            <Stack spacing={6} w="full">
+              {problems.map((problem) => (
+                <Card
+                  key={problem.problemId}
+                  borderRadius="lg"
+                  boxShadow="md"
+                  p={4}
+                  minH="150px"
+                  h="200px"
+                >
+                  <CardBody>
+                    <Flex justify="space-between" align="center">
+                      <Stack spacing={3} flex="1">
+                        <Heading size="lg">{problem.problemName}</Heading>
+                        <Wrap>
+                          {problem.selectedCategoryNames.map(
+                            (category, index) => (
                               <WrapItem key={index}>
-                                <Badge colorScheme="purple" fontSize="0.8rem">{category}</Badge>
+                                <Badge colorScheme="purple" fontSize="0.8rem">
+                                  {category}
+                                </Badge>
                               </WrapItem>
-                            ))}
-                          </Wrap>
-                          <Box color="gray.600" fontSize="md" dangerouslySetInnerHTML={{ __html: problem.problemContent }} />
-                        </Stack>
-                        <Flex align="center" ml={4}>
+                            ),
+                          )}
+                        </Wrap>
+                        <Box
+                          color="gray.600"
+                          fontSize="md"
+                          dangerouslySetInnerHTML={{
+                            __html: problem.problemContent,
+                          }}
+                        />
+                      </Stack>
+                      <Flex align="center" ml={4}>
                         <Link to={`/problem/${problem.problemID}`}>
-                          <Button colorScheme="blue" size="md" mr={2} borderRadius="10">
+                          <Button
+                            colorScheme="blue"
+                            size="md"
+                            mr={2}
+                            borderRadius="10"
+                          >
                             Giải bài tập
                           </Button>
                         </Link>
-                          <IconButton
-                            aria-label="Yêu thích"
-                            icon={<IoMdHeartEmpty size={24} color="red" />}
-                            variant="ghost"
-                            bg="white"
-                          />
-                        </Flex>
+                        <IconButton
+                          aria-label="Yêu thích"
+                          icon={<IoMdHeartEmpty size={24} color="red" />}
+                          variant="ghost"
+                          bg="white"
+                        />
                       </Flex>
-                    </CardBody>
-                  </Card>
-                ))}
-              </Stack>
-            )}
+                    </Flex>
+                  </CardBody>
+                </Card>
+              ))}
+            </Stack>
+          )}
+
+          {/*Bộ lọc */}
+          <Box borderRadius="lg" boxShadow="md" p={4} bg="gray.100">
+            <Stack spacing={3}>
+              <Text fontWeight="bold" color="gray.600" fontSize="lg">
+                Độ khó
+              </Text>
+              <Checkbox
+                name="easy"
+                isChecked={difficulty.easy}
+                onChange={(e) =>
+                  setDifficulty({ ...difficulty, easy: e.target.checked })
+                }
+              >
+                Dễ
+              </Checkbox>
+              <Checkbox
+                name="medium"
+                isChecked={difficulty.medium}
+                onChange={(e) =>
+                  setDifficulty({ ...difficulty, medium: e.target.checked })
+                }
+              >
+                Trung bình
+              </Checkbox>
+              <Checkbox
+                name="hard"
+                isChecked={difficulty.hard}
+                onChange={(e) =>
+                  setDifficulty({ ...difficulty, hard: e.target.checked })
+                }
+              >
+                Khó
+              </Checkbox>
+
+              <Divider my={4} />
+
+              <Text fontWeight="bold" color="gray.600">
+                Trạng thái
+              </Text>
+              <Checkbox
+                name="unsolved"
+                isChecked={status.unsolved}
+                onChange={(e) =>
+                  setStatus({ ...status, unsolved: e.target.checked })
+                }
+              >
+                Chưa giải
+              </Checkbox>
+              <Checkbox
+                name="solved"
+                isChecked={status.solved}
+                onChange={(e) =>
+                  setStatus({ ...status, solved: e.target.checked })
+                }
+              >
+                Đã giải
+              </Checkbox>
+              <Checkbox
+                name="attempted"
+                isChecked={status.attempted}
+                onChange={(e) =>
+                  setStatus({ ...status, attempted: e.target.checked })
+                }
+              >
+                Đã thử
+              </Checkbox>
+
+              <Checkbox
+                colorScheme="blue"
+                isChecked={showFavorites}
+                onChange={(e) => setShowFavorites(e.target.checked)}
+              >
+                Chỉ hiển thị bài tập yêu thích
+              </Checkbox>
+            </Stack>
           </Box>
         </Grid>
       </Container>
