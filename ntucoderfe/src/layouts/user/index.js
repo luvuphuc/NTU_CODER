@@ -3,8 +3,7 @@ import { Box } from '@chakra-ui/react';
 import Navigation from 'views/user/common/navigation';
 import Header from 'views/user/common/header';
 import FooterUser from 'views/user/common/footer';
-
-const Layout = ({ children }) => {
+const LayoutUser = ({ children }) => {
   return (
     <Box>
       <Header />
@@ -17,4 +16,4 @@ const Layout = ({ children }) => {
   );
 };
 
-export default Layout;
+export default LayoutUser;

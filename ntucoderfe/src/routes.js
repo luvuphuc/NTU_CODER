@@ -121,7 +121,7 @@ const routes = [
     items: [
       {
         name: 'Chi tiết bài tập',
-        path: 'problem/:id',
+        path: '/:id',
         component: <Submission />,
       },
     ],

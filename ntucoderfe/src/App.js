@@ -6,11 +6,10 @@ import initialTheme from './theme/theme';
 import ProtectedRoute from 'views/admin/protectedRoute';
 import routes from 'routes';
 import LoginPage from 'views/auth/login';
-import HomePage from 'views/user/homepage';
 import AdminLayout from './layouts/admin';
-
+import HomePage from 'views/user/homepage';
 export default function Main() {
-  const [currentTheme, setCurrentTheme] = useState(initialTheme);
+  const [currentTheme] = useState(initialTheme);
 
   return (
     <ChakraProvider theme={currentTheme}>
@@ -23,14 +22,24 @@ export default function Main() {
             </ProtectedRoute>
           }
         />
-
         {routes.map((route, index) =>
           route.layout === '/user' ? (
             <Route key={index} path={route.path} element={route.component} />
           ) : null,
         )}
+        {routes
+          .filter((route) => route.layout === '/user' && route.items)
+          .flatMap((parentRoute) =>
+            parentRoute.items.map((child, idx) => (
+              <Route
+                key={`child-${idx}`}
+                path={`${parentRoute.path}${child.path}`}
+                element={child.component}
+              />
+            )),
+          )}
         <Route path="/login" element={<LoginPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<HomePage />} />
       </Routes>
     </ChakraProvider>
   );
