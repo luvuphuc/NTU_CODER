@@ -21,6 +21,7 @@ import ContestIndex from 'views/admin/contest';
 import CreateContest from 'views/admin/contest/components/Create';
 import TestCaseIndex from 'views/admin/testcase';
 import ContestDetail from 'views/admin/contest/components/Detail';
+import HomePage from 'views/user/homepage';
 const routes = [
   {
     name: 'Người dùng',
@@ -108,7 +109,7 @@ const routes = [
     layout: '/user',
     path: '/',
     secondary: true,
-    component: <ProblemPage />,
+    component: <HomePage />,
   },
   {
     name: 'BÀI TẬP',
