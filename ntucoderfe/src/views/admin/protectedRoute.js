@@ -1,24 +1,40 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
+import api from 'utils/api';
 
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [isAuthorized, setIsAuthorized] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token"); // Kiểm tra token
-    const roleID = localStorage.getItem("roleID");
+    const checkAuth = async () => {
+      const token = Cookies.get('token');
 
-    if (!token || !roleID || parseInt(roleID) !== 1) {
-      navigate("/login", { replace: true }); // Nếu không có quyền, chuyển hướng về login
-    } else {
-      setIsAuthenticated(true);
-    }
+      if (!token) {
+        setIsAuthorized(false);
+        navigate('/login', { replace: true });
+        return;
+      }
+
+      try {
+        await api.get('/auth/protected-route', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setIsAuthorized(true);
+      } catch (error) {
+        setIsAuthorized(false);
+        Cookies.remove('token'); // Xóa token nếu hết hạn
+        navigate('/login', { replace: true });
+      }
+    };
+
+    checkAuth();
   }, [navigate]);
 
-  if (isAuthenticated === null) return null; // Tránh render trang trắng
+  if (isAuthorized === null) return <div>Loading...</div>;
 
-  return children;
+  return isAuthorized ? children : null;
 };
 
 export default ProtectedRoute;

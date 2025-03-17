@@ -21,11 +21,11 @@ namespace ntucoderbe.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllProblems([FromQuery] QueryObject query, string? sortField = null, bool ascending = true)
+        public async Task<IActionResult> GetAllProblems([FromQuery] QueryObject query, string? sortField = null, bool ascending = true, bool published = false)
         {
             try
             {
-                var result = await _problemRepository.GetAllProblemsAsync(query, sortField, ascending);
+                var result = await _problemRepository.GetAllProblemsAsync(query, sortField, ascending, published);
                 return Ok(result);
             }
             catch (Exception ex)

@@ -18,7 +18,7 @@ namespace ntucoderbe.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllContests([FromQuery] QueryObject query, string? sortField = null, bool ascending = true, bool published = true)
+        public async Task<IActionResult> GetAllContests([FromQuery] QueryObject query, string? sortField = null, bool ascending = true, bool published = false)
         {
             try
             {

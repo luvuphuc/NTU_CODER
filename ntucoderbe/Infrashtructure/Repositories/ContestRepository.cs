@@ -15,7 +15,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
         {
             _context = context;
         }
-        public async Task<PagedResponse<ContestDTO>> GetAllContestsAsync(QueryObject query, string? sortField = null, bool ascending = true, bool published = true)
+        public async Task<PagedResponse<ContestDTO>> GetAllContestsAsync(QueryObject query, string? sortField = null, bool ascending = true, bool published = false)
         {
             await UpdateContestStatusesAsync();
             var contestQuery = _context.Contest

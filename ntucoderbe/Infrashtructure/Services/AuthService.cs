@@ -1,14 +1,14 @@
-﻿using ntucoderbe.Infrashtructure.Repositories;
-using ntucoderbe.Models.ERD;
-using ntucoderbe.Models;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using ntucoderbe.Infrashtructure.Helpers;
+using ntucoderbe.Models.ERD;
 using ntucoderbe.Infrashtructure.Enums;
+using Microsoft.AspNetCore.Http;
+using ntucoderbe.Infrashtructure.Helpers;
+using ntucoderbe.Models;
+using Microsoft.EntityFrameworkCore;
+
 namespace ntucoderbe.Infrashtructure.Services
 {
     public class AuthService
@@ -27,9 +27,7 @@ namespace ntucoderbe.Infrashtructure.Services
         public async Task<(string?, Account?)> AuthenticateAsync(string username, string password)
         {
             var user = await _context.Accounts.FirstOrDefaultAsync(u => u.UserName == username);
-            if (user == null) return (null, null);
-
-            if (!PasswordHelper.VerifyPassword(password, user.Password, user.SaltMD5))
+            if (user == null || !PasswordHelper.VerifyPassword(password, user.Password, user.SaltMD5))
             {
                 return (null, null);
             }
@@ -38,16 +36,14 @@ namespace ntucoderbe.Infrashtructure.Services
             return (token, user);
         }
 
-
-        public string GenerateJwtToken(Account user)
+        private string GenerateJwtToken(Account user)
         {
             var key = Encoding.UTF8.GetBytes(_config["JwtConfig:SecretKey"]);
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.AccountID.ToString()),
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
-                new Claim(ClaimTypes.Role, Enum.GetName(typeof(RoleEnum), user.RoleID))
-
+                new Claim(ClaimTypes.Role, user.RoleID.ToString())
             };
 
             var token = new JwtSecurityToken(
@@ -57,20 +53,13 @@ namespace ntucoderbe.Infrashtructure.Services
                 expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_config["JwtConfig:ExpireMinutes"])),
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
             );
+
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        public int? GetUserIdFromSession()
+        public int? GetUserIdFromToken()
         {
-            return _httpContextAccessor.HttpContext?.Session.GetInt32("UserID");
-        }
-        public void SaveUserSession(int userId)
-        {
-            _httpContextAccessor.HttpContext?.Session.SetInt32("UserID", userId);
-        }
-
-        public bool VerifyPassword(string inputPassword, string storedHash, string salt)
-        {
-            return PasswordHelper.VerifyPassword(inputPassword, storedHash, salt);
+            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            return int.TryParse(userIdClaim, out int userId) ? userId : null;
         }
     }
 }

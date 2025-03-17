@@ -22,7 +22,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             _authService = authService;
         }
 
-        public async Task<PagedResponse<ProblemDTO>> GetAllProblemsAsync(QueryObject query, string? sortField = null, bool ascending = true, bool published = true)
+        public async Task<PagedResponse<ProblemDTO>> GetAllProblemsAsync(QueryObject query, string? sortField = null, bool ascending = true, bool published = false)
         {
             var problemQuery = _context.Problems
                 .Include(p => p.Coder)

@@ -7,6 +7,8 @@ using ntucoderbe.DTOs;
 using ntucoderbe.Infrashtructure.Services;
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace ntucoderbe.Controllers
@@ -15,36 +17,52 @@ namespace ntucoderbe.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
         private readonly AuthService _authService;
 
-        public AuthController(ApplicationDbContext context, AuthService authService)
+        public AuthController(AuthService authService)
         {
-            _context = context;
             _authService = authService;
         }
+
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] AccountDTO model)
         {
-            var (token, user) = await _authService.AuthenticateAsync(model.UserName, model.Password);
-
-            if (token == null || user == null)
+            if (model == null || string.IsNullOrEmpty(model.UserName) || string.IsNullOrEmpty(model.Password))
             {
-                return Unauthorized(new { message = "Sai tên hoặc mật khẩu" });
+                return BadRequest();
             }
 
-            _authService.SaveUserSession(user.AccountID);
+            var (token, user) = await _authService.AuthenticateAsync(model.UserName, model.Password);
+            if (token == null)
+            {
+                return Unauthorized("Sai tên đăng nhập hoặc mật khẩu");
+            }
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true, 
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddMinutes(60)
+            };
+            Response.Cookies.Append("jwt", token, cookieOptions);
 
-            return Ok(new { token, roleID = user.RoleID });
+            return Ok(new {token, AccountID = user.AccountID, RoleID = user.RoleID });
         }
 
 
-        [HttpGet("logout")]
+        [Authorize]
+        [HttpPost("logout")]
         public IActionResult Logout()
         {
-            HttpContext.Session.Clear();
-            return Ok("Logged out");
+            return Ok();
         }
+        [Authorize(Roles = "1")]
+        [HttpGet("protected-route")]
+        public IActionResult ProtectedRoute()
+        {
+            return Ok();
+        }
+
     }
 }

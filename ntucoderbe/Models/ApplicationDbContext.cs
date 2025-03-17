@@ -380,7 +380,7 @@ namespace ntucoderbe.Models
                       .HasMaxLength(255);
 
                 entity.Property(c => c.FrozenTime)
-                      .HasColumnType("int");
+                      .HasColumnType("datetime");
 
                 entity.HasOne(c => c.Coder)
                       .WithMany(c =>c.Contests)
