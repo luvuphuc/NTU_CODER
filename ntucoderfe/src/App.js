@@ -1,34 +1,36 @@
 import './assets/css/App.css';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import AdminLayout from './layouts/admin';
 import { ChakraProvider } from '@chakra-ui/react';
-import HomePage from 'layouts/user';
-import initialTheme from './theme/theme'; //  { themeGreen }
 import { useState } from 'react';
-import ProblemPage from 'views/user/problem/problem_list';
-import LoginPage from 'views/auth/login';
+import initialTheme from './theme/theme';
 import ProtectedRoute from 'views/admin/protectedRoute';
-import Submission from 'views/user/problem/submission';
-import ContestPage from 'views/user/contest';
+import routes from 'routes';
+import LoginPage from 'views/auth/login';
+import HomePage from 'views/user/homepage';
+import AdminLayout from './layouts/admin';
+
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
+
   return (
     <ChakraProvider theme={currentTheme}>
       <Routes>
-      <Route path="/" element={<HomePage />} />
-      {/* <Route path="/problem" element={<ProblemPage />} />
-      <Route path="/problem/:id" element={<Submission/>} />
-      <Route path="/contest" element={<ContestPage/>} /> */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route
-          path="admin/*"
+        <Route
+          path="/admin/*"
           element={
-            
-              <AdminLayout theme={currentTheme} setTheme={setCurrentTheme} />
-            
+            <ProtectedRoute>
+              <AdminLayout />
+            </ProtectedRoute>
           }
         />
-      <Route path="*" element={<Navigate to="/" replace />} />
+
+        {routes.map((route, index) =>
+          route.layout === '/user' ? (
+            <Route key={index} path={route.path} element={route.component} />
+          ) : null,
+        )}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </ChakraProvider>
   );

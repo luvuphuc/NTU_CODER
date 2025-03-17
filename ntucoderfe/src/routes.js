@@ -22,6 +22,7 @@ import CreateContest from 'views/admin/contest/components/Create';
 import TestCaseIndex from 'views/admin/testcase';
 import ContestDetail from 'views/admin/contest/components/Detail';
 import HomePage from 'views/user/homepage';
+import SignIn from 'views/auth/login';
 const routes = [
   {
     name: 'Người dùng',
@@ -152,6 +153,12 @@ const routes = [
     path: '/blog',
     secondary: true,
     component: <ProblemPage />,
+  },
+  {
+    name: 'ĐĂNG NHẬP',
+    layout: 'auth',
+    path: '/login',
+    component: <SignIn />,
   },
 ];
 

@@ -25,6 +25,7 @@ import FooterUser from '../common/footer';
 import api from '../../../utils/api';
 import { Link } from 'react-router-dom';
 import Pagination from 'components/pagination/pagination';
+import Layout from 'layouts/user';
 
 export default function ProblemPage() {
   const [problems, setProblems] = useState([]);
@@ -67,169 +68,167 @@ export default function ProblemPage() {
   }, [currentPage, pageSize]);
 
   return (
-    <Box>
-      <Header />
-      <Navigation />
+    <Layout>
+      <Box>
+        <Container maxW="7xl" py={{ base: 12, md: 12 }} px={{ base: 4, md: 8 }}>
+          <Heading textAlign="center" mb={10} color="gray.700">
+            DANH SÁCH BÀI TẬP
+          </Heading>
 
-      <Container maxW="7xl" py={{ base: 12, md: 12 }} px={{ base: 4, md: 8 }}>
-        <Heading textAlign="center" mb={10} color="gray.700">
-          DANH SÁCH BÀI TẬP
-        </Heading>
+          <Grid
+            templateColumns={{ base: '1fr', md: '7fr 3fr' }}
+            gap={6}
+            alignItems="start"
+          >
+            {loading && (
+              <Box
+                w="full"
+                display="flex"
+                flexDirection="column"
+                bg="white"
+                boxShadow="md"
+                borderRadius="md"
+              >
+                <Flex justify="center" align="center" minH="365px">
+                  <Spinner size="xl" color="blue.500" />
+                </Flex>
+              </Box>
+            )}
 
-        <Grid
-          templateColumns={{ base: '1fr', md: '7fr 3fr' }}
-          gap={6}
-          alignItems="start"
-        >
-          {loading && (
-            <Box
-              w="full"
-              display="flex"
-              flexDirection="column"
-              bg="white"
-              boxShadow="md"
-              borderRadius="md"
-            >
-              <Flex justify="center" align="center" minH="365px">
-                <Spinner size="xl" color="blue.500" />
-              </Flex>
-            </Box>
-          )}
-
-          {!loading && (
-            <Stack spacing={6} w="full">
-              {problems.map((problem) => (
-                <Card
-                  key={problem.problemId}
-                  borderRadius="lg"
-                  boxShadow="md"
-                  p={4}
-                  minH="150px"
-                >
-                  <CardBody>
-                    <Flex justify="space-between" align="center">
-                      <Stack spacing={3} flex="1">
-                        <Heading size="lg">{problem.problemName}</Heading>
-                        <Wrap>
-                          {problem.selectedCategoryNames.map(
-                            (category, index) => (
-                              <WrapItem key={index}>
-                                <Badge colorScheme="purple" fontSize="0.8rem">
-                                  {category}
-                                </Badge>
-                              </WrapItem>
-                            ),
-                          )}
-                        </Wrap>
-                        <Box
-                          color="gray.600"
-                          fontSize="md"
-                          dangerouslySetInnerHTML={{
-                            __html: problem.problemContent,
-                          }}
-                        />
-                      </Stack>
-                      <Flex align="center" ml={4}>
-                        <Link to={`/problem/${problem.problemID}`}>
-                          <Button
-                            colorScheme="blue"
-                            size="md"
-                            mr={2}
-                            borderRadius="10"
-                          >
-                            Giải bài tập
-                          </Button>
-                        </Link>
-                        <IconButton
-                          aria-label="Yêu thích"
-                          icon={<IoMdHeartEmpty size={24} color="red" />}
-                          variant="ghost"
-                          bg="white"
-                        />
+            {!loading && (
+              <Stack spacing={6} w="full">
+                {problems.map((problem) => (
+                  <Card
+                    key={problem.problemId}
+                    borderRadius="lg"
+                    boxShadow="md"
+                    p={4}
+                    minH="150px"
+                  >
+                    <CardBody>
+                      <Flex justify="space-between" align="center">
+                        <Stack spacing={3} flex="1">
+                          <Heading size="lg">{problem.problemName}</Heading>
+                          <Wrap>
+                            {problem.selectedCategoryNames.map(
+                              (category, index) => (
+                                <WrapItem key={index}>
+                                  <Badge colorScheme="purple" fontSize="0.8rem">
+                                    {category}
+                                  </Badge>
+                                </WrapItem>
+                              ),
+                            )}
+                          </Wrap>
+                          <Box
+                            color="gray.600"
+                            fontSize="md"
+                            dangerouslySetInnerHTML={{
+                              __html: problem.problemContent,
+                            }}
+                          />
+                        </Stack>
+                        <Flex align="center" ml={4}>
+                          <Link to={`/problem/${problem.problemID}`}>
+                            <Button
+                              colorScheme="blue"
+                              size="md"
+                              mr={2}
+                              borderRadius="10"
+                            >
+                              Giải bài tập
+                            </Button>
+                          </Link>
+                          <IconButton
+                            aria-label="Yêu thích"
+                            icon={<IoMdHeartEmpty size={24} color="red" />}
+                            variant="ghost"
+                            bg="white"
+                          />
+                        </Flex>
                       </Flex>
-                    </Flex>
-                  </CardBody>
-                </Card>
-              ))}
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-                pageSize={pageSize}
-                onPageSizeChange={setPageSize}
-              />
-            </Stack>
-          )}
+                    </CardBody>
+                  </Card>
+                ))}
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                  pageSize={pageSize}
+                  onPageSizeChange={setPageSize}
+                />
+              </Stack>
+            )}
 
-          <Box borderRadius="lg" boxShadow="md" p={4} bg="gray.100">
-            <Stack spacing={3}>
-              <Text fontWeight="bold" color="gray.600" fontSize="lg">
-                Độ khó
-              </Text>
-              <Checkbox
-                isChecked={difficulty.easy}
-                onChange={(e) =>
-                  setDifficulty({ ...difficulty, easy: e.target.checked })
-                }
-              >
-                Dễ
-              </Checkbox>
-              <Checkbox
-                isChecked={difficulty.medium}
-                onChange={(e) =>
-                  setDifficulty({ ...difficulty, medium: e.target.checked })
-                }
-              >
-                Trung bình
-              </Checkbox>
-              <Checkbox
-                isChecked={difficulty.hard}
-                onChange={(e) =>
-                  setDifficulty({ ...difficulty, hard: e.target.checked })
-                }
-              >
-                Khó
-              </Checkbox>
-              <Divider my={4} />
-              <Text fontWeight="bold" color="gray.600">
-                Trạng thái
-              </Text>
-              <Checkbox
-                isChecked={status.unsolved}
-                onChange={(e) =>
-                  setStatus({ ...status, unsolved: e.target.checked })
-                }
-              >
-                Chưa giải
-              </Checkbox>
-              <Checkbox
-                isChecked={status.solved}
-                onChange={(e) =>
-                  setStatus({ ...status, solved: e.target.checked })
-                }
-              >
-                Đã giải
-              </Checkbox>
-              <Checkbox
-                isChecked={status.attempted}
-                onChange={(e) =>
-                  setStatus({ ...status, attempted: e.target.checked })
-                }
-              >
-                Đã thử
-              </Checkbox>
-              <Checkbox
-                colorScheme="blue"
-                isChecked={showFavorites}
-                onChange={(e) => setShowFavorites(e.target.checked)}
-              >
-                Chỉ hiển thị bài tập yêu thích
-              </Checkbox>
-            </Stack>
-          </Box>
-        </Grid>
-      </Container>
-      <FooterUser />
-    </Box>
+            <Box borderRadius="lg" boxShadow="md" p={4} bg="gray.100">
+              <Stack spacing={3}>
+                <Text fontWeight="bold" color="gray.600" fontSize="lg">
+                  Độ khó
+                </Text>
+                <Checkbox
+                  isChecked={difficulty.easy}
+                  onChange={(e) =>
+                    setDifficulty({ ...difficulty, easy: e.target.checked })
+                  }
+                >
+                  Dễ
+                </Checkbox>
+                <Checkbox
+                  isChecked={difficulty.medium}
+                  onChange={(e) =>
+                    setDifficulty({ ...difficulty, medium: e.target.checked })
+                  }
+                >
+                  Trung bình
+                </Checkbox>
+                <Checkbox
+                  isChecked={difficulty.hard}
+                  onChange={(e) =>
+                    setDifficulty({ ...difficulty, hard: e.target.checked })
+                  }
+                >
+                  Khó
+                </Checkbox>
+                <Divider my={4} />
+                <Text fontWeight="bold" color="gray.600">
+                  Trạng thái
+                </Text>
+                <Checkbox
+                  isChecked={status.unsolved}
+                  onChange={(e) =>
+                    setStatus({ ...status, unsolved: e.target.checked })
+                  }
+                >
+                  Chưa giải
+                </Checkbox>
+                <Checkbox
+                  isChecked={status.solved}
+                  onChange={(e) =>
+                    setStatus({ ...status, solved: e.target.checked })
+                  }
+                >
+                  Đã giải
+                </Checkbox>
+                <Checkbox
+                  isChecked={status.attempted}
+                  onChange={(e) =>
+                    setStatus({ ...status, attempted: e.target.checked })
+                  }
+                >
+                  Đã thử
+                </Checkbox>
+                <Checkbox
+                  colorScheme="blue"
+                  isChecked={showFavorites}
+                  onChange={(e) => setShowFavorites(e.target.checked)}
+                >
+                  Chỉ hiển thị bài tập yêu thích
+                </Checkbox>
+              </Stack>
+            </Box>
+          </Grid>
+        </Container>
+      </Box>
+    </Layout>
   );
 }

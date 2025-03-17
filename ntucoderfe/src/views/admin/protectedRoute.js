@@ -13,7 +13,6 @@ const ProtectedRoute = ({ children }) => {
 
       if (!token) {
         setIsAuthorized(false);
-        navigate('/login', { replace: true });
         return;
       }
 
@@ -25,16 +24,19 @@ const ProtectedRoute = ({ children }) => {
       } catch (error) {
         setIsAuthorized(false);
         Cookies.remove('token'); // Xóa token nếu hết hạn
-        navigate('/login', { replace: true });
       }
     };
 
     checkAuth();
-  }, [navigate]);
+  }, []);
 
   if (isAuthorized === null) return <div>Loading...</div>;
+  if (!isAuthorized) {
+    navigate('/login', { replace: true });
+    return null;
+  }
 
-  return isAuthorized ? children : null;
+  return children;
 };
 
 export default ProtectedRoute;
