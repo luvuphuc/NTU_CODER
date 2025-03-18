@@ -1,28 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Container,
-  Heading,
-  Text,
-  Card,
-  CardBody,
-  Stack,
-  Button,
-  Flex,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Badge,
-  Spinner,
-} from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
-import Navigation from '../common/navigation';
-import Header from '../common/header';
-import FooterUser from '../common/footer';
-import api from '../../../utils/api';
+import { Box, Container, Flex, Spinner, Stack } from '@chakra-ui/react';
+import LayoutUser from 'layouts/user';
+import ContestSection from './components/ColumnsTable';
+import api from 'utils/api';
 
 export default function ContestPage() {
   const [contests, setContests] = useState([]);
@@ -31,7 +11,7 @@ export default function ContestPage() {
   useEffect(() => {
     const fetchContests = async () => {
       try {
-        const response = await api.get('/contest/all');
+        const response = await api.get('/contest/all?published=false');
         setContests(response.data.data);
       } catch (error) {
         console.error('Error fetching contests:', error);
@@ -42,81 +22,25 @@ export default function ContestPage() {
     fetchContests();
   }, []);
 
-  const filterContests = (status) => {
-    return contests.filter((contest) => contest.status === status);
-  };
+  const filterContests = (status) => contests.filter((contest) => contest.status === status);
 
   return (
-    <Box>
-      <Header />
-      <Navigation />
-      <Container maxW="7xl" py={12} px={6}>
-        <Heading textAlign="center" mb={8} color="gray.700">
-          DANH SÁCH CUỘC THI
-        </Heading>
-
-        {loading ? (
-          <Flex justify="center" align="center" minH="300px">
-            <Spinner size="xl" color="blue.500" />
-          </Flex>
-        ) : (
-          <Stack spacing={8}>
-            {/* Đang diễn ra */}
-            <Section title="Đang diễn ra" data={filterContests('ongoing')} />
-            {/* Sắp diễn ra */}
-            <Section title="Sắp diễn ra" data={filterContests('upcoming')} />
-            {/* Đã kết thúc */}
-            <Section title="Đã kết thúc" data={filterContests('finished')} />
-          </Stack>
-        )}
-      </Container>
-      <FooterUser />
-    </Box>
-  );
-}
-
-function Section({ title, data }) {
-  return (
-    <Box>
-      <Heading size="lg" mb={4}>{title}</Heading>
-      {data.length === 0 ? (
-        <Text color="gray.500">Không có cuộc thi nào.</Text>
-      ) : (
-        <Table variant="simple" size="md" boxShadow="md" borderRadius="lg">
-          <Thead>
-            <Tr>
-              <Th>Tên cuộc thi</Th>
-              <Th>Thời gian</Th>
-              <Th>Trạng thái</Th>
-              <Th>Hành động</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {data.map((contest) => (
-              <Tr key={contest.id}>
-                <Td>
-                  <Link to={`/contest/${contest.id}`}>
-                    <Text fontWeight="bold" color="blue.600">{contest.name}</Text>
-                  </Link>
-                </Td>
-                <Td>{contest.startTime} - {contest.endTime}</Td>
-                <Td>
-                  <Badge colorScheme={contest.status === 'ongoing' ? 'green' : 'gray'}>
-                    {contest.status === 'ongoing' ? 'Đang diễn ra' : 'Đã kết thúc'}
-                  </Badge>
-                </Td>
-                <Td>
-                  {contest.status === 'ongoing' && (
-                    <Link to={`/contest/${contest.id}`}>
-                      <Button colorScheme="blue" size="sm">Tham gia</Button>
-                    </Link>
-                  )}
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      )}
-    </Box>
+    <LayoutUser>
+      <Box>
+        <Container maxW="7xl" py={12} px={6}>
+          {loading ? (
+            <Flex justify="center" align="center" minH="300px">
+              <Spinner size="xl" color="blue.500" />
+            </Flex>
+          ) : (
+            <Stack spacing={8}>
+              <ContestSection title="Đang diễn ra" contests={filterContests(1)} />
+              <ContestSection title="Sắp diễn ra" contests={filterContests(2)} />
+              <ContestSection title="Đã kết thúc" contests={filterContests(0)} />
+            </Stack>
+          )}
+        </Container>
+      </Box>
+    </LayoutUser>
   );
 }
