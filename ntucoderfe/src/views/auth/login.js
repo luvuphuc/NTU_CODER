@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -19,47 +19,40 @@ import {
   Divider,
 } from '@chakra-ui/react';
 import { FcGoogle } from 'react-icons/fc';
-import { keyframes } from '@emotion/react';
-import { useToast } from '@chakra-ui/react';
 import { FaGithub, FaTwitter } from 'react-icons/fa';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import logo from '../../assets/img/ntu-coders.png';
-import { useState } from 'react';
 import Cookies from 'js-cookie';
 import api from 'utils/api';
+
 function SignIn() {
   const [credentials, setCredentials] = useState({
     userName: '',
     password: '',
+    confirmPassword: '', // Thêm trường confirmPassword cho đăng ký
   });
-  const shake = keyframes`
-  0%, 100% { transform: translateX(0); }
-  25%, 75% { transform: translateX(-5px); }
-  50% { transform: translateX(5px); }
-`;
-  const [error, setError] = useState({ userName: false, password: false });
+  const [error, setError] = useState({
+    userName: false,
+    password: false,
+    confirmPassword: false,
+  });
   const [loading, setLoading] = useState(false);
-  const [show, setShow] = React.useState(false);
+  const [show, setShow] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false); // Điều khiển trạng thái đăng nhập/đăng ký
   const navigate = useNavigate();
-  const toast = useToast();
-  const handleClick = () => setShow(!show);
+
   const textColor = useColorModeValue('navy.700', 'white');
   const textColorSecondary = 'gray.400';
+
+  const handleClick = () => setShow(!show);
+
   const handleLogin = async () => {
     if (!credentials.userName.trim() || !credentials.password.trim()) {
       setError({
         userName: !credentials.userName.trim(),
         password: !credentials.password.trim(),
-      });
-      toast({
-        title: 'Lỗi!',
-        description: 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-        position: 'top-right',
       });
       return;
     }
@@ -67,33 +60,40 @@ function SignIn() {
     try {
       setLoading(true);
       const response = await api.post('/auth/login', credentials);
-
       if (response.status === 200) {
         Cookies.set('token', response.data.token, { expires: 7 });
-        toast({
-          title: 'Đăng nhập thành công!',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-          position: 'top-right',
-        });
         navigate('/');
       }
     } catch (error) {
-      let errorMessage = 'Có lỗi xảy ra, vui lòng thử lại.';
       console.log(error);
-      if (error.response) {
-        errorMessage =
-          error.response.data?.message || 'Sai tài khoản hoặc mật khẩu.';
-      }
-      toast({
-        title: 'Đăng nhập thất bại!',
-        description: errorMessage,
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-        position: 'top-right',
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignUp = async () => {
+    if (
+      !credentials.userName.trim() ||
+      !credentials.password.trim() ||
+      credentials.password !== credentials.confirmPassword
+    ) {
+      setError({
+        userName: !credentials.userName.trim(),
+        password: !credentials.password.trim(),
+        confirmPassword: credentials.password !== credentials.confirmPassword,
       });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await api.post('/auth/signup', credentials);
+      if (response.status === 200) {
+        Cookies.set('token', response.data.token, { expires: 7 });
+        navigate('/');
+      }
+    } catch (error) {
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -107,7 +107,6 @@ function SignIn() {
       justify="center"
       position="relative"
     >
-      {/* Back Button */}
       <Button
         position="absolute"
         top="20px"
@@ -119,20 +118,23 @@ function SignIn() {
         leftIcon={<ArrowBackIcon size="md" />}
         bg="gray.200"
         borderRadius="md"
+        zIndex={10}
       >
         Quay lại
       </Button>
 
       <Flex w="100vw" h="100vh">
-        {/* Sign-in Form */}
+        {/* Box đăng nhập và box ảnh */}
         <Flex
           w={{ base: '100%', md: '50%' }}
           h="100vh"
           align="center"
           justify="center"
+          transform={isSignUp ? 'translateX(100%)' : 'translateX(0)'}
+          transition="transform 0.5s ease-in-out"
         >
           <Box
-            maxW="400px"
+            w="450px"
             p="32px"
             bg="rgba(255, 255, 255, 0.1)"
             backdropFilter="blur(10px)"
@@ -140,19 +142,10 @@ function SignIn() {
             boxShadow="0 4px 30px rgba(0, 0, 0, 0.1)"
             border="1px solid rgba(255, 255, 255, 0.2)"
           >
-            <Box textAlign="center" mb="10">
-              <Heading color={textColor} fontSize="36px" mb="10px">
-                Đăng nhập
-              </Heading>
-              <Text mb="36px" color={textColorSecondary} fontSize="md">
-                Hãy nhập email/tên đăng nhập và mật khẩu!
-              </Text>
-            </Box>
-            <FormControl
-              isInvalid={error.userName}
-              mb="24px"
-              animation={error.password ? `${shake} 0.3s` : ''}
-            >
+            <Heading color={textColor} fontSize="36px" mb="10px">
+              {isSignUp ? 'Đăng ký' : 'Đăng nhập'}
+            </Heading>
+            <FormControl isInvalid={error.userName} mb="24px">
               <FormLabel>Tên đăng nhập/Email *</FormLabel>
               <InputGroup>
                 <Tooltip label="Nhập email hoặc tên đăng nhập" hasArrow>
@@ -182,11 +175,8 @@ function SignIn() {
               )}
             </FormControl>
 
-            <FormControl
-              isInvalid={error.password}
-              mb="24px"
-              animation={error.password ? `${shake} 0.3s` : ''}
-            >
+            {/* Trường nhập liệu cho mật khẩu */}
+            <FormControl isInvalid={error.password} mb="24px">
               <FormLabel>Mật khẩu *</FormLabel>
               <InputGroup>
                 <Tooltip label="Nhập mật khẩu của bạn" hasArrow>
@@ -225,24 +215,73 @@ function SignIn() {
               )}
             </FormControl>
 
+            {/* Trường nhập liệu cho xác nhận mật khẩu (Chỉ hiển thị khi đăng ký) */}
+            {isSignUp && (
+              <FormControl isInvalid={error.confirmPassword} mb="24px">
+                <FormLabel>Xác nhận mật khẩu *</FormLabel>
+                <InputGroup>
+                  <Tooltip label="Xác nhận mật khẩu của bạn" hasArrow>
+                    <Input
+                      type={show ? 'text' : 'password'}
+                      placeholder="Xác nhận mật khẩu"
+                      onChange={(e) =>
+                        setCredentials({
+                          ...credentials,
+                          confirmPassword: e.target.value,
+                        })
+                      }
+                      _hover={{
+                        borderColor: 'purple.400',
+                        boxShadow: '0 0 8px rgba(128, 0, 128, 0.6)',
+                      }}
+                      _focus={{
+                        borderColor: 'purple.500',
+                        boxShadow: '0 0 10px rgba(128, 0, 128, 0.8)',
+                      }}
+                    />
+                  </Tooltip>
+                </InputGroup>
+                {error.confirmPassword && (
+                  <Text color="red.500" mt="2" ml="2" fontSize="sm">
+                    Mật khẩu xác nhận không khớp!
+                  </Text>
+                )}
+              </FormControl>
+            )}
+
             <Flex justifyContent="space-between" alignItems="center" mb="20px">
-              <Checkbox>Ghi nhớ đăng nhập</Checkbox>
+              {!isSignUp && <Checkbox>Ghi nhớ đăng nhập</Checkbox>}
               <NavLink to="/forgot-password">
                 <Text color="blue.500">Quên mật khẩu?</Text>
               </NavLink>
             </Flex>
+
             <Button
               w="100%"
               colorScheme="blue"
               mb="20px"
-              onClick={handleLogin}
+              onClick={isSignUp ? handleSignUp : handleLogin}
               isLoading={loading}
               boxShadow="0px 4px 15px rgba(0, 0, 255, 0.3)"
               transition="all 0.3s"
               _hover={{ boxShadow: '0px 6px 20px rgba(0, 0, 255, 0.5)' }}
             >
-              Đăng nhập
+              {isSignUp ? 'Đăng ký' : 'Đăng nhập'}
             </Button>
+
+            <Flex justify="space-between" mb="10px" mx={2}>
+              <Text mr="2" color="gray.500">
+                {isSignUp ? 'Đã có tài khoản?' : 'Chưa có tài khoản?'}
+              </Text>
+              <Button
+                colorScheme="blue"
+                variant="link"
+                onClick={() => setIsSignUp(!isSignUp)}
+              >
+                {isSignUp ? 'Đăng nhập ngay' : 'Đăng ký ngay'}
+              </Button>
+            </Flex>
+
             <Flex align="center" my="20px">
               <Divider borderColor="gray.300" flex="1" />
               <Text mx="2" color="gray.500">
@@ -250,6 +289,7 @@ function SignIn() {
               </Text>
               <Divider borderColor="gray.300" flex="1" />
             </Flex>
+
             <Flex justify="center" gap="10px">
               <Button
                 variant="outline"
@@ -275,7 +315,8 @@ function SignIn() {
             </Flex>
           </Box>
         </Flex>
-        {/* Left Sidebar */}
+
+        {/* Box ảnh*/}
         <Box
           w="60%"
           h="100vh"
@@ -294,32 +335,49 @@ function SignIn() {
           boxShadow="0 4px 30px rgba(0, 0, 0, 0.2)"
           borderRadius="20px"
           position="relative"
-          overflow="hidden"
+          transform={isSignUp ? 'translateX(-100%)' : 'translateX(0)'}
+          transition="transform 0.5s ease-in-out"
+          maxW={{ base: '100%', md: '50%' }}
         >
           {/* Hiệu ứng chấm lấp lánh */}
           <Box
             position="absolute"
-            top="10%"
-            left="10%"
-            w="50px"
-            h="50px"
-            bg="rgba(255, 255, 255, 0.3)"
+            top="15%"
+            left="20%"
+            w="12px"
+            h="12px"
+            bg="rgba(255, 255, 255, 0.5)"
             borderRadius="50%"
-            filter="blur(10px)"
-            animation="pulse 2s infinite alternate"
+            animation="sparkle 2s infinite alternate"
+            filter="blur(5px)"
+            animationDelay="0s"
+          />
+          <Box
+            position="absolute"
+            top="25%"
+            left="40%"
+            w="8px"
+            h="8px"
+            bg="rgba(255, 255, 255, 0.5)"
+            borderRadius="50%"
+            animation="sparkle 3s infinite alternate"
+            filter="blur(5px)"
+            animationDelay="0.5s"
           />
           <Box
             position="absolute"
             bottom="20%"
-            right="20%"
-            w="30px"
-            h="30px"
-            bg="rgba(255, 255, 255, 0.3)"
+            right="30%"
+            w="10px"
+            h="10px"
+            bg="rgba(255, 255, 255, 0.5)"
             borderRadius="50%"
-            filter="blur(8px)"
-            animation="pulse 3s infinite alternate"
+            animation="sparkle 2.5s infinite alternate"
+            filter="blur(5px)"
+            animationDelay="0.8s"
           />
 
+          {/* Hình ảnh logo */}
           <Image
             src={logo}
             alt="Logo"
@@ -331,31 +389,19 @@ function SignIn() {
             }}
           />
 
-          <Heading
-            fontSize="3xl"
-            animation="bounce 1.5s infinite"
-            textShadow="2px 2px 4px rgba(0,0,0,0.2)"
-            mb={4}
-            _hover={{
-              color: 'cyan.200',
-              transition: 'color 0.3s',
-            }}
-          >
+          <Heading fontSize="3xl" mb={4}>
             Chào mừng bạn!
           </Heading>
-
           <Text
             fontSize="lg"
             textAlign="center"
             maxW="80%"
             fontStyle="italic"
             opacity={0.9}
-            _hover={{
-              color: 'gray.200',
-              transition: 'color 0.3s',
-            }}
           >
-            Hãy đăng nhập để tiếp tục truy cập vào hệ thống của chúng tôi.
+            {isSignUp
+              ? 'Hãy đăng ký để trở thành một thành viên!'
+              : 'Hãy đăng nhập để tiếp tục truy cập vào hệ thống của chúng tôi.'}
           </Text>
         </Box>
       </Flex>
