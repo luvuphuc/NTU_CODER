@@ -1,5 +1,5 @@
-import React from "react";
-import { VStack, Heading, Text, Box } from "@chakra-ui/react";
+import React from 'react';
+import { VStack, Heading, Text, Box } from '@chakra-ui/react';
 
 const ProblemTab = ({ problem }) => {
   return (
@@ -19,17 +19,28 @@ const ProblemTab = ({ problem }) => {
         <Box dangerouslySetInnerHTML={{ __html: problem.problemContent }} />
       </Box>
 
-        
       {/* Hiển thị Input mẫu */}
       <Text fontWeight="bold">Input mẫu:</Text>
-      <Box p={3} bg="gray.200" borderRadius="md" boxShadow="sm" fontFamily="monospace">
-        {problem.sampleInput || "Không có dữ liệu"}
+      <Box
+        p={3}
+        bg="gray.200"
+        borderRadius="md"
+        boxShadow="sm"
+        fontFamily="monospace"
+      >
+        {problem.sampleInput || 'Không có dữ liệu'}
       </Box>
-      
+
       {/* Hiển thị Output mẫu */}
       <Text fontWeight="bold">Output mẫu:</Text>
-      <Box p={3} bg="gray.200" borderRadius="md" boxShadow="sm" fontFamily="monospace">
-        {problem.sampleOutput || "Không có dữ liệu"}
+      <Box
+        p={3}
+        bg="gray.200"
+        borderRadius="md"
+        boxShadow="sm"
+        fontFamily="monospace"
+      >
+        {problem.sampleOutput || 'Không có dữ liệu'}
       </Box>
     </VStack>
   );

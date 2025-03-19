@@ -1,17 +1,26 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { Box, Container, Spinner, Tabs, TabList, TabPanels, Tab, TabPanel,Button } from "@chakra-ui/react";
-import { motion } from "framer-motion";
-import Split from "react-split";
-import Header from "../common/header";
-import Navigation from "../common/navigation";
-import FooterUser from "../common/footer";
-import api from "utils/api";
-import ProblemTab from "../components/problem_tab";
-import RankingTab from "../components/ranking_tab";
-import HistorySubTab from "../components/historysub_tab";
-import EditorTab from "../components/editor_tab";
-
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import {
+  Box,
+  Container,
+  Spinner,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  Button,
+} from '@chakra-ui/react';
+import { motion } from 'framer-motion';
+import Split from 'react-split';
+import Header from '../common/header';
+import Navigation from '../common/navigation';
+import FooterUser from '../common/footer';
+import api from 'utils/api';
+import ProblemTab from '../components/problem_tab';
+import RankingTab from '../components/ranking_tab';
+import HistorySubTab from '../components/historysub_tab';
+import EditorTab from '../components/editor_tab';
 
 const MotionTab = motion(Tab);
 
@@ -26,8 +35,14 @@ const Submission = () => {
         const problemData = problemRes.data;
         var sampleTest = null;
         try {
-          const testCaseRes = await api.get(`/TestCase/sampleTest?problemId=${id}`);
-          if (testCaseRes.data && testCaseRes.data.input && testCaseRes.data.output) {
+          const testCaseRes = await api.get(
+            `/TestCase/sampleTest?problemId=${id}`,
+          );
+          if (
+            testCaseRes.data &&
+            testCaseRes.data.input &&
+            testCaseRes.data.output
+          ) {
             sampleTest = {
               sampleInput: testCaseRes.data.input,
               sampleOutput: testCaseRes.data.output,
@@ -35,23 +50,22 @@ const Submission = () => {
           }
         } catch (error) {
           if (error.response && error.response.status === 404) {
-            console.warn("Không tìm thấy test case mẫu, ẩn phần test case.");
+            console.warn('Không tìm thấy test case mẫu, ẩn phần test case.');
           } else {
-            console.error("Lỗi khi tải test case mẫu:", error);
+            console.error('Lỗi khi tải test case mẫu:', error);
           }
         }
         setProblemDetail({
           ...problemData,
-          ...(sampleTest ? sampleTest : {}), 
+          ...(sampleTest ? sampleTest : {}),
         });
       } catch (error) {
-        console.error("Đã xảy ra lỗi", error);
+        console.error('Đã xảy ra lỗi', error);
       }
     };
-  
+
     if (id) fetchData();
   }, [id]);
-  
 
   if (!problem) {
     return <Spinner size="xl" />;
@@ -61,16 +75,28 @@ const Submission = () => {
       <Header />
       <Navigation />
 
-      <Container maxW="full" py={3} flex="1" mx="3" bg="white" borderRadius="lg" boxShadow="lg" my={6}>
-        <Split className="split" sizes={[40, 60]} minSize={300} gutterSize={10} direction="horizontal">
+      <Container
+        maxW="full"
+        flex="1"
+        mx="3"
+        bg="white"
+        borderRadius="lg"
+        boxShadow="lg"
+        my={6}
+        pl={0}
+      >
+        <Split
+          className="split"
+          sizes={[40, 60]}
+          minSize={300}
+          gutterSize={5}
+          direction="horizontal"
+        >
           {/* Tabs: Bài tập, Xếp hạng, Thảo luận */}
-          <Box width="40%" position="relative">
+          <Box width="40%" overflowY="auto">
             <Tabs variant="unstyled">
               <TabList
-                position="absolute"
-                top="-3"
-                left="-4"
-                width="102.7%"
+                width="100%"
                 borderBottom="1px solid #C0C0C0"
                 bg="#E3E3E3"
                 display="flex"
@@ -78,14 +104,15 @@ const Submission = () => {
                 padding="8px 10px"
                 zIndex={1}
                 borderTopRadius="lg"
+                boxSizing="border-box"
               >
                 <MotionTab
                   _selected={{
-                    bg: "white",
-                    borderBottom: "2px solid #E3E3E3",
-                    fontWeight: "bold",
+                    bg: 'white',
+                    borderBottom: '2px solid #E3E3E3',
+                    fontWeight: 'bold',
                   }}
-                  _hover={{ background: "#DADADA" }}
+                  _hover={{ background: '#DADADA' }}
                   borderTopRadius="lg"
                   px={4}
                   py={2}
@@ -97,11 +124,11 @@ const Submission = () => {
                 </MotionTab>
                 <MotionTab
                   _selected={{
-                    bg: "white",
-                    borderBottom: "2px solid #E3E3E3",
-                    fontWeight: "bold",
+                    bg: 'white',
+                    borderBottom: '2px solid #E3E3E3',
+                    fontWeight: 'bold',
                   }}
-                  _hover={{ background: "#DADADA" }}
+                  _hover={{ background: '#DADADA' }}
                   borderTopRadius="lg"
                   px={4}
                   py={2}
@@ -113,11 +140,11 @@ const Submission = () => {
                 </MotionTab>
                 <MotionTab
                   _selected={{
-                    bg: "white",
-                    borderBottom: "2px solid #E3E3E3",
-                    fontWeight: "bold",
+                    bg: 'white',
+                    borderBottom: '2px solid #E3E3E3',
+                    fontWeight: 'bold',
                   }}
-                  _hover={{ background: "#DADADA" }}
+                  _hover={{ background: '#DADADA' }}
                   borderTopRadius="lg"
                   px={4}
                   py={2}
@@ -129,7 +156,7 @@ const Submission = () => {
                 </MotionTab>
               </TabList>
 
-              <Box pt="50px">
+              <Box maxHeight="550px">
                 <TabPanels
                   as={motion.div}
                   initial={{ opacity: 0, y: 10 }}
@@ -139,11 +166,11 @@ const Submission = () => {
                   <TabPanel>
                     <ProblemTab problem={problem} />
                   </TabPanel>
-                  <TabPanel  ml={0} pl={0}>
+                  <TabPanel>
                     <RankingTab />
                   </TabPanel>
-                  <TabPanel ml={0} pl={0}>
-                    <HistorySubTab/>
+                  <TabPanel>
+                    <HistorySubTab />
                   </TabPanel>
                 </TabPanels>
               </Box>
