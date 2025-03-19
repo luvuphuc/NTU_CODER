@@ -15,8 +15,11 @@ import {
   Text,
   useColorModeValue,
   Image,
+  Tooltip,
+  Divider,
 } from '@chakra-ui/react';
 import { FcGoogle } from 'react-icons/fc';
+import { keyframes } from '@emotion/react';
 import { useToast } from '@chakra-ui/react';
 import { FaGithub, FaTwitter } from 'react-icons/fa';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
@@ -31,6 +34,11 @@ function SignIn() {
     userName: '',
     password: '',
   });
+  const shake = keyframes`
+  0%, 100% { transform: translateX(0); }
+  25%, 75% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+`;
   const [error, setError] = useState({ userName: false, password: false });
   const [loading, setLoading] = useState(false);
   const [show, setShow] = React.useState(false);
@@ -109,6 +117,8 @@ function SignIn() {
         color="gray.600"
         onClick={() => navigate('/')}
         leftIcon={<ArrowBackIcon size="md" />}
+        bg="gray.200"
+        borderRadius="md"
       >
         Quay lại
       </Button>
@@ -121,7 +131,15 @@ function SignIn() {
           align="center"
           justify="center"
         >
-          <Box maxW="400px" p="32px">
+          <Box
+            maxW="400px"
+            p="32px"
+            bg="rgba(255, 255, 255, 0.1)"
+            backdropFilter="blur(10px)"
+            borderRadius="20px"
+            boxShadow="0 4px 30px rgba(0, 0, 0, 0.1)"
+            border="1px solid rgba(255, 255, 255, 0.2)"
+          >
             <Box textAlign="center" mb="10">
               <Heading color={textColor} fontSize="36px" mb="10px">
                 Đăng nhập
@@ -130,59 +148,83 @@ function SignIn() {
                 Hãy nhập email/tên đăng nhập và mật khẩu!
               </Text>
             </Box>
-            <FormControl>
-              <FormLabel
-                fontSize="md"
-                fontWeight="500"
-                color={textColor}
-                mb="8px"
-              >
-                Tên đăng nhập/Email
-                <Text as="span" color="red.500">
-                  {' '}
-                  *
+            <FormControl
+              isInvalid={error.userName}
+              mb="24px"
+              animation={error.password ? `${shake} 0.3s` : ''}
+            >
+              <FormLabel>Tên đăng nhập/Email *</FormLabel>
+              <InputGroup>
+                <Tooltip label="Nhập email hoặc tên đăng nhập" hasArrow>
+                  <Input
+                    placeholder="abc123@gmail.com"
+                    onChange={(e) =>
+                      setCredentials({
+                        ...credentials,
+                        userName: e.target.value,
+                      })
+                    }
+                    _hover={{
+                      borderColor: 'purple.400',
+                      boxShadow: '0 0 8px rgba(128, 0, 128, 0.6)',
+                    }}
+                    _focus={{
+                      borderColor: 'purple.500',
+                      boxShadow: '0 0 10px rgba(128, 0, 128, 0.8)',
+                    }}
+                  />
+                </Tooltip>
+              </InputGroup>
+              {error.userName && (
+                <Text color="red.500" mt="2" ml="2" fontSize="sm">
+                  Vui lòng nhập tên đăng nhập!
                 </Text>
-              </FormLabel>
-              <Input
-                isRequired
-                fontSize="sm"
-                type="email"
-                placeholder="abc123@gmail.com"
-                mb="24px"
-                size="lg"
-                onChange={(e) =>
-                  setCredentials({ ...credentials, userName: e.target.value })
-                }
-              />
-              <FormLabel fontSize="md" fontWeight="500" color={textColor}>
-                Mật khẩu
-                <Text as="span" color="red.500">
-                  {' '}
-                  *
-                </Text>
-              </FormLabel>
-              <InputGroup size="md">
-                <Input
-                  isRequired
-                  fontSize="sm"
-                  placeholder="Mật khẩu"
-                  mb="24px"
-                  size="lg"
-                  type={show ? 'text' : 'password'}
-                  onChange={(e) =>
-                    setCredentials({ ...credentials, password: e.target.value })
-                  }
-                />
-                <InputRightElement display="flex" alignItems="center" mt="4px">
+              )}
+            </FormControl>
+
+            <FormControl
+              isInvalid={error.password}
+              mb="24px"
+              animation={error.password ? `${shake} 0.3s` : ''}
+            >
+              <FormLabel>Mật khẩu *</FormLabel>
+              <InputGroup>
+                <Tooltip label="Nhập mật khẩu của bạn" hasArrow>
+                  <Input
+                    type={show ? 'text' : 'password'}
+                    placeholder="Mật khẩu"
+                    onChange={(e) =>
+                      setCredentials({
+                        ...credentials,
+                        password: e.target.value,
+                      })
+                    }
+                    _hover={{
+                      borderColor: 'purple.400',
+                      boxShadow: '0 0 8px rgba(128, 0, 128, 0.6)',
+                    }}
+                    _focus={{
+                      borderColor: 'purple.500',
+                      boxShadow: '0 0 10px rgba(128, 0, 128, 0.8)',
+                    }}
+                  />
+                </Tooltip>
+                <InputRightElement>
                   <Icon
-                    color={textColorSecondary}
-                    _hover={{ cursor: 'pointer' }}
                     as={show ? RiEyeCloseLine : MdOutlineRemoveRedEye}
                     onClick={handleClick}
+                    cursor="pointer"
+                    color="gray.400"
                   />
                 </InputRightElement>
               </InputGroup>
+              {error.password && (
+                <Text color="red.500" mt="2" ml="2" fontSize="sm">
+                  Vui lòng nhập mật khẩu!
+                </Text>
+              )}
             </FormControl>
+
             <Flex justifyContent="space-between" alignItems="center" mb="20px">
               <Checkbox>Ghi nhớ đăng nhập</Checkbox>
               <NavLink to="/forgot-password">
@@ -195,11 +237,18 @@ function SignIn() {
               mb="20px"
               onClick={handleLogin}
               isLoading={loading}
+              boxShadow="0px 4px 15px rgba(0, 0, 255, 0.3)"
+              transition="all 0.3s"
+              _hover={{ boxShadow: '0px 6px 20px rgba(0, 0, 255, 0.5)' }}
             >
               Đăng nhập
             </Button>
-            <Flex align="center" justify="center" mb="20px">
-              <Text fontSize="sm">hoặc</Text>
+            <Flex align="center" my="20px">
+              <Divider borderColor="gray.300" flex="1" />
+              <Text mx="2" color="gray.500">
+                hoặc
+              </Text>
+              <Divider borderColor="gray.300" flex="1" />
             </Flex>
             <Flex justify="center" gap="10px">
               <Button
@@ -228,10 +277,12 @@ function SignIn() {
         </Flex>
         {/* Left Sidebar */}
         <Box
-          w="70%"
+          w="60%"
           h="100vh"
           bgGradient="linear(to-l, rgba(0, 0, 255, 0.7), rgba(0, 255, 255, 0.7))"
           color="white"
+          bg="rgba(0, 0, 255, 0.3)"
+          backdropFilter="blur(10px)"
           display={{ base: 'none', md: 'flex' }}
           flexDirection="column"
           alignItems="center"
@@ -239,18 +290,71 @@ function SignIn() {
           p={8}
           pt="100px"
           gap="20px"
+          border="1px solid rgba(255, 255, 255, 0.3)"
+          boxShadow="0 4px 30px rgba(0, 0, 0, 0.2)"
+          borderRadius="20px"
+          position="relative"
+          overflow="hidden"
         >
-          <Image src={logo} alt="Logo" width="400px" maxWidth="80%" />
+          {/* Hiệu ứng chấm lấp lánh */}
+          <Box
+            position="absolute"
+            top="10%"
+            left="10%"
+            w="50px"
+            h="50px"
+            bg="rgba(255, 255, 255, 0.3)"
+            borderRadius="50%"
+            filter="blur(10px)"
+            animation="pulse 2s infinite alternate"
+          />
+          <Box
+            position="absolute"
+            bottom="20%"
+            right="20%"
+            w="30px"
+            h="30px"
+            bg="rgba(255, 255, 255, 0.3)"
+            borderRadius="50%"
+            filter="blur(8px)"
+            animation="pulse 3s infinite alternate"
+          />
+
+          <Image
+            src={logo}
+            alt="Logo"
+            width="400px"
+            maxWidth="80%"
+            _hover={{
+              transform: 'scale(1.05)',
+              transition: 'all 0.3s',
+            }}
+          />
 
           <Heading
             fontSize="3xl"
-            animation="pulse 2s infinite"
+            animation="bounce 1.5s infinite"
             textShadow="2px 2px 4px rgba(0,0,0,0.2)"
             mb={4}
+            _hover={{
+              color: 'cyan.200',
+              transition: 'color 0.3s',
+            }}
           >
             Chào mừng bạn!
           </Heading>
-          <Text fontSize="lg" textAlign="center" maxW="80%">
+
+          <Text
+            fontSize="lg"
+            textAlign="center"
+            maxW="80%"
+            fontStyle="italic"
+            opacity={0.9}
+            _hover={{
+              color: 'gray.200',
+              transition: 'color 0.3s',
+            }}
+          >
             Hãy đăng nhập để tiếp tục truy cập vào hệ thống của chúng tôi.
           </Text>
         </Box>
