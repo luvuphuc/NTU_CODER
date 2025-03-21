@@ -45,9 +45,9 @@ namespace ntucoderbe.Controllers
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTime.UtcNow.AddMinutes(60)
             };
-            Response.Cookies.Append("jwt", token, cookieOptions);
+            Response.Cookies.Append("token", token, cookieOptions);
 
-            return Ok(new {token, AccountID = user.AccountID, RoleID = user.RoleID });
+            return Ok(new {token});
         }
 
 
@@ -55,13 +55,23 @@ namespace ntucoderbe.Controllers
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            return Ok();
+            Response.Cookies.Delete("token");
+            return Ok(new { message = "Đăng xuất thành công" });
         }
         [Authorize(Roles = "1")]
         [HttpGet("protected-route")]
         public IActionResult ProtectedRoute()
         {
             return Ok();
+        }
+        [Authorize]
+        [HttpGet("me")]
+        public IActionResult GetUser()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            if (userId == null) return Unauthorized("Token không hợp lệ");
+            return Ok(new { userID = userId, roleID = role });
         }
 
     }

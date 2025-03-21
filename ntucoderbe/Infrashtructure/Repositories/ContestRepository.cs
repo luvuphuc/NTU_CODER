@@ -1,6 +1,7 @@
 ﻿using AddressManagementSystem.Infrashtructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 using ntucoderbe.DTOs;
+using ntucoderbe.Infrashtructure.Services;
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
 using System;
@@ -10,11 +11,14 @@ namespace ntucoderbe.Infrashtructure.Repositories
     public class ContestRepository
     {
         private readonly ApplicationDbContext _context;
+        private readonly AuthService _authService;
 
-        public ContestRepository(ApplicationDbContext context)
+        public ContestRepository(ApplicationDbContext context, AuthService authService)
         {
             _context = context;
+            _authService = authService;
         }
+
         public async Task<PagedResponse<ContestDTO>> GetAllContestsAsync(QueryObject query, string? sortField = null, bool ascending = true, bool published = false)
         {
             await UpdateContestStatusesAsync();
@@ -57,7 +61,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             }
             var contest = new Contest
             {
-                CoderID = 1,
+                CoderID = _authService.GetUserIdFromToken(),
                 ContestName = dto.ContestName!,
                 ContestDescription = dto.ContestDescription,
                 StartTime = dto.StartTime.ToUniversalTime(),

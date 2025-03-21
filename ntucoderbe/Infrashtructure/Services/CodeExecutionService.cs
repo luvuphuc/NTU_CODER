@@ -37,7 +37,7 @@ namespace ntucoderbe.Infrashtructure.Services
 
             await _context.TestRuns.AddRangeAsync(testRuns);
             await _context.SaveChangesAsync();
-            var submissionRepo = new SubmissionRepository(_context);
+            var submissionRepo = new SubmissionRepository(_context,null);
             await submissionRepo.UpdateSubmissionAfterTestRunAsync(submissionId);
             return testRuns.ToList();
         }
@@ -57,7 +57,7 @@ namespace ntucoderbe.Infrashtructure.Services
                         testRuns.Add(result);
                     }
                     await using var _context = _contextFactory.CreateDbContext();
-                    var submissionRepo = new SubmissionRepository(_context);
+                    var submissionRepo = new SubmissionRepository(_context,null);
                     await submissionRepo.UpdateSubmissionAfterTestRunAsync(submissionId);
                 }
                 finally
