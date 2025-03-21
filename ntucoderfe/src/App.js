@@ -5,9 +5,10 @@ import { useState } from 'react';
 import initialTheme from './theme/theme';
 import ProtectedRoute from 'views/admin/protectedRoute';
 import routes from 'routes';
-import LoginPage from 'views/auth/login';
 import AdminLayout from './layouts/admin';
 import HomePage from 'views/user/homepage';
+import SignIn from 'views/auth/login';
+import Register from 'views/auth/register';
 export default function Main() {
   const [currentTheme] = useState(initialTheme);
 
@@ -38,7 +39,8 @@ export default function Main() {
               />
             )),
           )}
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login" element={<SignIn />} />
+        <Route path="/register" element={<Register />} />
         <Route path="*" element={<HomePage />} />
       </Routes>
     </ChakraProvider>
