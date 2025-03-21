@@ -150,13 +150,15 @@ export default function ProblemPage() {
                     </CardBody>
                   </Card>
                 ))}
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={setCurrentPage}
-                  pageSize={pageSize}
-                  onPageSizeChange={setPageSize}
-                />
+                {!loading && problems.length > 0 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    pageSize={pageSize}
+                    onPageSizeChange={setPageSize}
+                  />
+                )}
               </Stack>
             )}
 

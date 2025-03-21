@@ -154,12 +154,6 @@ const routes = [
     secondary: true,
     component: <ProblemPage />,
   },
-  {
-    name: 'ĐĂNG NHẬP',
-    layout: 'auth',
-    path: '/login',
-    component: <SignIn />,
-  },
 ];
 
 export default routes;
