@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ntucoderbe.DTOs;
+using ntucoderbe.Infrashtructure.Repositories;
 using ntucoderbe.Infrashtructure.Services;
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
@@ -18,10 +19,12 @@ namespace ntucoderbe.Controllers
     public class AuthController : ControllerBase
     {
         private readonly AuthService _authService;
+        private readonly CoderRepository _coderRepository;
 
-        public AuthController(AuthService authService)
+        public AuthController(AuthService authService, CoderRepository coderRepository)
         {
             _authService = authService;
+            _coderRepository = coderRepository;
         }
 
         [AllowAnonymous]
@@ -38,6 +41,11 @@ namespace ntucoderbe.Controllers
             {
                 return Unauthorized("Sai tên đăng nhập hoặc mật khẩu");
             }
+            var coder = await _coderRepository.GetCoderByIdAsync(user.AccountID);
+            if (coder == null)
+            {
+                return BadRequest("Không tìm thấy.");
+            }
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true, 
@@ -47,7 +55,8 @@ namespace ntucoderbe.Controllers
             };
             Response.Cookies.Append("token", token, cookieOptions);
 
-            return Ok(new {token});
+            return Ok(new { token, AccountID = user.AccountID, RoleID = user.RoleID, CoderName = coder.CoderName });
+
         }
 
 
@@ -64,15 +73,5 @@ namespace ntucoderbe.Controllers
         {
             return Ok();
         }
-        [Authorize]
-        [HttpGet("me")]
-        public IActionResult GetUser()
-        {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var role = User.FindFirst(ClaimTypes.Role)?.Value;
-            if (userId == null) return Unauthorized("Token không hợp lệ");
-            return Ok(new { userID = userId, roleID = role });
-        }
-
     }
 }

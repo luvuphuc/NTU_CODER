@@ -29,7 +29,8 @@ import logo from '../../assets/img/ntu-coders.png';
 import { useState } from 'react';
 import Cookies from 'js-cookie';
 import api from 'utils/api';
-
+import { useDispatch } from 'react-redux';
+import { setUser } from '../../redux/slices/authSlice';
 function SignIn() {
   const [credentials, setCredentials] = useState({
     userName: '',
@@ -48,6 +49,8 @@ function SignIn() {
   const handleClick = () => setShow(!show);
   const textColor = useColorModeValue('navy.700', 'white');
   const textColorSecondary = 'gray.400';
+
+  const dispatch = useDispatch();
   const handleLogin = async () => {
     if (!credentials.userName.trim() || !credentials.password.trim()) {
       setError({
@@ -78,6 +81,15 @@ function SignIn() {
           isClosable: true,
           position: 'top-right',
         });
+        console.log(response);
+        dispatch(
+          setUser({
+            user: response.data.accountID,
+            roleID: response.data.roleID,
+            token: response.data.token,
+            coderName: response.data.coderName,
+          }),
+        );
         navigate('/');
       }
     } catch (error) {
