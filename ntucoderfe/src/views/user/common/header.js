@@ -7,6 +7,8 @@ import {
   Stack,
   useColorModeValue,
   useDisclosure,
+  Text,
+  Link as ChakraLink,
 } from '@chakra-ui/react';
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 import logo from '../../../assets/img/ntu-coders.png';
@@ -21,24 +23,8 @@ export default function Header() {
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
   const roleID = useSelector((state) => state.auth.roleID);
-  console.log('User from Redux:', user);
-  console.log('User from Redux:', typeof user);
-  console.log('RoleID from Redux:', roleID);
+  const coderName = useSelector((state) => state.auth.coderName);
   const dispatch = useDispatch();
-  useEffect(() => {
-    const token = Cookies.get('token');
-
-    if (token && !user) {
-      dispatch(
-        setUser({
-          user: Cookies.get('UserID'),
-          roleID: Cookies.get('RoleID'),
-          token: token,
-        }),
-      );
-    }
-  }, [dispatch, user]);
-
   const handleLogout = async () => {
     try {
       await api.get('/Auth/logout');
@@ -89,61 +75,82 @@ export default function Header() {
             <Image src={logo} alt="Logo" width="300px" />
           </Flex>
 
-          <Stack
-            flex={{ base: 1, md: 0 }}
-            justify={'flex-end'}
-            direction={'row'}
-            spacing={6}
-          >
+          <Flex align="center" gap={4}>
             {user ? (
               <>
+                {/* Chào user */}
+                {coderName && (
+                  <Text
+                    fontSize="md"
+                    fontWeight="600"
+                    color="gray.700"
+                    whiteSpace="nowrap"
+                  >
+                    Xin chào, {coderName}
+                  </Text>
+                )}
+
+                {/* Link admin */}
                 {roleID === 1 && (
-                  <Button
+                  <ChakraLink
                     as={Link}
                     to="/admin"
-                    fontSize={'md'}
+                    fontSize="md"
                     fontWeight={600}
-                    color={'white'}
-                    bg="green.500"
+                    color="blue.500"
+                    _hover={{ textDecoration: 'underline' }}
                   >
                     Trang quản trị
-                  </Button>
+                  </ChakraLink>
                 )}
+
+                {/* Logout */}
                 <Button
                   onClick={handleLogout}
-                  fontSize={'md'}
+                  fontSize="md"
                   fontWeight={600}
-                  color={'white'}
+                  color="white"
                   bg="red.500"
+                  _hover={{ bg: 'red.600' }}
+                  borderRadius="md"
+                  px={4}
+                  py={2}
                 >
                   Đăng xuất
                 </Button>
               </>
             ) : (
               <>
-                <Button
+                {/* Login */}
+                <ChakraLink
                   as={Link}
                   to="/login"
-                  fontSize={'md'}
-                  fontWeight={400}
-                  variant={'link'}
+                  fontSize="md"
+                  fontWeight={500}
+                  color="gray.600"
+                  _hover={{ color: 'blue.500' }}
                 >
                   Đăng nhập
-                </Button>
+                </ChakraLink>
+
+                {/* Register */}
                 <Button
                   as={Link}
                   to="/register"
-                  fontSize={'md'}
+                  fontSize="md"
                   fontWeight={600}
-                  color={'white'}
+                  color="white"
                   bg="#0186bd"
-                  _hover={{ bg: 'red.300' }}
+                  _hover={{ bg: 'blue.700' }}
+                  borderRadius="full"
+                  px={4}
+                  py={2}
                 >
                   Đăng ký
                 </Button>
               </>
             )}
-          </Stack>
+          </Flex>
         </Flex>
       </Box>
     </Box>
