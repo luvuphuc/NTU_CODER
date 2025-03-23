@@ -12,12 +12,10 @@ namespace ntucoderbe.Infrashtructure.Repositories
     public class SubmissionRepository
     {
         private readonly ApplicationDbContext _context;
-        private readonly AuthService _authService;
 
-        public SubmissionRepository(ApplicationDbContext context, AuthService authService)
+        public SubmissionRepository(ApplicationDbContext context)
         {
             _context = context;
-            _authService = authService;
         }
 
         public async Task<PagedResponse<SubmissionDTO>> GetAllSubmissionsAsync(QueryObject query, string? sortField = null, bool ascending = true)
@@ -55,7 +53,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             var obj = new Submission
             {
                 ProblemID = dto.ProblemID,
-                CoderID = _authService.GetUserIdFromToken(),
+                CoderID = dto.CoderID,
                 CompilerID = dto.CompilerID,
                 SubmitTime = DateTime.UtcNow,
                 SubmissionCode = dto.SubmissionCode,
