@@ -26,13 +26,29 @@ export default function Header() {
   const coderName = useSelector((state) => state.auth.coderName);
   const dispatch = useDispatch();
   const handleLogout = async () => {
+    const token = Cookies.get('token');
+
+    if (!token) {
+      dispatch(logout());
+      navigate('/login');
+      return;
+    }
+
     try {
-      await api.get('/Auth/logout');
-      Cookies.remove('token');
-      dispatch(logout()); // Gọi logout từ Redux
-      navigate('/');
+      const response = await api.post(
+        '/Auth/logout',
+        {},
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+
+      if (response.status === 200) {
+        Cookies.remove('token');
+        dispatch(logout());
+      } else {
+        console.log('Đăng xuất thất bại');
+      }
     } catch (error) {
-      console.error('Lỗi khi đăng xuất', error);
+      console.log('Lỗi khi đăng xuất:', error);
     }
   };
 
@@ -142,7 +158,7 @@ export default function Header() {
                   color="white"
                   bg="#0186bd"
                   _hover={{ bg: 'blue.700' }}
-                  borderRadius="full"
+                  borderRadius="md"
                   px={4}
                   py={2}
                 >
