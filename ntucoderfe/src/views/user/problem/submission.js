@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -10,9 +10,18 @@ import {
   Tab,
   TabPanel,
   Button,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Text,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import Split from 'react-split';
+import { useSelector } from 'react-redux';
 import Header from '../common/header';
 import Navigation from '../common/navigation';
 import FooterUser from '../common/footer';
@@ -26,14 +35,23 @@ const MotionTab = motion(Tab);
 
 const Submission = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const user = useSelector((state) => state.auth.user);
   const [problem, setProblemDetail] = useState(null);
 
   useEffect(() => {
+    // Nếu chưa đăng nhập, hiển thị modal yêu cầu đăng nhập
+    if (!user) {
+      onOpen();
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const problemRes = await api.get(`/Problem/${id}`);
         const problemData = problemRes.data;
-        var sampleTest = null;
+        let sampleTest = null;
         try {
           const testCaseRes = await api.get(
             `/TestCase/sampleTest?problemId=${id}`,
@@ -65,11 +83,39 @@ const Submission = () => {
     };
 
     if (id) fetchData();
-  }, [id]);
+  }, [id, user, onOpen]);
+
+  if (!user) {
+    return (
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Yêu cầu đăng nhập</ModalHeader>
+          <ModalBody>
+            <Text>Bạn cần đăng nhập để thực hiện bài tập.</Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              colorScheme="blue"
+              mr={3}
+              borderRadius="md"
+              onClick={() => navigate('/login')}
+            >
+              Đăng nhập
+            </Button>
+            <Button borderRadius="md" onClick={() => navigate(-1)}>
+              Hủy
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    );
+  }
 
   if (!problem) {
     return <Spinner size="xl" />;
   }
+
   return (
     <Box minH="100vh" display="flex" flexDirection="column" bg="#f4f4f4">
       <Header />
