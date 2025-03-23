@@ -73,5 +73,31 @@ namespace ntucoderbe.Controllers
         {
             return Ok();
         }
+
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<IActionResult> Me()
+        {
+            try
+            {
+                var coderID = _authService.GetUserIdFromToken();
+                var coder = await _coderRepository.GetCoderByIdAsync(coderID);
+
+                if (coder == null)
+                {
+                    return NotFound(new { message = "Coder không tồn tại." });
+                }
+                return Ok(new
+                {
+                    CoderName = coder.CoderName,
+                    RoleID = coder.RoleID
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Đã xảy ra lỗi." });
+            }
+        }
+
     }
 }

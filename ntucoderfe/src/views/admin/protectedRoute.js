@@ -17,9 +17,7 @@ const ProtectedRoute = ({ children }) => {
       }
 
       try {
-        await api.get('/auth/protected-route', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await api.get('/auth/protected-route');
         setIsAuthorized(true);
       } catch (error) {
         setIsAuthorized(false);

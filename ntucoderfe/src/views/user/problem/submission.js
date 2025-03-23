@@ -21,7 +21,6 @@ import {
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import Split from 'react-split';
-import { useSelector } from 'react-redux';
 import Header from '../common/header';
 import Navigation from '../common/navigation';
 import FooterUser from '../common/footer';
@@ -30,16 +29,16 @@ import ProblemTab from '../components/problem_tab';
 import RankingTab from '../components/ranking_tab';
 import HistorySubTab from '../components/historysub_tab';
 import EditorTab from '../components/editor_tab';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const MotionTab = motion(Tab);
 
 const Submission = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const user = useSelector((state) => state.auth.user);
+  const { user } = useAuth();
   const [problem, setProblemDetail] = useState(null);
-
+  const { isOpen, onOpen, onClose } = useDisclosure();
   useEffect(() => {
     // Nếu chưa đăng nhập, hiển thị modal yêu cầu đăng nhập
     if (!user) {

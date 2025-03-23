@@ -27,5 +27,6 @@ namespace ntucoderbe.DTOs
         public GenderEnum? Gender { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public string? UpdatedBy { get; set; }
+        public int? RoleID {  get; set; }
     }
 }

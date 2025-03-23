@@ -121,7 +121,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             return true;
         }
 
-        public async Task<CoderDTO> GetCoderByIdAsync(int id)
+        public async Task<CoderDetailDTO> GetCoderByIdAsync(int id)
         {
             var coder = await _context.Coders
                         .Include(c => c.Account)
@@ -144,7 +144,8 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 CreatedAt = coder.CreatedAt,
                 CreatedBy = coder.CreatedBy,
                 UpdatedAt = coder.UpdatedAt,
-                UpdatedBy = coder.UpdatedBy
+                UpdatedBy = coder.UpdatedBy,
+                RoleID = coder.Account.RoleID,
             };
         }
 

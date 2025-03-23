@@ -2,48 +2,34 @@ import {
   Box,
   Flex,
   Image,
-  IconButton,
   Button,
-  Stack,
   useColorModeValue,
-  useDisclosure,
   Text,
   Link as ChakraLink,
 } from '@chakra-ui/react';
-import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 import logo from '../../../assets/img/ntu-coders.png';
 import { Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 import api from '../../../utils/api';
 import Cookies from 'js-cookie';
-import { useSelector, useDispatch } from 'react-redux';
-import { logout, setUser } from '../../../redux/slices/authSlice';
+import { useAuth } from 'contexts/AuthContext';
+import { useState, useEffect } from 'react';
 export default function Header() {
-  const { isOpen, onToggle } = useDisclosure();
   const navigate = useNavigate();
-  const user = useSelector((state) => state.auth.user);
-  const roleID = useSelector((state) => state.auth.roleID);
-  const coderName = useSelector((state) => state.auth.coderName);
-  const dispatch = useDispatch();
+  const { user, logout } = useAuth();
+  const [coderName, setCoderName] = useState('');
+  const [roleID, setRoleID] = useState(null);
   const handleLogout = async () => {
     const token = Cookies.get('token');
-
     if (!token) {
-      dispatch(logout());
-      navigate('/login');
+      logout();
       return;
     }
 
     try {
-      const response = await api.post(
-        '/Auth/logout',
-        {},
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
-
+      const response = await api.post('/Auth/logout', {});
       if (response.status === 200) {
         Cookies.remove('token');
-        dispatch(logout());
+        logout();
       } else {
         console.log('Đăng xuất thất bại');
       }
@@ -51,7 +37,28 @@ export default function Header() {
       console.log('Lỗi khi đăng xuất:', error);
     }
   };
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      const token = Cookies.get('token');
 
+      if (!token) {
+        return;
+      }
+
+      try {
+        const response = await api.get('/Auth/me');
+        if (response.status === 200) {
+          const { coderName, roleID } = response.data;
+          setCoderName(coderName);
+          setRoleID(roleID);
+        }
+      } catch (error) {
+        console.log('Lỗi:', error);
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
   return (
     <Box
       bg={useColorModeValue('white', 'gray.800')}
@@ -73,26 +80,13 @@ export default function Header() {
             flex={{ base: 1, md: 'auto' }}
             ml={{ base: -2 }}
             display={{ base: 'flex', md: 'none' }}
-          >
-            <IconButton
-              onClick={onToggle}
-              icon={
-                isOpen ? (
-                  <CloseIcon w={3} h={3} />
-                ) : (
-                  <HamburgerIcon w={5} h={5} />
-                )
-              }
-              variant={'ghost'}
-              aria-label={'Toggle Navigation'}
-            />
-          </Flex>
+          ></Flex>
           <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }}>
             <Image src={logo} alt="Logo" width="300px" />
           </Flex>
 
           <Flex align="center" gap={4}>
-            {user ? (
+            {coderName && roleID !== null ? (
               <>
                 {/* Chào user */}
                 {coderName && (

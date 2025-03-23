@@ -13,12 +13,13 @@ namespace ntucoderbe.Controllers
     {
         private readonly SubmissionRepository _submissionRepository;
         private readonly CodeExecutionService _codeExecutionService;
+        private readonly AuthService _authService;
 
-        public SubmissionController(SubmissionRepository submissionRepository, CodeExecutionService codeExecutionService)
+        public SubmissionController(SubmissionRepository submissionRepository, CodeExecutionService codeExecutionService, AuthService authService)
         {
             _submissionRepository = submissionRepository;
             _codeExecutionService = codeExecutionService;
-
+            _authService = authService;
         }
 
         [HttpGet("all")]
@@ -45,6 +46,8 @@ namespace ntucoderbe.Controllers
 
             try
             {
+                var coderID = _authService.GetUserIdFromToken();
+                dto.CoderID = coderID;
                 var result = await _submissionRepository.CreateSubmissionAsync(dto);
                 return CreatedAtAction(nameof(GetSubmissionById), new { id = result.ProblemID }, result);
             }
