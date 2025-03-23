@@ -212,6 +212,7 @@ function SignIn() {
                         password: e.target.value,
                       })
                     }
+                    onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
                     _hover={{
                       borderColor: 'purple.400',
                       boxShadow: '0 0 8px rgba(128, 0, 128, 0.6)',
