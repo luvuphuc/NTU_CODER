@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
 using ntucoderbe.Infrashtructure.Repositories;
+using ntucoderbe.Infrashtructure.Services;
 
 namespace ntucoderbe.Controllers
 {
@@ -11,10 +12,12 @@ namespace ntucoderbe.Controllers
     public class ContestController : ControllerBase
     {
         private readonly ContestRepository _contestRepository;
+        private readonly AuthService _authService;
 
-        public ContestController(ContestRepository contestRepository)
+        public ContestController(ContestRepository contestRepository, AuthService authService)
         {
             _contestRepository = contestRepository;
+            _authService = authService;
         }
 
         [HttpGet("all")]
@@ -41,6 +44,8 @@ namespace ntucoderbe.Controllers
 
             try
             {
+                var coderID = _authService.GetUserIdFromToken();
+                dto.CoderID = coderID;
                 var result = await _contestRepository.CreateContestAsync(dto);
                 return CreatedAtAction(nameof(GetContestById), new { id = result.ContestID }, result);
             }

@@ -10,7 +10,7 @@ import { Box, Button, Flex,useToast, useDisclosure,Input,Modal,
   FormControl,
   FormLabel } from "@chakra-ui/react";
 import api from "../../../utils/api"; 
-import CoderTable from "./components/ColumnsTable";
+import CategoryTable from "./components/ColumnsTable";
 import ScrollToTop from "components/scroll/ScrollToTop";
 import { MdAdd } from "react-icons/md";
 import { Link } from "react-router-dom";
@@ -147,7 +147,7 @@ export default function CategoryIndex() {
             </Button>
           </Link>
         </Flex>
-        <CoderTable 
+        <CategoryTable 
           tableData={tableData} 
           onSort={handleSort} 
           sortField={sortField} 

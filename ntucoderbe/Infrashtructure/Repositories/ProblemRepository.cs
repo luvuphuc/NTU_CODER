@@ -15,11 +15,9 @@ namespace ntucoderbe.Infrashtructure.Repositories
     public class ProblemRepository
     {
         private readonly ApplicationDbContext _context;
-        private readonly AuthService _authService;
-        public ProblemRepository(ApplicationDbContext context, AuthService authService)
+        public ProblemRepository(ApplicationDbContext context)
         {
             _context = context;
-            _authService = authService;
         }
 
         public async Task<PagedResponse<ProblemDTO>> GetAllProblemsAsync(QueryObject query, string? sortField = null, bool ascending = true, bool published = false)
@@ -80,7 +78,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 ProblemExplanation = dto.ProblemExplanation!,
                 TestType = dto.TestType!,
                 TestCode = dto.TestCode!,
-                CoderID = _authService.GetUserIdFromToken(),
+                CoderID = (int)dto.CoderID!,
                 Published = 0,
                 TestCompilerID = dto.TestCompilerID ?? 1!,
                 TestProgCompile = dto.TestProgCompile
@@ -199,7 +197,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             existing.TestCode = dto.TestCode ?? existing.TestCode;
             existing.TestCompilerID = dto.TestCompilerID ?? existing.TestCompilerID;
             existing.Published = dto.Published ?? existing.Published;
-
+            existing.CoderID = dto.CoderID ?? existing.CoderID;
             if (dto.SelectedCategoryIDs != null && dto.SelectedCategoryIDs.Any())
             {
                 var existingCategoryIds = existing.ProblemCategories.Select(pc => pc.CategoryID).ToList();

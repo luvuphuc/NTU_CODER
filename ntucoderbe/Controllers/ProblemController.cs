@@ -14,10 +14,12 @@ namespace ntucoderbe.Controllers
     public class ProblemController : ControllerBase
     {
         private readonly ProblemRepository _problemRepository;
+        private readonly AuthService _authService;
 
-        public ProblemController(ProblemRepository problemRepository)
+        public ProblemController(ProblemRepository problemRepository, AuthService authService)
         {
             _problemRepository = problemRepository;
+            _authService = authService;
         }
 
         [HttpGet("all")]
@@ -44,6 +46,8 @@ namespace ntucoderbe.Controllers
 
             try
             {
+                var coderID = _authService.GetUserIdFromToken();
+                dto.CoderID = coderID;
                 var result = await _problemRepository.CreateProblemAsync(dto);
                 return CreatedAtAction(nameof(GetProblemById), new { id = result.ProblemID }, result);
             }

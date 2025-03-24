@@ -11,12 +11,10 @@ namespace ntucoderbe.Infrashtructure.Repositories
     public class ContestRepository
     {
         private readonly ApplicationDbContext _context;
-        private readonly AuthService _authService;
 
-        public ContestRepository(ApplicationDbContext context, AuthService authService)
+        public ContestRepository(ApplicationDbContext context)
         {
             _context = context;
-            _authService = authService;
         }
 
         public async Task<PagedResponse<ContestDTO>> GetAllContestsAsync(QueryObject query, string? sortField = null, bool ascending = true, bool published = false)
@@ -61,7 +59,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             }
             var contest = new Contest
             {
-                CoderID = _authService.GetUserIdFromToken(),
+                CoderID = (int)dto.CoderID!,
                 ContestName = dto.ContestName!,
                 ContestDescription = dto.ContestDescription,
                 StartTime = dto.StartTime.ToUniversalTime(),
