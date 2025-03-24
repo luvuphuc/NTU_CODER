@@ -24,6 +24,7 @@ export default function Header() {
       setCoderName(null);
       setRoleID(null);
       setCoderID(null);
+      window.location.reload();
     } catch (error) {
       console.log('Lỗi khi đăng xuất:', error);
     }
