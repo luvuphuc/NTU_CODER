@@ -17,12 +17,14 @@ import { SearchBar } from 'components/navbar/searchBar/SearchBar';
 import { SidebarResponsive } from 'components/sidebar/Sidebar';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { useEffect, useState } from 'react';
 // Assets
-import { MdNotificationsNone} from 'react-icons/md';
+import { MdNotificationsNone } from 'react-icons/md';
 import { IoMdMoon, IoMdSunny } from 'react-icons/io';
 import routes from 'routes';
 import api from 'utils/api';
 import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 export default function HeaderLinks(props) {
   const { secondary } = props;
   const { colorMode, toggleColorMode } = useColorMode();
@@ -40,17 +42,29 @@ export default function HeaderLinks(props) {
     '14px 17px 40px 4px rgba(112, 144, 176, 0.06)',
   );
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await api.get('/Auth/me');
+        if (response.status === 200) {
+          setUser(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+      }
+    };
 
+    fetchUser();
+  }, []);
   const handleLogout = async () => {
     try {
-      const response = await api.get('/Auth/logout', {}, { withCredentials: true });
-      console.log(response);
-      if (response.status === 200) {
-        localStorage.removeItem('token');
-        navigate('/');
-      }
+      await api.post('/Auth/logout', {});
+      Cookies.remove('token');
+      setUser(null);
+      window.location.reload();
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.log('Lỗi khi đăng xuất:', error);
     }
   };
   return (
@@ -156,7 +170,7 @@ export default function HeaderLinks(props) {
           <Avatar
             _hover={{ cursor: 'pointer' }}
             color="white"
-            name="Adela Parkson"
+            name={user ? user.coderName : 'User'}
             bg="#11047A"
             size="sm"
             w="40px"
@@ -183,26 +197,10 @@ export default function HeaderLinks(props) {
               fontWeight="700"
               color={textColor}
             >
-              👋&nbsp; Hey, Adela
+              👋&nbsp; Hey, {user ? user.coderName : 'Guest'}
             </Text>
           </Flex>
           <Flex flexDirection="column" p="10px">
-            <MenuItem
-              _hover={{ bg: 'none' }}
-              _focus={{ bg: 'none' }}
-              borderRadius="8px"
-              px="14px"
-            >
-              <Text fontSize="sm">Profile Settings</Text>
-            </MenuItem>
-            <MenuItem
-              _hover={{ bg: 'none' }}
-              _focus={{ bg: 'none' }}
-              borderRadius="8px"
-              px="14px"
-            >
-              <Text fontSize="sm">Newsletter Settings</Text>
-            </MenuItem>
             <MenuItem
               _hover={{ bg: 'none' }}
               _focus={{ bg: 'none' }}
@@ -211,7 +209,7 @@ export default function HeaderLinks(props) {
               px="14px"
               onClick={handleLogout}
             >
-              <Text fontSize="sm" >Log out</Text>
+              <Text fontSize="sm">Log out</Text>
             </MenuItem>
           </Flex>
         </MenuList>
