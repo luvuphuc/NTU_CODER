@@ -11,28 +11,19 @@ import logo from '../../../assets/img/ntu-coders.png';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../../utils/api';
 import Cookies from 'js-cookie';
-import { useAuth } from 'contexts/AuthContext';
 import { useState, useEffect } from 'react';
 export default function Header() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
   const [coderName, setCoderName] = useState('');
   const [roleID, setRoleID] = useState(null);
+  const [coderID, setCoderID] = useState(null);
   const handleLogout = async () => {
-    const token = Cookies.get('token');
-    if (!token) {
-      logout();
-      return;
-    }
-
     try {
-      const response = await api.post('/Auth/logout', {});
-      if (response.status === 200) {
-        Cookies.remove('token');
-        logout();
-      } else {
-        console.log('Đăng xuất thất bại');
-      }
+      await api.post('/Auth/logout', {});
+      Cookies.remove('token');
+      setCoderName(null);
+      setRoleID(null);
+      setCoderID(null);
     } catch (error) {
       console.log('Lỗi khi đăng xuất:', error);
     }
@@ -48,9 +39,10 @@ export default function Header() {
       try {
         const response = await api.get('/Auth/me');
         if (response.status === 200) {
-          const { coderName, roleID } = response.data;
+          const { coderID, coderName, roleID } = response.data;
           setCoderName(coderName);
           setRoleID(roleID);
+          setCoderID(coderID);
         }
       } catch (error) {
         console.log('Lỗi:', error);

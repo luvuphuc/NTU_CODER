@@ -89,6 +89,7 @@ namespace ntucoderbe.Controllers
                 }
                 return Ok(new
                 {
+                    CoderID = coderID,
                     CoderName = coder.CoderName,
                     RoleID = coder.RoleID
                 });

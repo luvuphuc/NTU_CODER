@@ -29,7 +29,6 @@ import logo from '../../assets/img/ntu-coders.png';
 import { useState } from 'react';
 import Cookies from 'js-cookie';
 import api from 'utils/api';
-import { useAuth } from 'contexts/AuthContext';
 function SignIn() {
   const [credentials, setCredentials] = useState({
     userName: '',
@@ -48,7 +47,6 @@ function SignIn() {
   const handleClick = () => setShow(!show);
   const textColor = useColorModeValue('navy.700', 'white');
   const textColorSecondary = 'gray.400';
-  const { login } = useAuth();
   const handleLogin = async () => {
     if (!credentials.userName.trim() || !credentials.password.trim()) {
       setError({
@@ -72,10 +70,6 @@ function SignIn() {
 
       if (response.status === 200) {
         Cookies.set('token', response.data.token);
-        const userData = {
-          coderID: response.data.accountID,
-        };
-        login(userData);
         toast({
           title: 'Đăng nhập thành công!',
           status: 'success',

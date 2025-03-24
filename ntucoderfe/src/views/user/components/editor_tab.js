@@ -22,7 +22,6 @@ import { CheckIcon, ChevronDownIcon, ChevronLeftIcon } from '@chakra-ui/icons';
 import Editor from '@monaco-editor/react';
 import api from 'utils/api';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from 'contexts/AuthContext';
 const defaultSampleCode = {
   '.cpp': `#include <stdio.h>\nint main() {\n    printf("Hello world");\n    return 0;\n}`,
   '.py': `print("Hello, World!")`,
@@ -41,7 +40,6 @@ const EditorTab = () => {
   const [modalTitle, setModalTitle] = useState('');
   const [modalMessage, setModalMessage] = useState('');
   const [modalStatus, setModalStatus] = useState('success'); // success | error
-  const { user } = useAuth();
   useEffect(() => {
     const fetchCompilers = async () => {
       try {
@@ -95,7 +93,6 @@ const EditorTab = () => {
     try {
       const response = await api.post('/Submission/create', {
         problemId: problemId,
-        coderId: user.coderID,
         compilerId: selectedCompiler.compilerID,
         submitTime: new Date().toISOString(),
         submissionCode: code,

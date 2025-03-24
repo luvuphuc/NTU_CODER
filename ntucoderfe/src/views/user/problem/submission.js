@@ -29,19 +29,19 @@ import ProblemTab from '../components/problem_tab';
 import RankingTab from '../components/ranking_tab';
 import HistorySubTab from '../components/historysub_tab';
 import EditorTab from '../components/editor_tab';
-import { useAuth } from '../../../contexts/AuthContext';
+import Cookies from 'js-cookie';
 
 const MotionTab = motion(Tab);
 
 const Submission = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [problem, setProblemDetail] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const token = Cookies.get('token');
   useEffect(() => {
     // Nếu chưa đăng nhập, hiển thị modal yêu cầu đăng nhập
-    if (!user) {
+    if (!token) {
       onOpen();
       return;
     }
@@ -82,9 +82,9 @@ const Submission = () => {
     };
 
     if (id) fetchData();
-  }, [id, user, onOpen]);
+  }, [id, token, onOpen]);
 
-  if (!user) {
+  if (!token) {
     return (
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
