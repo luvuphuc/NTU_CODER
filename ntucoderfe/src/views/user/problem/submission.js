@@ -30,7 +30,7 @@ import RankingTab from '../components/ranking_tab';
 import HistorySubTab from '../components/historysub_tab';
 import EditorTab from '../components/editor_tab';
 import Cookies from 'js-cookie';
-
+import Layout from 'layouts/user';
 const MotionTab = motion(Tab);
 
 const Submission = () => {
@@ -116,121 +116,117 @@ const Submission = () => {
   }
 
   return (
-    <Box minH="100vh" display="flex" flexDirection="column" bg="#f4f4f4">
-      <Header />
-      <Navigation />
-
-      <Container
-        maxW="full"
-        flex="1"
-        mx="3"
-        bg="white"
-        borderRadius="lg"
-        boxShadow="lg"
-        my={6}
-        pl={0}
-      >
-        <Split
-          className="split"
-          sizes={[40, 60]}
-          minSize={300}
-          gutterSize={5}
-          direction="horizontal"
+    <Layout>
+      <Box minH="100vh" display="flex" flexDirection="column" bg="white">
+        <Container
+          maxW="full"
+          flex="1"
+          bg="white"
+          borderRadius="lg"
+          boxShadow="lg"
+          pl={0}
         >
-          {/* Tabs: Bài tập, Xếp hạng, Thảo luận */}
-          <Box width="40%" overflowY="auto">
-            <Tabs variant="unstyled">
-              <TabList
-                width="100%"
-                borderBottom="1px solid #C0C0C0"
-                bg="#E3E3E3"
-                display="flex"
-                gap={2}
-                padding="8px 10px"
-                zIndex={1}
-                borderTopRadius="lg"
-                boxSizing="border-box"
-              >
-                <MotionTab
-                  _selected={{
-                    bg: 'white',
-                    borderBottom: '2px solid #E3E3E3',
-                    fontWeight: 'bold',
-                  }}
-                  _hover={{ background: '#DADADA' }}
+          <Split
+            className="split"
+            sizes={[40, 60]}
+            minSize={300}
+            gutterSize={5}
+            direction="horizontal"
+          >
+            {/* Tabs: Bài tập, Xếp hạng, Thảo luận */}
+            <Box width="40%" overflowY="auto">
+              <Tabs variant="unstyled">
+                <TabList
+                  width="100%"
+                  borderBottom="1px solid #C0C0C0"
+                  bg="#E3E3E3"
+                  display="flex"
+                  gap={2}
+                  padding="8px 10px"
+                  zIndex={1}
                   borderTopRadius="lg"
-                  px={4}
-                  py={2}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
+                  boxSizing="border-box"
                 >
-                  Bài tập
-                </MotionTab>
-                <MotionTab
-                  _selected={{
-                    bg: 'white',
-                    borderBottom: '2px solid #E3E3E3',
-                    fontWeight: 'bold',
-                  }}
-                  _hover={{ background: '#DADADA' }}
-                  borderTopRadius="lg"
-                  px={4}
-                  py={2}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  Xếp hạng
-                </MotionTab>
-                <MotionTab
-                  _selected={{
-                    bg: 'white',
-                    borderBottom: '2px solid #E3E3E3',
-                    fontWeight: 'bold',
-                  }}
-                  _hover={{ background: '#DADADA' }}
-                  borderTopRadius="lg"
-                  px={4}
-                  py={2}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  Lịch sử làm bài
-                </MotionTab>
-              </TabList>
+                  <MotionTab
+                    _selected={{
+                      bg: 'white',
+                      borderBottom: '2px solid #E3E3E3',
+                      fontWeight: 'bold',
+                    }}
+                    _hover={{ background: '#DADADA' }}
+                    borderTopRadius="lg"
+                    px={4}
+                    py={2}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    Bài tập
+                  </MotionTab>
+                  <MotionTab
+                    _selected={{
+                      bg: 'white',
+                      borderBottom: '2px solid #E3E3E3',
+                      fontWeight: 'bold',
+                    }}
+                    _hover={{ background: '#DADADA' }}
+                    borderTopRadius="lg"
+                    px={4}
+                    py={2}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    Xếp hạng
+                  </MotionTab>
+                  <MotionTab
+                    _selected={{
+                      bg: 'white',
+                      borderBottom: '2px solid #E3E3E3',
+                      fontWeight: 'bold',
+                    }}
+                    _hover={{ background: '#DADADA' }}
+                    borderTopRadius="lg"
+                    px={4}
+                    py={2}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    Lịch sử làm bài
+                  </MotionTab>
+                </TabList>
 
-              <Box maxHeight="550px">
-                <TabPanels
-                  as={motion.div}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <TabPanel>
-                    <ProblemTab problem={problem} />
-                  </TabPanel>
-                  <TabPanel>
-                    <RankingTab />
-                  </TabPanel>
-                  <TabPanel>
-                    <HistorySubTab />
-                  </TabPanel>
-                </TabPanels>
-              </Box>
-            </Tabs>
-          </Box>
+                <Box maxHeight="550px">
+                  <TabPanels
+                    as={motion.div}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    pl={2}
+                  >
+                    <TabPanel>
+                      <ProblemTab problem={problem} />
+                    </TabPanel>
+                    <TabPanel>
+                      <RankingTab />
+                    </TabPanel>
+                    <TabPanel>
+                      <HistorySubTab />
+                    </TabPanel>
+                  </TabPanels>
+                </Box>
+              </Tabs>
+            </Box>
 
-          {/* Editor */}
-          <Box width="60%">
-            <EditorTab />
-          </Box>
-        </Split>
-      </Container>
-
-      <FooterUser />
-    </Box>
+            {/* Editor */}
+            <Box width="60%">
+              <EditorTab />
+            </Box>
+          </Split>
+        </Container>
+      </Box>
+    </Layout>
   );
 };
 
