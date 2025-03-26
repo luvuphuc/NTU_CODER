@@ -54,11 +54,15 @@ export default function Header() {
   }, []);
   return (
     <Box
+      position="fixed"
+      top="0"
       bg={useColorModeValue('white', 'gray.800')}
       borderBottom={1}
       borderStyle="solid"
       borderColor={useColorModeValue('gray.200', 'gray.900')}
       w="100%"
+      zIndex={'sticky'}
+      minH="70px"
     >
       <Box maxW="1200px" mx="auto" px={{ base: 4, md: 4 }}>
         <Flex

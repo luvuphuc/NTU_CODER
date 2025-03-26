@@ -8,7 +8,7 @@ const LayoutUser = ({ children }) => {
     <Box>
       <Header />
       <Navigation />
-      <Box as="main" minHeight="100v">
+      <Box as="main" minHeight="100v" pt="130px">
         {children}
       </Box>
       <FooterUser />
