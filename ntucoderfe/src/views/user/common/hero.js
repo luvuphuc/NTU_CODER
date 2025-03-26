@@ -71,7 +71,7 @@ export default function HeroSection() {
       </Box>
 
       {/* Features Section */}
-      <Container maxW="7xl" py={{ base: 12, md: 24 }} px={{ base: 4, md: 8 }}>
+      <Container maxW="7xl" py={{ base: 12, md: 10 }} px={{ base: 4, md: 8 }}>
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10}>
           {/* Card Luyện tập */}
           <Card
