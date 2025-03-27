@@ -69,29 +69,29 @@ export default function Navigation({ hideHeader }) {
             >
               {routes
                 .filter((route) => route.layout === '/user')
-                .map((route) => (
-                  <Link to={route.path} key={route.path}>
-                    <Button
-                      variant="link"
-                      fontWeight="500"
-                      fontSize="md"
-                      px={4}
-                      py={2}
-                      _hover={{ textDecoration: 'none' }}
-                      color={
-                        location.pathname === route.path ? '#0186bd' : 'white'
-                      }
-                      bg={
-                        location.pathname === route.path
-                          ? 'white'
-                          : 'transparent'
-                      }
-                      borderRadius="10"
-                    >
-                      {route.icon} {route.name}
-                    </Button>
-                  </Link>
-                ))}
+                .map((route) => {
+                  const isActive =
+                    route.path === '/'
+                      ? location.pathname === '/'
+                      : location.pathname.startsWith(route.path);
+                  return (
+                    <Link to={route.path} key={route.path}>
+                      <Button
+                        variant="link"
+                        fontWeight="500"
+                        fontSize="md"
+                        px={4}
+                        py={2}
+                        _hover={{ textDecoration: 'none' }}
+                        color={isActive ? '#0186bd' : 'white'}
+                        bg={isActive ? 'white' : 'transparent'}
+                        borderRadius="10"
+                      >
+                        {route.icon} {route.name}
+                      </Button>
+                    </Link>
+                  );
+                })}
             </Stack>
 
             {/* Search Input (Desktop Only) */}

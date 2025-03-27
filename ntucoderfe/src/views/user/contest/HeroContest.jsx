@@ -33,9 +33,7 @@ export default function HeroContestSection() {
             </Flex>
           ) : (
             <Stack spacing={8}>
-              <ContestSection title="Đang diễn ra" contests={filterContests(1)} />
               <ContestSection title="Sắp diễn ra" contests={filterContests(2)} />
-              <ContestSection title="Đã kết thúc" contests={filterContests(0)} />
             </Stack>
           )}
         </Container>

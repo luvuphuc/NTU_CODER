@@ -16,13 +16,12 @@ import ProblemCreate from 'views/admin/problem/components/Create';
 import CompilerIndex from 'views/admin/compiler';
 import ProblemPage from 'views/user/problem/problem_list';
 import Submission from 'views/user/problem/submission';
-import ContestPage from 'views/user/contest';
 import ContestIndex from 'views/admin/contest';
 import CreateContest from 'views/admin/contest/components/Create';
 import TestCaseIndex from 'views/admin/testcase';
 import ContestDetail from 'views/admin/contest/components/Detail';
 import HomePage from 'views/user/homepage';
-import SignIn from 'views/auth/login';
+import ContestPage from 'views/user/contest';
 const routes = [
   {
     name: 'Người dùng',
