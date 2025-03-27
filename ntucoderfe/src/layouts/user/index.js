@@ -1,10 +1,14 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import Header from 'views/user/common/header';
 import Navigation from 'views/user/common/navigation';
 import FooterUser from 'views/user/common/footer';
 import { Box } from '@chakra-ui/react';
 
-export default function LayoutUser({ children }) {
+const MemoizedHeader = memo(Header);
+const MemoizedNavigation = memo(Navigation);
+const MemoizedFooter = memo(FooterUser);
+
+function LayoutUser({ children }) {
   const [hideHeader, setHideHeader] = useState(false);
 
   useEffect(() => {
@@ -25,12 +29,14 @@ export default function LayoutUser({ children }) {
 
   return (
     <Box>
-      <Header hideHeader={hideHeader} />
-      <Navigation hideHeader={hideHeader} />
+      <MemoizedHeader hideHeader={hideHeader} />
+      <MemoizedNavigation hideHeader={hideHeader} />
       <Box as="main" pt="130px">
         {children}
       </Box>
-      <FooterUser />
+      <MemoizedFooter />
     </Box>
   );
 }
+
+export default memo(LayoutUser);

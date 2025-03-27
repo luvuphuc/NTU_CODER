@@ -33,6 +33,7 @@ export default function ProblemPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalRows, setTotalRows] = useState(0);
   const [difficulty, setDifficulty] = useState({
     easy: false,
     medium: false,
@@ -58,6 +59,7 @@ export default function ProblemPage() {
         });
         setProblems(response.data.data);
         setTotalPages(response.data.totalPages || 1);
+        setTotalRows(response.data.totalCount || 0);
       } catch (error) {
         console.error('Error fetching problems:', error);
       } finally {
@@ -157,6 +159,7 @@ export default function ProblemPage() {
                     onPageChange={setCurrentPage}
                     pageSize={pageSize}
                     onPageSizeChange={setPageSize}
+                    totalRows={totalRows}
                   />
                 )}
               </Stack>

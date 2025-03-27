@@ -150,6 +150,7 @@ function Register() {
         leftIcon={<ArrowBackIcon size="md" />}
         bg="gray.200"
         borderRadius="md"
+        zIndex={1000}
       >
         Quay lại
       </Button>
