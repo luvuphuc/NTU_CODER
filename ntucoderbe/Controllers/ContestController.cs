@@ -33,7 +33,19 @@ namespace ntucoderbe.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
-
+        [HttpGet("upcoming")]
+        public async Task<IActionResult> GetUpcomingContests([FromQuery] QueryObject query)
+        {
+            try
+            {
+                var result = await _contestRepository.GetUpcomingContest(query);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
         [HttpPost("create")]
         public async Task<IActionResult> CreateContest([FromBody] ContestDTO dto)
         {

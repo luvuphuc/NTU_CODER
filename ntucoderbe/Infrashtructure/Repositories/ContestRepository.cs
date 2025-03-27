@@ -5,6 +5,7 @@ using ntucoderbe.Infrashtructure.Services;
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
 using System;
+using System.Security.Policy;
 
 namespace ntucoderbe.Infrashtructure.Repositories
 {
@@ -48,6 +49,9 @@ namespace ntucoderbe.Infrashtructure.Repositories
             {
                 "contestname" => ascending ? query.OrderBy(c => c.ContestName) : query.OrderByDescending(c => c.ContestName),
                 "starttime" => ascending ? query.OrderBy(c => c.StartTime) : query.OrderByDescending(c => c.StartTime),
+                "status" => ascending
+                    ? query.OrderBy(c => c.Status == 2 ? 0 : c.Status == 0 ? 1 : c.Status == 1 ? 2 : 3)
+                    : query.OrderByDescending(c => c.Status == 2 ? 0 : c.Status == 0 ? 1 : c.Status == 1 ? 2 : 3),
                 _ => query.OrderBy(c => c.ContestID),
             };
         }
@@ -178,6 +182,30 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
             await _context.SaveChangesAsync();
         }
+        public async Task<List<ContestDTO>> GetUpcomingContest(QueryObject query)
+        {
+            await UpdateContestStatusesAsync();
+            var contestQuery = _context.Contest
+                .Include(c => c.Coder)
+                .Select(c => new ContestDTO
+                {
+                    ContestID = c.ContestID,
+                    CoderID = c.CoderID,
+                    ContestName = c.ContestName,
+                    StartTime = c.StartTime,
+                    EndTime = c.EndTime,
+                    Published = c.Published,
+                    Status = c.Status,
+                    Duration = c.Duration,
+                    CoderName = c.Coder.CoderName
+                })
+                .Where(c => c.Status == 2 && c.Published ==1)
+                .OrderByDescending(c => c.ContestID)
+                .Take(3);
+
+            return await contestQuery.ToListAsync();
+        }
+
 
     }
 }
