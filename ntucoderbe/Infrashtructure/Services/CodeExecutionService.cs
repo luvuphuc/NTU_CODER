@@ -71,6 +71,10 @@ namespace ntucoderbe.Infrashtructure.Services
 
         private async Task<TestRun> ExecuteTestCase(Submission submission, TestCase testCase)
         {
+            await using var _context = _contextFactory.CreateDbContext();
+            var existingTestRun = await _context.TestRuns
+                .FirstOrDefaultAsync(tr => tr.SubmissionID == submission.SubmissionID && tr.TestCaseID == testCase.TestCaseID);
+
             (string dockerCommand, string containerName) = GetDockerCommand(submission.Compiler, submission.SubmissionCode, testCase.Input);
            
             var stopwatch = Stopwatch.StartNew();
@@ -98,16 +102,30 @@ namespace ntucoderbe.Infrashtructure.Services
                 testResult = isCorrect ? "Accepted" : "Wrong Answer";
             }
 
-            return new TestRun
+            if (existingTestRun != null)
             {
-                SubmissionID = submission.SubmissionID,
-                TestCaseID = testCase.TestCaseID,
-                TimeDuration = (int)stopwatch.ElapsedMilliseconds,
-                MemorySize = 0,
-                TestOutput = result.output.Trim(),
-                Result = testResult,
-                CheckerLog = result.error.Trim()
-            };
+                existingTestRun.TimeDuration = (int)stopwatch.ElapsedMilliseconds;
+                existingTestRun.TestOutput = result.output.Trim();
+                existingTestRun.Result = testResult;
+                existingTestRun.CheckerLog = result.error.Trim();
+                existingTestRun.MemorySize = 0; 
+            }
+            else
+            {
+                existingTestRun = new TestRun
+                {
+                    SubmissionID = submission.SubmissionID,
+                    TestCaseID = testCase.TestCaseID,
+                    TimeDuration = (int)stopwatch.ElapsedMilliseconds,
+                    MemorySize = 0,
+                    TestOutput = result.output.Trim(),
+                    Result = testResult,
+                    CheckerLog = result.error.Trim()
+                };
+                await _context.TestRuns.AddAsync(existingTestRun);
+            }
+            await _context.SaveChangesAsync();
+            return existingTestRun;
         }
 
         private (string, string) GetDockerCommand(Compiler compiler, string sourceCode, string input)
