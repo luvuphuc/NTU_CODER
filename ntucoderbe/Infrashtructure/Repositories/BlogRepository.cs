@@ -6,6 +6,7 @@ using ntucoderbe.DTOs;
 using ntucoderbe.Infrashtructure.Services;
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ntucoderbe.Infrashtructure.Repositories
 {
@@ -29,9 +30,9 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 Title = dto.Title,
                 Content = dto.Content,
                 BlogDate = DateTime.UtcNow,
-                PinHome = 0,
-                Published = 0,
-                CoderID = 1,
+                CoderID = (int)dto.CoderID!,
+                PinHome = dto.PinHome,
+                Published = dto.Published,
             };
 
             _context.Blogs.Add(blog);
@@ -54,7 +55,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             return true;
         }
 
-        public async Task<PagedResponse<BlogDTO>> GetAllBlogsAsync(QueryObject query, string? sortField = null, bool ascending = true)
+        public async Task<PagedResponse<BlogDTO>> GetAllBlogsAsync(QueryObject query, string? sortField = null, bool ascending = true, bool published = false)
         {
             var blogQuery = _context.Blogs
                 .Include(p => p.Coder)
@@ -65,9 +66,13 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     BlogDate = p.BlogDate,
                     PinHome = p.PinHome,
                     Published = p.Published,
+                    CoderID = p.CoderID,
                     CoderName = p.Coder.CoderName
                 });
-
+            if (published)
+            {
+                blogQuery = blogQuery.Where(b => b.Published == 1);
+            }
             blogQuery = ApplySorting(blogQuery, sortField, ascending);
             var blogs = await PagedResponse<BlogDTO>.CreateAsync(
                 blogQuery,
@@ -105,7 +110,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 CoderName = obj.Coder.CoderName
             };
         }
-
         public async Task<BlogDTO> UpdateBlogAsync(int id, BlogDTO dto)
         {
             var obj = await _context.Blogs
@@ -130,6 +134,25 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 Published = obj.Published,
                 CoderName = obj.Coder.CoderName
             };
+        }
+        public async Task<List<BlogDTO>> GetAllBlogFromCoderIDAsync(int coderID)
+        {
+            var blogQuery = await _context.Blogs
+                .Include(p => p.Coder)
+                .Where(p => p.CoderID == coderID)
+                .Select(p => new BlogDTO
+                {
+                    BlogID = p.BlogID,
+                    Title = p.Title,
+                    BlogDate = p.BlogDate,
+                    PinHome = p.PinHome,
+                    Published = p.Published,
+                    CoderID = p.CoderID,
+                    CoderName = p.Coder.CoderName
+                }).ToListAsync();
+                
+            return blogQuery;
+
         }
     }
 }

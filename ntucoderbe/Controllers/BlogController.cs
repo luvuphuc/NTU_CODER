@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
 using ntucoderbe.Infrashtructure.Repositories;
+using ntucoderbe.Infrashtructure.Services;
 using System.ComponentModel.DataAnnotations;
 
 namespace ntucoderbe.Controllers
@@ -12,27 +13,31 @@ namespace ntucoderbe.Controllers
     public class BlogController : ControllerBase
     {
         private readonly BlogRepository _blogRepository;
+        private readonly AuthService _authService;
 
-        public BlogController(BlogRepository blogRepository)
+        public BlogController(BlogRepository blogRepository, AuthService authService)
         {
             _blogRepository = blogRepository;
+            _authService = authService;
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllBlogs([FromQuery] QueryObject query, string? sortField = null, bool ascending = true)
+        public async Task<IActionResult> GetAllBlogs([FromQuery] QueryObject query, string? sortField = null, bool ascending = true, bool published = false)
         {
-            var categories = await _blogRepository.GetAllBlogsAsync(query, sortField, ascending);
+            var categories = await _blogRepository.GetAllBlogsAsync(query, sortField, ascending,published);
             return Ok(categories);
         }
         [HttpPost("create")]
         public async Task<IActionResult> CreateBlog([FromBody] BlogDTO dto)
         {
+            
             if (dto == null)
             {
                 return BadRequest(new { Errors = new List<string> { "Dữ liệu không hợp lệ." } });
             }
             try
             {
+                dto.CoderID = _authService.GetUserIdFromToken();
                 var created = await _blogRepository.CreateBlogAsync(dto);
                 return CreatedAtAction(nameof(GetBlogById), new { id = created.BlogID }, created);
             }
