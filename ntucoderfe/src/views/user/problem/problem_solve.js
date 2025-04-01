@@ -33,7 +33,7 @@ import Cookies from 'js-cookie';
 import Layout from 'layouts/user';
 const MotionTab = motion(Tab);
 
-const Submission = () => {
+const ProblemSolver = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [problem, setProblemDetail] = useState(null);
@@ -230,4 +230,4 @@ const Submission = () => {
   );
 };
 
-export default Submission;
+export default ProblemSolver;
