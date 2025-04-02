@@ -23,6 +23,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             var objQuery = _context.Submissions
                 .Include(a=> a.Problem)
                 .Include(a=> a.Coder)
+                .Include(a=>a.Compiler)
                 .Select(a => new SubmissionDTO
                 {
                     SubmissionID = a.SubmissionID,
@@ -30,6 +31,11 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     ProblemName = a.Problem.ProblemName,
                     CoderID = a.CoderID,
                     CoderName = a.Coder.CoderName,
+                    CompilerName = a.Compiler.CompilerName,
+                    TestResult = a.TestResult,
+                    MaxTimeDuration = a.MaxTimeDuration,
+                    SubmitTime = a.SubmitTime,
+                    SubmissionStatus = a.SubmissionStatus,
                 });
             objQuery = ApplySorting(objQuery, sortField, ascending);
             var obj = await PagedResponse<SubmissionDTO>.CreateAsync(

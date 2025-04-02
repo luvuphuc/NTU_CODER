@@ -107,7 +107,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
         }
 
 
-        public async Task<bool> CheckProblemCodeExist(string pc)
+        private async Task<bool> CheckProblemCodeExist(string pc)
         {
             return await _context.Problems.AnyAsync(p=>p.ProblemCode == pc);
         }
