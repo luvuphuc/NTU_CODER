@@ -145,55 +145,61 @@ export default function ProblemPage() {
                     key={problem.problemId}
                     borderRadius="lg"
                     boxShadow="md"
-                    p={4}
                     minH="150px"
+                    overflow="hidden"
+                    _hover={{ bg: '#ebebf3', cursor: 'pointer' }}
                   >
-                    <CardBody>
-                      <Flex justify="space-between" align="center">
-                        <Stack spacing={3} flex="1">
-                          <Heading size="lg">{problem.problemName}</Heading>
-                          <Wrap>
-                            {problem.selectedCategoryNames.map(
-                              (category, index) => (
-                                <WrapItem key={index}>
-                                  <Badge colorScheme="purple" fontSize="0.8rem">
-                                    {category}
-                                  </Badge>
-                                </WrapItem>
-                              ),
-                            )}
-                          </Wrap>
-                          <Box
-                            color="gray.600"
-                            fontSize="md"
-                            dangerouslySetInnerHTML={{
-                              __html: problem.problemContent,
-                            }}
-                          />
-                        </Stack>
-                        <Flex align="center" ml={4}>
-                          <Link to={`/problem/${problem.problemID}`}>
-                            <Button
-                              colorScheme="blue"
-                              size="md"
-                              mr={2}
-                              borderRadius="10"
-                            >
-                              Giải bài tập
-                            </Button>
-                          </Link>
-                          <IconButton
-                            aria-label="Yêu thích"
-                            icon={<IoMdHeartEmpty size={24} color="red" />}
-                            variant="ghost"
-                            bg="white"
-                            onClick={() => handleAddFavorite(problem.problemID)}
-                          />
+                    <Link
+                      to={`/problem/${problem.problemID}`}
+                      style={{ textDecoration: 'none' }}
+                    >
+                      <CardBody _hover={{ bg: '#ebebf3' }}>
+                        <Flex justify="space-between" align="center">
+                          <Stack spacing={3} flex="1">
+                            <Heading size="lg" color="gray.700" noOfLines={1}>
+                              {problem.problemName}
+                            </Heading>
+                            <Wrap>
+                              {problem.selectedCategoryNames.map(
+                                (category, index) => (
+                                  <WrapItem key={index}>
+                                    <Badge
+                                      colorScheme="purple"
+                                      fontSize="0.8rem"
+                                    >
+                                      {category}
+                                    </Badge>
+                                  </WrapItem>
+                                ),
+                              )}
+                            </Wrap>
+                            <Box
+                              color="gray.600"
+                              fontSize="md"
+                              dangerouslySetInnerHTML={{
+                                __html: problem.problemContent,
+                              }}
+                              noOfLines={2}
+                            />
+                          </Stack>
+                          <Flex align="center" ml={4}>
+                            <IconButton
+                              aria-label="Yêu thích"
+                              icon={<IoMdHeartEmpty size={24} color="red" />}
+                              variant="ghost"
+                              bg="white"
+                              onClick={(e) => {
+                                e.preventDefault(); // Ngăn click lan lên Link
+                                handleAddFavorite(problem.problemID);
+                              }}
+                            />
+                          </Flex>
                         </Flex>
-                      </Flex>
-                    </CardBody>
+                      </CardBody>
+                    </Link>
                   </Card>
                 ))}
+
                 {!loading && problems.length > 0 && (
                   <Pagination
                     currentPage={currentPage}
