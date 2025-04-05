@@ -21,9 +21,6 @@ import {
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import Split from 'react-split';
-import Header from '../common/header';
-import Navigation from '../common/navigation';
-import FooterUser from '../common/footer';
 import api from 'utils/api';
 import ProblemTab from '../components/problem_tab';
 import RankingTab from '../components/ranking_tab';
@@ -116,117 +113,115 @@ const ProblemSolver = () => {
   }
 
   return (
-    <Layout>
-      <Box minH="100vh" display="flex" flexDirection="column" bg="white">
-        <Container
-          maxW="full"
-          flex="1"
-          bg="white"
-          borderRadius="lg"
-          boxShadow="lg"
-          pl={0}
+    <Box height="100vh" display="flex" flexDirection="column" bg="white">
+      <Container
+        maxW="full"
+        flex="1"
+        bg="white"
+        borderRadius="lg"
+        boxShadow="lg"
+        pl={0}
+      >
+        <Split
+          className="split"
+          sizes={[40, 60]}
+          minSize={300}
+          gutterSize={5}
+          direction="horizontal"
         >
-          <Split
-            className="split"
-            sizes={[40, 60]}
-            minSize={300}
-            gutterSize={5}
-            direction="horizontal"
-          >
-            {/* Tabs: Bài tập, Xếp hạng, Thảo luận */}
-            <Box width="40%" overflowY="auto">
-              <Tabs variant="unstyled">
-                <TabList
-                  width="100%"
-                  borderBottom="1px solid #C0C0C0"
-                  bg="#E3E3E3"
-                  display="flex"
-                  gap={2}
-                  padding="8px 10px"
-                  zIndex={1}
+          {/* Tabs: Bài tập, Xếp hạng, Thảo luận */}
+          <Box width="40%" overflowY="auto">
+            <Tabs variant="unstyled">
+              <TabList
+                width="100%"
+                borderBottom="1px solid #C0C0C0"
+                bg="#E3E3E3"
+                display="flex"
+                gap={2}
+                padding="8px 10px"
+                zIndex={1}
+                borderTopRadius="lg"
+                boxSizing="border-box"
+              >
+                <MotionTab
+                  _selected={{
+                    bg: 'white',
+                    borderBottom: '2px solid #E3E3E3',
+                    fontWeight: 'bold',
+                  }}
+                  _hover={{ background: '#DADADA' }}
                   borderTopRadius="lg"
-                  boxSizing="border-box"
+                  px={4}
+                  py={2}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
                 >
-                  <MotionTab
-                    _selected={{
-                      bg: 'white',
-                      borderBottom: '2px solid #E3E3E3',
-                      fontWeight: 'bold',
-                    }}
-                    _hover={{ background: '#DADADA' }}
-                    borderTopRadius="lg"
-                    px={4}
-                    py={2}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    Bài tập
-                  </MotionTab>
-                  <MotionTab
-                    _selected={{
-                      bg: 'white',
-                      borderBottom: '2px solid #E3E3E3',
-                      fontWeight: 'bold',
-                    }}
-                    _hover={{ background: '#DADADA' }}
-                    borderTopRadius="lg"
-                    px={4}
-                    py={2}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    Xếp hạng
-                  </MotionTab>
-                  <MotionTab
-                    _selected={{
-                      bg: 'white',
-                      borderBottom: '2px solid #E3E3E3',
-                      fontWeight: 'bold',
-                    }}
-                    _hover={{ background: '#DADADA' }}
-                    borderTopRadius="lg"
-                    px={4}
-                    py={2}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    Lịch sử làm bài
-                  </MotionTab>
-                </TabList>
+                  Bài tập
+                </MotionTab>
+                <MotionTab
+                  _selected={{
+                    bg: 'white',
+                    borderBottom: '2px solid #E3E3E3',
+                    fontWeight: 'bold',
+                  }}
+                  _hover={{ background: '#DADADA' }}
+                  borderTopRadius="lg"
+                  px={4}
+                  py={2}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  Xếp hạng
+                </MotionTab>
+                <MotionTab
+                  _selected={{
+                    bg: 'white',
+                    borderBottom: '2px solid #E3E3E3',
+                    fontWeight: 'bold',
+                  }}
+                  _hover={{ background: '#DADADA' }}
+                  borderTopRadius="lg"
+                  px={4}
+                  py={2}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  Lịch sử làm bài
+                </MotionTab>
+              </TabList>
 
-                <Box maxHeight="550px">
-                  <TabPanels
-                    as={motion.div}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    pl={2}
-                  >
-                    <TabPanel>
-                      <ProblemTab problem={problem} />
-                    </TabPanel>
-                    <TabPanel>
-                      <RankingTab />
-                    </TabPanel>
-                    <TabPanel>
-                      <HistorySubTab />
-                    </TabPanel>
-                  </TabPanels>
-                </Box>
-              </Tabs>
-            </Box>
+              <Box maxHeight="550px">
+                <TabPanels
+                  as={motion.div}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  pl={2}
+                >
+                  <TabPanel>
+                    <ProblemTab problem={problem} />
+                  </TabPanel>
+                  <TabPanel>
+                    <RankingTab />
+                  </TabPanel>
+                  <TabPanel>
+                    <HistorySubTab />
+                  </TabPanel>
+                </TabPanels>
+              </Box>
+            </Tabs>
+          </Box>
 
-            {/* Editor */}
-            <Box width="60%">
-              <EditorTab />
-            </Box>
-          </Split>
-        </Container>
-      </Box>
-    </Layout>
+          {/* Editor */}
+          <Box width="60%" height="100%" bgColor="gray.200">
+            <EditorTab />
+          </Box>
+        </Split>
+      </Container>
+    </Box>
   );
 };
 

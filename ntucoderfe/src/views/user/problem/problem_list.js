@@ -17,23 +17,32 @@ import {
   Badge,
   Wrap,
   WrapItem,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  ModalFooter,
+  ModalOverlay,
+  useDisclosure,
+  ModalContent,
+  useToast,
 } from '@chakra-ui/react';
-import Navigation from '../common/navigation';
-import Header from '../common/header';
 import { IoMdHeartEmpty } from 'react-icons/io';
-import FooterUser from '../common/footer';
 import api from '../../../utils/api';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Pagination from 'components/pagination/pagination';
 import Layout from 'layouts/user';
-
+import Cookies from 'js-cookie';
 export default function ProblemPage() {
   const [problems, setProblems] = useState([]);
+  const navigate = useNavigate();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(true);
+  const toast = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRows, setTotalRows] = useState(0);
+
   const [difficulty, setDifficulty] = useState({
     easy: false,
     medium: false,
@@ -61,7 +70,7 @@ export default function ProblemPage() {
         setTotalPages(response.data.totalPages || 1);
         setTotalRows(response.data.totalCount || 0);
       } catch (error) {
-        console.error('Error fetching problems:', error);
+        console.error('Error:', error);
       } finally {
         setLoading(false);
       }
@@ -69,6 +78,38 @@ export default function ProblemPage() {
     fetchProblems();
   }, [currentPage, pageSize]);
 
+  const handleAddFavorite = async (problemID) => {
+    const token = Cookies.get('token');
+
+    if (!token) {
+      onOpen();
+      return;
+    }
+    try {
+      await api.post('/Favourite/create', { problemID });
+
+      toast({
+        title: 'Thành công',
+        description: 'Đã thêm yêu thích.',
+        status: 'success',
+        position: 'top-right',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Lỗi khi thêm vào yêu thích:', error);
+      const errorMessage =
+        error.response?.data?.message ||
+        toast({
+          title: 'Lỗi',
+          description: errorMessage,
+          status: 'error',
+          position: 'top-right',
+          duration: 5000,
+          isClosable: true,
+        });
+    }
+  };
   return (
     <Layout>
       <Box>
@@ -146,6 +187,7 @@ export default function ProblemPage() {
                             icon={<IoMdHeartEmpty size={24} color="red" />}
                             variant="ghost"
                             bg="white"
+                            onClick={() => handleAddFavorite(problem.problemID)}
                           />
                         </Flex>
                       </Flex>
@@ -234,6 +276,28 @@ export default function ProblemPage() {
           </Grid>
         </Container>
       </Box>
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Yêu cầu đăng nhập</ModalHeader>
+          <ModalBody>
+            <Text>Bạn cần đăng nhập để thực hiện hành động.</Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              colorScheme="blue"
+              mr={3}
+              borderRadius="md"
+              onClick={() => navigate('/login')}
+            >
+              Đăng nhập
+            </Button>
+            <Button borderRadius="md" onClick={onClose}>
+              Hủy
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Layout>
   );
 }
