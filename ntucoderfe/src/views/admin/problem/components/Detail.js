@@ -310,6 +310,11 @@ const ProblemDetail = () => {
                     p={2}
                     bg="gray.200"
                     borderRadius="md"
+                    maxW="100%" // Take full width in small screens
+                    w={{ base: '100%', md: '500px' }} // Adjust width for larger screens
+                    overflow="hidden" // Hide overflow content (no horizontal scrollbar)
+                    wordBreak="break-word" // Ensure text breaks into the next line if too long
+                    whiteSpace="normal" // Allow wrapping of long text
                     dangerouslySetInnerHTML={{
                       __html:
                         problemDetail.problemContent || 'Chưa có thông tin',
