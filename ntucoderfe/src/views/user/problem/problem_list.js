@@ -205,9 +205,7 @@ export default function ProblemPage() {
                     currentPage={currentPage}
                     totalPages={totalPages}
                     onPageChange={setCurrentPage}
-                    pageSize={pageSize}
                     onPageSizeChange={setPageSize}
-                    totalRows={totalRows}
                   />
                 )}
               </Stack>

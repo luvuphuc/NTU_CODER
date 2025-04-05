@@ -71,8 +71,6 @@ export default function ContestPage() {
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={setCurrentPage}
-            pageSize={pageSize}
-            totalRows={totalRows}
             onPageSizeChange={setPageSize}
           />
         </Container>
