@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Select,
@@ -29,6 +29,7 @@ import Editor from '@monaco-editor/react';
 import { FiUpload } from 'react-icons/fi';
 import api from 'utils/api';
 import { useParams, useNavigate } from 'react-router-dom';
+import TestCasesComponent from './testcase_tab';
 const defaultSampleCode = {
   '.cpp': `#include <stdio.h>\nint main() {\n    printf("Hello world");\n    return 0;\n}`,
   '.py': `print("Hello, World!")`,
@@ -308,7 +309,7 @@ const EditorTab = () => {
         overflow="hidden"
         border="1px solid #ddd"
         flex="1"
-        mt={4}
+        height="70%"
       >
         <Editor
           width="100%"
@@ -347,6 +348,9 @@ const EditorTab = () => {
           </Button>
         </HStack>
       </Flex>
+      <Box mt={4} maxHeight="200px" overflowY="auto">
+        <TestCasesComponent />
+      </Box>
 
       <Modal isOpen={isUploadModalOpen} onClose={resetUploadModal} isCentered>
         <ModalOverlay />

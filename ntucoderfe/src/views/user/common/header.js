@@ -15,7 +15,7 @@ import Cookies from 'js-cookie';
 import { useState, useEffect } from 'react';
 
 export default function Header({ hideHeader }) {
-  const [coderName, setCoderName] = useState('');
+  const [coderName, setCoderName] = useState(null);
   const [roleID, setRoleID] = useState(null);
   const [coderID, setCoderID] = useState(null);
 

@@ -27,7 +27,6 @@ import RankingTab from '../components/ranking_tab';
 import HistorySubTab from '../components/historysub_tab';
 import EditorTab from '../components/editor_tab';
 import Cookies from 'js-cookie';
-import Layout from 'layouts/user';
 const MotionTab = motion(Tab);
 
 const ProblemSolver = () => {
@@ -48,27 +47,6 @@ const ProblemSolver = () => {
         const problemRes = await api.get(`/Problem/${id}`);
         const problemData = problemRes.data;
         let sampleTest = null;
-        try {
-          const testCaseRes = await api.get(
-            `/TestCase/sampleTest?problemId=${id}`,
-          );
-          if (
-            testCaseRes.data &&
-            testCaseRes.data.input &&
-            testCaseRes.data.output
-          ) {
-            sampleTest = {
-              sampleInput: testCaseRes.data.input,
-              sampleOutput: testCaseRes.data.output,
-            };
-          }
-        } catch (error) {
-          if (error.response && error.response.status === 404) {
-            console.warn('Không tìm thấy test case mẫu, ẩn phần test case.');
-          } else {
-            console.error('Lỗi khi tải test case mẫu:', error);
-          }
-        }
         setProblemDetail({
           ...problemData,
           ...(sampleTest ? sampleTest : {}),
@@ -125,7 +103,7 @@ const ProblemSolver = () => {
         <Split
           className="split"
           sizes={[40, 60]}
-          minSize={300}
+          minSize={450}
           gutterSize={5}
           direction="horizontal"
         >

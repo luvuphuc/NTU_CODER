@@ -8,39 +8,21 @@ const ProblemTab = ({ problem }) => {
       <Text>
         <strong>Mã bài toán:</strong> {problem.problemCode}
       </Text>
-      <Text>
-        <strong>Thời gian chạy:</strong> {problem.timeLimit} giây
-      </Text>
-      <Text>
-        <strong>Giới hạn bộ nhớ:</strong> {problem.memoryLimit} KB
-      </Text>
       <Text fontWeight="bold">Nội dung bài toán:</Text>
-      <Box p={3} bg="gray.200" borderRadius="md" boxShadow="sm">
+      <Box
+        maxWidth="100%" // Giới hạn chiều rộng
+        p={3}
+        bg="gray.200"
+        borderRadius="md"
+        boxShadow="sm"
+        overflow="hidden" // Không cho phép cuộn ngang
+        style={{
+          wordWrap: 'break-word',
+          wordBreak: 'break-word',
+          whiteSpace: 'normal',
+        }}
+      >
         <Box dangerouslySetInnerHTML={{ __html: problem.problemContent }} />
-      </Box>
-
-      {/* Hiển thị Input mẫu */}
-      <Text fontWeight="bold">Input mẫu:</Text>
-      <Box
-        p={3}
-        bg="gray.200"
-        borderRadius="md"
-        boxShadow="sm"
-        fontFamily="monospace"
-      >
-        {problem.sampleInput || 'Không có dữ liệu'}
-      </Box>
-
-      {/* Hiển thị Output mẫu */}
-      <Text fontWeight="bold">Output mẫu:</Text>
-      <Box
-        p={3}
-        bg="gray.200"
-        borderRadius="md"
-        boxShadow="sm"
-        fontFamily="monospace"
-      >
-        {problem.sampleOutput || 'Không có dữ liệu'}
       </Box>
     </VStack>
   );
