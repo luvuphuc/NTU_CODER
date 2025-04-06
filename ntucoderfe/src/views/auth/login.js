@@ -77,7 +77,7 @@ function SignIn() {
           isClosable: true,
           position: 'top-right',
         });
-        navigate('/');
+        navigate(-1);
       }
     } catch (error) {
       let errorMessage = 'Có lỗi xảy ra, vui lòng thử lại.';
