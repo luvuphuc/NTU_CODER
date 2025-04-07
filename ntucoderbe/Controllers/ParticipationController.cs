@@ -1,4 +1,5 @@
 ﻿using AddressManagementSystem.Infrashtructure.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
@@ -105,7 +106,7 @@ namespace ntucoderbe.Controllers
 
         // Delete a problem by ID
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSubmission(int id)
+        public async Task<IActionResult> DeleteParticipation(int id)
         {
             try
             {
@@ -129,5 +130,29 @@ namespace ntucoderbe.Controllers
                 });
             }
         }
+        [Authorize]
+        [HttpGet("check")]
+        public async Task<IActionResult> CheckParticipation( int contestID)
+        {
+            var coderID = _authService.GetUserIdFromToken();
+            try
+            {
+                bool check = await _repository.IsParticipationExistAsync(coderID, contestID);
+                return Ok(new
+                {
+                    registed = check,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    status = "error",
+                    message = "Có lỗi xảy ra.",
+                    error = ex.Message
+                });
+            }
+        }
+
     }
 }
