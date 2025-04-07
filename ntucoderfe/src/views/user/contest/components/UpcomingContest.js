@@ -159,20 +159,22 @@ const ContestCard = ({ contest }) => {
             <CountdownBox value={pad(timeObj.seconds)} label="Giây" />
           </Flex>
         )}
-        <Button
-          colorScheme="blue"
-          size="sm"
-          borderRadius="md"
-          boxShadow="md"
-          _hover={{
-            bg: 'blue.600',
-            transform: 'scale(1.05)',
-            boxShadow: 'xl',
-          }}
-          transition="all 0.2s ease-in-out"
-        >
-          Xem Chi Tiết
-        </Button>
+        <Link to={`/contest/${contest.contestID}`}>
+          <Button
+            colorScheme="blue"
+            size="sm"
+            borderRadius="md"
+            boxShadow="md"
+            _hover={{
+              bg: 'blue.600',
+              transform: 'scale(1.05)',
+              boxShadow: 'xl',
+            }}
+            transition="all 0.2s ease-in-out"
+          >
+            Xem Chi Tiết
+          </Button>
+        </Link>
       </Stack>
     </MotionBox>
   );

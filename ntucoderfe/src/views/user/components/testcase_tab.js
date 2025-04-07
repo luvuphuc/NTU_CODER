@@ -17,8 +17,6 @@ const TestCasesComponent = () => {
 
   const bgColor = useColorModeValue('gray.800', 'gray.800');
   const textColor = useColorModeValue('gray.100', 'gray.100');
-  const selectedBg = useColorModeValue('gray.700', 'gray.700');
-  const hoverBg = useColorModeValue('gray.600', 'gray.600');
 
   useEffect(() => {
     const fetchTestCases = async () => {
@@ -50,28 +48,26 @@ const TestCasesComponent = () => {
     <Flex bg={bgColor} borderRadius="md" color={textColor}>
       <Box flex="1" p={2}>
         <VStack align="stretch" spacing={2}>
-          {testCase && (
-            <VStack align="stretch" spacing={2}>
-              <HStack justify="space-between" w="400px">
-                <Text fontWeight="medium" minW="150px">
-                  Đầu vào
-                </Text>
-                <Text>{testCase.input}</Text>
-              </HStack>
-              <HStack justify="space-between" w="400px">
-                <Text fontWeight="medium" minW="150px">
-                  Đầu ra mong đợi
-                </Text>
-                <Text>{testCase.output}</Text>
-              </HStack>
-              <HStack justify="space-between" w="400px">
-                <Text fontWeight="medium" minW="150px">
-                  Giới hạn thời gian
-                </Text>
-                <Text>{problem.timeLimit || 'N/A'}(s)</Text>
-              </HStack>
-            </VStack>
-          )}
+          <VStack align="stretch" spacing={2}>
+            <HStack justify="space-between" w="400px">
+              <Text fontWeight="medium" minW="150px">
+                Đầu vào
+              </Text>
+              <Text>{testCase ? testCase.input : 'Chưa có'}</Text>
+            </HStack>
+            <HStack justify="space-between" w="400px">
+              <Text fontWeight="medium" minW="150px">
+                Đầu ra mong đợi
+              </Text>
+              <Text>{testCase ? testCase.output : 'Chưa có'}</Text>
+            </HStack>
+            <HStack justify="space-between" w="400px">
+              <Text fontWeight="medium" minW="150px">
+                Giới hạn thời gian
+              </Text>
+              <Text>{problem.timeLimit || 'N/A'} (s)</Text>
+            </HStack>
+          </VStack>
         </VStack>
       </Box>
     </Flex>

@@ -5,7 +5,6 @@ import { MdPerson, MdOutlineShoppingCart, MdAssignment } from 'react-icons/md';
 import { BiCategory } from 'react-icons/bi';
 import { GiProcessor } from 'react-icons/gi';
 import { FaTrophy } from 'react-icons/fa';
-// Admin Imports
 import CoderIndex from 'views/admin/coder/index';
 import CreateCoder from 'views/admin/coder/components/Create';
 import CoderDetail from 'views/admin/coder/components/Detail';
@@ -15,13 +14,15 @@ import ProblemDetail from 'views/admin/problem/components/Detail';
 import ProblemCreate from 'views/admin/problem/components/Create';
 import CompilerIndex from 'views/admin/compiler';
 import ProblemPage from 'views/user/problem/problem_list';
-import Submission from 'views/user/problem/submission';
+import ProblemSolver from 'views/user/problem/problem_solve';
 import ContestIndex from 'views/admin/contest';
 import CreateContest from 'views/admin/contest/components/Create';
 import TestCaseIndex from 'views/admin/testcase';
 import ContestDetail from 'views/admin/contest/components/Detail';
 import HomePage from 'views/user/homepage';
 import ContestPage from 'views/user/contest';
+import SubmissionPage from 'views/user/submission';
+import ContestDetailPage from 'views/user/contest/components/Contest_Detail';
 const routes = [
   {
     name: 'Người dùng',
@@ -121,7 +122,7 @@ const routes = [
       {
         name: 'Chi tiết bài tập',
         path: '/:id',
-        component: <Submission />,
+        component: <ProblemSolver />,
       },
     ],
   },
@@ -131,20 +132,27 @@ const routes = [
     path: '/contest',
     secondary: true,
     component: <ContestPage />,
+    items: [
+      {
+        name: 'Chi tiết bài thi',
+        path: '/:id',
+        component: <ContestDetailPage />,
+      },
+    ],
   },
   {
     name: 'HỎI & ĐÁP',
     layout: '/user',
     path: '/question',
     secondary: true,
-    component: <ProblemPage />,
+    component: <ContestDetailPage />,
   },
   {
     name: 'BẢNG CHẤM BÀI',
     layout: '/user',
-    path: '/Submission',
+    path: '/submission',
     secondary: true,
-    component: <ProblemPage />,
+    component: <SubmissionPage />,
   },
   {
     name: 'BÀI VIẾT',
