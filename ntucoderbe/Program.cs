@@ -52,6 +52,7 @@ builder.Services.AddScoped<BlogRepository>();
 builder.Services.AddScoped<ContestRepository>();
 builder.Services.AddScoped<FavouriteRepository>();
 builder.Services.AddScoped<ParticipationRepository>();
+builder.Services.AddScoped<HasProblemRepository>();
 var allowedOrigins = builder.Configuration["CorsSettings:AllowedOrigins"]?.Split(",") ?? new[] { "http://localhost:3000" };
 
 builder.Services.AddCors(options =>
