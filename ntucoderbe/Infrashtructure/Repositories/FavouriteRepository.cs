@@ -47,10 +47,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
         public async Task<FavouriteDTO> CreateFavouriteAsync(FavouriteDTO dto)
         {
-            if (await IsFavouriteExistAsync(dto.ProblemID, dto.CoderID))
-            {
-                throw new InvalidOperationException("Mục yêu thích đã tồn tại.");
-            }
             var obj = new Favourite
             {
                 CoderID = dto.CoderID,
@@ -62,31 +58,36 @@ namespace ntucoderbe.Infrashtructure.Repositories
             await _context.SaveChangesAsync();
             return dto;
         }
-        private async Task<bool> IsFavouriteExistAsync(int problemID, int coderID)
+        public async Task<bool> IsFavouriteExistAsync(int coderID, int problemID)
         {
             return await _context.Favourites.AnyAsync(f => f.ProblemID == problemID && f.CoderID == coderID);
         }
 
-        public async Task<FavouriteDTO> GetFavouriteByCoderIdAsync(int id)
+        public async Task<List<FavouriteDTO>> GetFavouriteByCoderIdAsync(int id)
         {
-            var obj = await _context.Favourites
-                            .Include(c=>c.Coder).
-                            Include(c=>c.Problem).
-                            FirstOrDefaultAsync(c => c.CoderID == id);
-            if (obj == null)
+            var favourites = await _context.Favourites
+                .Include(f => f.Coder)
+                .Include(f => f.Problem)
+                .Where(f => f.CoderID == id)
+                .ToListAsync();
+
+            if (favourites == null || favourites.Count == 0)
             {
-                throw new KeyNotFoundException("Không tìm thấy.");
+                throw new KeyNotFoundException("Không tìm thấy mục yêu thích nào.");
             }
 
-            return new FavouriteDTO
+            var result = favourites.Select(f => new FavouriteDTO
             {
-                CoderID = obj.CoderID,
-                ProblemID = obj.ProblemID,
-                CoderName = obj.Coder.CoderName,
-                ProblemName = obj.Problem.ProblemName,
-                Note = obj.Note,
-            };
+                CoderID = f.CoderID,
+                ProblemID = f.ProblemID,
+                CoderName = f.Coder.CoderName,
+                ProblemName = f.Problem.ProblemName,
+                Note = f.Note,
+            }).ToList();
+
+            return result;
         }
+
         public async Task<bool> DeleteFavouriteAsync(int coderID, int problemID)
         {
             var obj = await _context.Favourites.FirstOrDefaultAsync(obj => obj.CoderID == coderID && obj.ProblemID == problemID);
