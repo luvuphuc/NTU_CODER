@@ -35,7 +35,7 @@ namespace ntucoderbe.Infrashtructure.Services
             var testRunTasks = testCases.Select(testCase => ExecuteTestCase(submission, testCase));
             var testRuns = await Task.WhenAll(testRunTasks);
 
-            await _context.TestRuns.AddRangeAsync(testRuns);
+            //await _context.TestRuns.AddRangeAsync(testRuns);
             await _context.SaveChangesAsync();
             var submissionRepo = new SubmissionRepository(_context);
             await submissionRepo.UpdateSubmissionAfterTestRunAsync(submissionId);
@@ -131,23 +131,23 @@ namespace ntucoderbe.Infrashtructure.Services
         private (string, string) GetDockerCommand(Compiler compiler, string sourceCode, string input)
         {
             string containerName = $"code_runner_{Guid.NewGuid()}".Replace("-", "");
-            string dockerImage = compiler.CompilerName.ToLower() switch
+            string dockerImage = compiler.CompilerExtension.ToLower() switch
             {
-                "gcc" or "g++" => "gcc:12",
-                "java" => "openjdk:17-alpine",
-                "python" => "python:3.9.21-alpine",
+                ".cpp" => "gcc:12",
+                ".java" => "openjdk:17-alpine",
+                ".py" => "python:3.9.21-alpine",
                 _ => throw new Exception($"Compiler {compiler.CompilerName} không được hỗ trợ.")
             };
 
             string encodedSource = Convert.ToBase64String(Encoding.UTF8.GetBytes(sourceCode));
 
-            string command = compiler.CompilerName.ToLower() switch
+            string command = compiler.CompilerExtension.ToLower() switch
             {
-                "gcc" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"echo '{encodedSource}' | base64 -d | tee temp.c | gcc -x c - -o temp.out && echo '{input.Replace("\"", "\\\"")}' | ./temp.out\"",
+                ".cpp" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"echo '{encodedSource}' | base64 -d | tee temp.c | gcc -x c - -o temp.out && echo '{input.Replace("\"", "\\\"")}' | ./temp.out\"",
 
-                "java" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"echo '{encodedSource}' | base64 -d > Main.java && javac Main.java && echo '{input.Replace("\"", "\\\"")}' | java Main\"",
+                ".java" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"echo '{encodedSource}' | base64 -d > Main.java && javac Main.java && echo '{input.Replace("\"", "\\\"")}' | java Main\"",
 
-                "python" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"echo '{encodedSource}' | base64 -d | python3 -\"",
+                ".py" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"echo '{encodedSource}' | base64 -d | python3 -\"",
 
                 _ => throw new Exception($"Compiler {compiler.CompilerName} không được hỗ trợ.")
             };
