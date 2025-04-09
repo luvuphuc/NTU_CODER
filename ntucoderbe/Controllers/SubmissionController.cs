@@ -48,14 +48,26 @@ namespace ntucoderbe.Controllers
             {
                 var coderID = _authService.GetUserIdFromToken();
                 dto.CoderID = coderID;
+
                 var result = await _submissionRepository.CreateSubmissionAsync(dto);
-                return CreatedAtAction(nameof(GetSubmissionById), new { id = result.ProblemID }, result);
+                var testRunResults = await _codeExecutionService.ExecuteSubmissionAsync(result.SubmissionID);
+
+                return Ok(new
+                {
+                    Submission = result,
+                    TestRuns = testRunResults
+                });
             }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { Errors = new List<string> { ex.Message } });
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi server: " + ex.Message });
+            }
         }
+
 
         // Get problem by ID
         [HttpGet("{id}")]
