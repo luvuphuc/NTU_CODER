@@ -26,56 +26,36 @@ namespace ntucoderbe.Controllers
             var categories = await _favouriteRepository.GetAllFavouritesAsync(query, sortField, ascending);
             return Ok(categories);
         }
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateFavourite([FromBody] FavouriteDTO dto)
+        [HttpPost("toggle")]
+        public async Task<IActionResult> ToggleFavourite([FromBody] FavouriteDTO dto)
         {
             if (dto == null)
             {
                 return BadRequest(new { Errors = new List<string> { "Dữ liệu không hợp lệ." } });
             }
+
             try
             {
                 dto.CoderID = _authService.GetUserIdFromToken();
-                var created = await _favouriteRepository.CreateFavouriteAsync(dto);
-                return Ok(dto);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { Errors = new List<string> { ex.Message } });
-            }
-        }
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetFavouritedByCoderId(int id)
-        {
-            try
-            {
-                var category = await _favouriteRepository.GetFavouriteByCoderIdAsync(id);
-                return Ok(category);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-        }
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteFavourite(int coderID, int problemID)
-        {
-            try
-            {
-                var isDeleted = await _favouriteRepository.DeleteFavouriteAsync(coderID, problemID);
 
-                if (isDeleted)
+                var existed = await _favouriteRepository.IsFavouriteExistAsync(dto.CoderID, dto.ProblemID);
+
+                if (existed)
                 {
+                    var isDeleted = await _favouriteRepository.DeleteFavouriteAsync(dto.CoderID, dto.ProblemID);
                     return Ok(new
                     {
-                        Message = "Xóa thành công."
+                        IsFavourite = false,
+                        Message = "Đã xóa khỏi danh sách yêu thích."
                     });
                 }
                 else
                 {
-                    return NotFound(new
+                    var created = await _favouriteRepository.CreateFavouriteAsync(dto);
+                    return Ok(new
                     {
-                        Message = "Không tìm thấy."
+                        IsFavourite = true,
+                        Message = "Đã thêm vào danh sách yêu thích."
                     });
                 }
             }
@@ -86,6 +66,21 @@ namespace ntucoderbe.Controllers
                     Message = "Có lỗi xảy ra.",
                     Error = ex.Message
                 });
+            }
+        }
+
+        [HttpGet("list")]
+        public async Task<IActionResult> GetFavouritedByCoderId()
+        {
+            try
+            {
+                var id = _authService.GetUserIdFromToken();
+                var favourite = await _favouriteRepository.GetFavouriteByCoderIdAsync(id);
+                return Ok(favourite);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
             }
         }
     }

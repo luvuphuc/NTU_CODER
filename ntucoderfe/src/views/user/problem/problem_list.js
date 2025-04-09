@@ -27,13 +27,16 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { IoMdHeartEmpty } from 'react-icons/io';
+import { AiFillHeart } from 'react-icons/ai';
 import api from '../../../utils/api';
 import { Link, useNavigate } from 'react-router-dom';
 import Pagination from 'components/pagination/pagination';
 import Layout from 'layouts/user';
 import Cookies from 'js-cookie';
+
 export default function ProblemPage() {
   const [problems, setProblems] = useState([]);
+  const [favouriteIds, setFavouriteIds] = useState(new Set());
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(true);
@@ -75,41 +78,66 @@ export default function ProblemPage() {
         setLoading(false);
       }
     };
+
+    const fetchFavourites = async () => {
+      try {
+        const token = Cookies.get('token');
+        if (!token) return;
+        const res = await api.get('/Favourite/list');
+        const ids = new Set(res.data.map((f) => f.problemID));
+        setFavouriteIds(ids);
+      } catch (error) {
+        console.error('Lỗi khi lấy danh sách yêu thích:', error);
+      }
+    };
+
     fetchProblems();
+    fetchFavourites();
   }, [currentPage, pageSize]);
 
-  const handleAddFavorite = async (problemID) => {
+  const handleToggleFavorite = async (problemID) => {
     const token = Cookies.get('token');
 
     if (!token) {
       onOpen();
       return;
     }
+
     try {
-      await api.post('/Favourite/create', { problemID });
+      const response = await api.post('/Favourite/toggle', { problemID });
+      const { isFavourite, message } = response.data;
+
+      const updatedSet = new Set(favouriteIds);
+      if (isFavourite) {
+        updatedSet.add(problemID);
+      } else {
+        updatedSet.delete(problemID);
+      }
+      setFavouriteIds(updatedSet);
 
       toast({
-        title: 'Thành công',
-        description: 'Đã thêm yêu thích.',
+        title: isFavourite ? 'Đã thêm yêu thích' : 'Đã bỏ yêu thích',
+        description: message,
         status: 'success',
         position: 'top-right',
         duration: 3000,
         isClosable: true,
       });
     } catch (error) {
-      console.error('Lỗi khi thêm vào yêu thích:', error);
       const errorMessage =
-        error.response?.data?.message ||
-        toast({
-          title: 'Lỗi',
-          description: errorMessage,
-          status: 'error',
-          position: 'top-right',
-          duration: 5000,
-          isClosable: true,
-        });
+        error.response?.data?.message || 'Lỗi khi thao tác với yêu thích.';
+
+      toast({
+        title: 'Lỗi',
+        description: errorMessage,
+        status: 'error',
+        position: 'top-right',
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
+
   return (
     <Layout>
       <Box>
@@ -123,7 +151,7 @@ export default function ProblemPage() {
             gap={6}
             alignItems="start"
           >
-            {loading && (
+            {loading ? (
               <Box
                 w="full"
                 display="flex"
@@ -136,71 +164,83 @@ export default function ProblemPage() {
                   <Spinner size="xl" color="blue.500" />
                 </Flex>
               </Box>
-            )}
-
-            {!loading && (
+            ) : (
               <Stack spacing={6} w="full">
-                {problems.map((problem) => (
-                  <Card
-                    key={problem.problemId}
-                    borderRadius="lg"
-                    boxShadow="md"
-                    minH="150px"
-                    overflow="hidden"
-                    _hover={{ bg: '#ebebf3', cursor: 'pointer' }}
-                  >
-                    <Link
-                      to={`/problem/${problem.problemID}`}
-                      style={{ textDecoration: 'none' }}
+                {problems.map((problem) => {
+                  const isFavourited = favouriteIds.has(problem.problemID);
+                  return (
+                    <Card
+                      key={problem.problemId}
+                      borderRadius="lg"
+                      boxShadow="md"
+                      minH="150px"
+                      overflow="hidden"
+                      _hover={{ bg: '#ebebf3', cursor: 'pointer' }}
                     >
-                      <CardBody _hover={{ bg: '#ebebf3' }}>
-                        <Flex justify="space-between" align="center">
-                          <Stack spacing={3} flex="1">
-                            <Heading size="lg" color="gray.700" noOfLines={1}>
-                              {problem.problemName}
-                            </Heading>
-                            <Wrap>
-                              {problem.selectedCategoryNames.map(
-                                (category, index) => (
-                                  <WrapItem key={index}>
-                                    <Badge
-                                      colorScheme="purple"
-                                      fontSize="0.8rem"
-                                    >
-                                      {category}
-                                    </Badge>
-                                  </WrapItem>
-                                ),
-                              )}
-                            </Wrap>
-                            <Box
-                              color="gray.600"
-                              fontSize="md"
-                              dangerouslySetInnerHTML={{
-                                __html: problem.problemContent,
-                              }}
-                              noOfLines={2}
-                            />
-                          </Stack>
-                          <Flex align="center" ml={4}>
-                            <IconButton
-                              aria-label="Yêu thích"
-                              icon={<IoMdHeartEmpty size={24} color="red" />}
-                              variant="ghost"
-                              bg="white"
-                              onClick={(e) => {
-                                e.preventDefault(); // Ngăn click lan lên Link
-                                handleAddFavorite(problem.problemID);
-                              }}
-                            />
-                          </Flex>
-                        </Flex>
-                      </CardBody>
-                    </Link>
-                  </Card>
-                ))}
+                      <Link
+                        to={`/problem/${problem.problemID}`}
+                        style={{ textDecoration: 'none' }}
+                      >
+                        <CardBody _hover={{ bg: '#ebebf3' }}>
+                          <Flex justify="space-between" align="center">
+                            <Stack spacing={3} flex="1">
+                              <Heading size="lg" color="gray.700" noOfLines={1}>
+                                {problem.problemName}
+                              </Heading>
+                              <Wrap>
+                                {problem.selectedCategoryNames.map(
+                                  (category, index) => (
+                                    <WrapItem key={index}>
+                                      <Badge
+                                        colorScheme="purple"
+                                        fontSize="0.8rem"
+                                      >
+                                        {category}
+                                      </Badge>
+                                    </WrapItem>
+                                  ),
+                                )}
+                              </Wrap>
+                              <Box
+                                color="gray.600"
+                                fontSize="md"
+                                dangerouslySetInnerHTML={{
+                                  __html: problem.problemContent,
+                                }}
+                                noOfLines={2}
+                              />
+                            </Stack>
 
-                {!loading && problems.length > 0 && (
+                            <Flex align="center" ml={4}>
+                              <IconButton
+                                aria-label="Yêu thích"
+                                icon={
+                                  isFavourited ? (
+                                    <AiFillHeart size={26} color="red" />
+                                  ) : (
+                                    <IoMdHeartEmpty size={24} color="gray" />
+                                  )
+                                }
+                                variant="ghost"
+                                transition="transform 0.2s ease"
+                                _hover={{
+                                  transform: 'scale(1.2)',
+                                  bg: 'transparent',
+                                }}
+                                onClick={(e) => {
+                                  e.preventDefault(); // Ngăn click lan lên Link
+                                  handleToggleFavorite(problem.problemID);
+                                }}
+                              />
+                            </Flex>
+                          </Flex>
+                        </CardBody>
+                      </Link>
+                    </Card>
+                  );
+                })}
+
+                {problems.length > 0 && (
                   <Pagination
                     currentPage={currentPage}
                     totalPages={totalPages}
@@ -280,6 +320,7 @@ export default function ProblemPage() {
           </Grid>
         </Container>
       </Box>
+
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
