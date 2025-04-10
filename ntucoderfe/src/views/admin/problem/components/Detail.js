@@ -300,6 +300,10 @@ const ProblemDetail = () => {
                 {editField === 'problemContent' ? (
                   <ReactQuill
                     theme="snow"
+                    style={{
+                      maxHeight: '400px',
+                      overflowY: 'auto',
+                    }}
                     value={editableValues.problemContent || ''}
                     onChange={(value) =>
                       handleInputChange('problemContent', value)
@@ -310,11 +314,13 @@ const ProblemDetail = () => {
                     p={2}
                     bg="gray.200"
                     borderRadius="md"
-                    maxW="100%" // Take full width in small screens
-                    w={{ base: '100%', md: '500px' }} // Adjust width for larger screens
-                    overflow="hidden" // Hide overflow content (no horizontal scrollbar)
-                    wordBreak="break-word" // Ensure text breaks into the next line if too long
-                    whiteSpace="normal" // Allow wrapping of long text
+                    maxW="100%"
+                    maxH="300px"
+                    overflowY="auto"
+                    overflowX="hidden"
+                    w={{ base: '100%', md: '500px' }}
+                    wordBreak="break-word"
+                    whiteSpace="pre-wrap"
                     dangerouslySetInnerHTML={{
                       __html:
                         problemDetail.problemContent || 'Chưa có thông tin',
@@ -338,6 +344,10 @@ const ProblemDetail = () => {
                 {editField === 'problemExplanation' ? (
                   <ReactQuill
                     theme="snow"
+                    style={{
+                      maxHeight: '400px', // cao hơn 300px để chừa phần toolbar
+                      overflowY: 'auto',
+                    }}
                     value={editableValues.problemExplanation || ''}
                     onChange={(value) =>
                       handleInputChange('problemExplanation', value)
@@ -348,12 +358,20 @@ const ProblemDetail = () => {
                     p={2}
                     bg="gray.200"
                     borderRadius="md"
+                    maxW="100%"
+                    maxH="300px" // đồng bộ với phần hiển thị nội dung khác
+                    overflowY="auto"
+                    overflowX="hidden"
+                    w={{ base: '100%', md: '500px' }}
+                    wordBreak="break-word"
+                    whiteSpace="pre-wrap"
                     dangerouslySetInnerHTML={{
                       __html:
                         problemDetail.problemExplanation || 'Chưa có thông tin',
                     }}
                   />
                 )}
+
                 <Flex align="center">
                   {editField === 'testType' ? (
                     <Select
