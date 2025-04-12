@@ -29,11 +29,13 @@ import logo from '../../assets/img/ntu-coders.png';
 import { useState } from 'react';
 import Cookies from 'js-cookie';
 import api from 'utils/api';
+import { useAuth } from '../../contexts/AuthContext';
 function SignIn() {
   const [credentials, setCredentials] = useState({
     userName: '',
     password: '',
   });
+  const { setCoder } = useAuth();
   const shake = keyframes`
   0%, 100% { transform: translateX(0); }
   25%, 75% { transform: translateX(-5px); }
@@ -70,6 +72,7 @@ function SignIn() {
 
       if (response.status === 200) {
         Cookies.set('token', response.data.token);
+        setCoder(response.data);
         toast({
           title: 'Đăng nhập thành công!',
           status: 'success',
