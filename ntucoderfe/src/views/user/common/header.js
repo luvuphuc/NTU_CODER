@@ -10,47 +10,10 @@ import {
 } from '@chakra-ui/react';
 import logo from '../../../assets/img/ntu-coders.png';
 import { Link } from 'react-router-dom';
-import api from '../../../utils/api';
-import Cookies from 'js-cookie';
-import { useState, useEffect } from 'react';
+import { useAuth } from '../../../contexts/AuthContext';
 
 export default function Header({ hideHeader }) {
-  const [coderName, setCoderName] = useState(null);
-  const [roleID, setRoleID] = useState(null);
-  const [coderID, setCoderID] = useState(null);
-
-  const handleLogout = async () => {
-    try {
-      await api.post('/Auth/logout', {});
-      Cookies.remove('token');
-      setCoderName(null);
-      setRoleID(null);
-      setCoderID(null);
-      window.location.reload();
-    } catch (error) {
-      console.log('Lỗi khi đăng xuất:', error);
-    }
-  };
-
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      const token = Cookies.get('token');
-      if (!token) return;
-      try {
-        const response = await api.get('/Auth/me');
-        if (response.status === 200) {
-          const { coderID, coderName, roleID } = response.data;
-          setCoderName(coderName);
-          setRoleID(roleID);
-          setCoderID(coderID);
-        }
-      } catch (error) {
-        console.log('Lỗi:', error);
-      }
-    };
-    fetchUserInfo();
-  }, []);
-
+  const { coder, logout, isLoading } = useAuth();
   return (
     <motion.div
       initial={{ y: 0 }}
@@ -76,12 +39,12 @@ export default function Header({ hideHeader }) {
               <Image src={logo} alt="Logo" width="300px" />
             </Flex>
             <Flex align="center" gap={4}>
-              {coderName && roleID !== null ? (
+              {isLoading ? null : coder ? (
                 <>
                   <Text fontSize="md" fontWeight="600" color="gray.700">
-                    Xin chào, {coderName}
+                    Xin chào, {coder.coderName}
                   </Text>
-                  {roleID === 1 && (
+                  {coder.roleID === 1 && (
                     <ChakraLink
                       as={Link}
                       to="/admin"
@@ -94,7 +57,7 @@ export default function Header({ hideHeader }) {
                     </ChakraLink>
                   )}
                   <Button
-                    onClick={handleLogout}
+                    onClick={logout}
                     fontSize="md"
                     fontWeight={600}
                     color="white"
