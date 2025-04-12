@@ -2,16 +2,10 @@ import React, { useEffect, useState } from 'react';
 import {
   Box,
   Text,
-  VStack,
-  Divider,
   Flex,
-  Grid,
-  GridItem,
-  Link,
   Button,
   Input,
   IconButton,
-  Checkbox,
   SimpleGrid,
   useToast,
   Select,
@@ -27,6 +21,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import Editor from '@monaco-editor/react';
 import FullPageSpinner from 'components/spinner/FullPageSpinner';
+import Multiselect from 'multiselect-react-dropdown';
 const ProblemDetail = () => {
   const { id } = useParams();
   const [errors, setErrors] = useState({});
@@ -53,11 +48,18 @@ const ProblemDetail = () => {
         ]);
         setProblemDetail(problemRes.data);
         setEditableValues(problemRes.data);
+        console.log(problemRes.data);
         setCompilers(
           Array.isArray(compilerRes.data.data) ? compilerRes.data.data : [],
         );
+        setSelectedCategoryIDs(
+          (problemRes.data.selectedCategoryIDs || []).map((id) => Number(id)),
+        );
+
         const sortedCategories = Array.isArray(categoryRes.data.data)
-          ? categoryRes.data.data.sort((a, b) => a.catOrder - b.catOrder)
+          ? categoryRes.data.data
+              .map((cat) => ({ ...cat, categoryID: Number(cat.categoryID) }))
+              .sort((a, b) => a.catOrder - b.catOrder)
           : [];
         setCategories(sortedCategories);
         if (compilerRes.data.data.length > 0) {
@@ -77,6 +79,18 @@ const ProblemDetail = () => {
 
   const handleInputChange = (field, value) => {
     setEditableValues((prev) => ({ ...prev, [field]: value }));
+  };
+  const handleCategoryChange = (selectedList) => {
+    const updatedSelectedCategoryIDs = selectedList.map(
+      (item) => item.categoryID,
+    );
+    setSelectedCategoryIDs(updatedSelectedCategoryIDs);
+
+    const updatedCategoryNames = selectedList.map((item) => item.catName);
+    setEditableValues((prevValues) => ({
+      ...prevValues,
+      selectedCategoryNames: updatedCategoryNames,
+    }));
   };
 
   const handleSave = async () => {
@@ -147,9 +161,7 @@ const ProblemDetail = () => {
         ...editableValues,
         selectedCategoryIDs,
       };
-      await api.put(`/Problem/${id}`, updatedValues, {
-        headers: { 'Content-Type': 'application/json' },
-      });
+      await api.put(`/Problem/${id}`, updatedValues);
 
       setProblemDetail((prev) => ({
         ...prev,
@@ -250,46 +262,70 @@ const ProblemDetail = () => {
               </Text>
             </CardHeader>
             <CardBody>
-              {['problemCode', 'problemName', 'timeLimit', 'memoryLimit'].map(
-                (field) => (
-                  <Flex
-                    key={field}
-                    justify="space-between"
-                    align="center"
-                    mb={3}
-                  >
-                    <Text fontWeight="bold">
-                      {field === 'problemCode'
-                        ? 'Mã bài tập'
-                        : field === 'problemName'
-                        ? 'Tên bài tập'
-                        : field === 'timeLimit'
-                        ? 'Thời gian giới hạn'
-                        : 'Hạn mức bộ nhớ'}
-                      :
-                    </Text>
-                    {editField === field ? (
-                      <Input
-                        type="text"
-                        value={editableValues[field] || ''}
-                        onChange={(e) =>
-                          handleInputChange(field, e.target.value)
-                        }
-                        w="60%"
-                        onKeyDown={handleKeyDown}
-                      />
-                    ) : (
-                      <Text>{editableValues[field] || 'Chưa có'}</Text>
-                    )}
-                    <IconButton
-                      aria-label="Edit"
-                      icon={<MdEdit />}
-                      size="sm"
-                      onClick={() => handleEdit(field)}
+              {['problemCode', 'problemName', 'timeLimit'].map((field) => (
+                <Flex key={field} justify="space-between" align="center" mb={3}>
+                  <Text fontWeight="bold">
+                    {field === 'problemCode'
+                      ? 'Mã bài tập'
+                      : field === 'problemName'
+                      ? 'Tên bài tập'
+                      : 'Thời gian giới hạn (s)'}
+                    :
+                  </Text>
+                  {editField === field ? (
+                    <Input
+                      type="text"
+                      value={editableValues[field] || ''}
+                      onChange={(e) => handleInputChange(field, e.target.value)}
+                      w="55%"
+                      onKeyDown={handleKeyDown}
                     />
-                  </Flex>
-                ),
-              )}
+                  ) : (
+                    <Text>{editableValues[field] || 'Chưa có'}</Text>
+                  )}
+                  <IconButton
+                    aria-label="Edit"
+                    icon={<MdEdit />}
+                    size="sm"
+                    onClick={() => handleEdit(field)}
+                  />
+                </Flex>
+              ))}
+
+              <Flex justify="space-between" align="center" mb={3}>
+                <Text fontWeight="bold">Trình biên dịch:</Text>
+                {editField === 'testCompilerID' ? (
+                  <Select
+                    value={editableValues.testCompilerID || ''}
+                    onChange={(e) => {
+                      handleInputChange('testCompilerID', e.target.value);
+                      handleSave();
+                    }}
+                    w="60%"
+                  >
+                    {compilers.map((compiler) => (
+                      <option
+                        key={compiler.compilerID}
+                        value={compiler.compilerID}
+                      >
+                        {compiler.compilerName}
+                      </option>
+                    ))}
+                  </Select>
+                ) : (
+                  <Text>
+                    {compilers.find(
+                      (c) => c.compilerID == editableValues.testCompilerID,
+                    )?.compilerName || 'Chưa có'}
+                  </Text>
+                )}
+                <IconButton
+                  aria-label="Edit"
+                  icon={<MdEdit />}
+                  size="sm"
+                  onClick={() => handleEdit('testCompilerID')}
+                />
+              </Flex>
             </CardBody>
           </Card>
 
@@ -308,9 +344,7 @@ const ProblemDetail = () => {
                     value={editableValues.testType || ''}
                     onChange={(e) => {
                       handleInputChange('testType', e.target.value);
-                      setTimeout(() => {
-                        handleSave();
-                      }, 0);
+                      handleSave();
                     }}
                     onKeyDown={handleKeyDown}
                     w="60%"
@@ -333,8 +367,79 @@ const ProblemDetail = () => {
               </Flex>
 
               <Flex justify="space-between" align="center" mb={3}>
-                <Text fontWeight="bold">Mã bài tập:</Text>
-                <Text>{editableValues.problemCode || 'Chưa có'}</Text>
+                <Text fontWeight="bold">Thể loại:</Text>
+                {editField === 'selectedCategoryIDs' ? (
+                  <Multiselect
+                    showCheckbox={true}
+                    options={categories}
+                    displayValue="catName"
+                    selectedValues={categories.filter((cat) =>
+                      selectedCategoryIDs.includes(cat.categoryID),
+                    )}
+                    onSelect={handleCategoryChange}
+                    onRemove={handleCategoryChange}
+                    placeholder="Chọn danh mục"
+                    style={{
+                      multiselectContainer: {
+                        color: 'black',
+                      },
+                      searchBox: {
+                        border: 'none',
+                        fontSize: '14px',
+                        padding: '6px',
+                        borderRadius: '6px',
+                        outline: 'none',
+                      },
+                      inputField: {
+                        margin: '5px',
+                      },
+                      chips: {
+                        background: '#3182ce',
+                        borderRadius: '12px',
+                        padding: '5px 10px',
+                        color: 'white',
+                        fontSize: '13px',
+                      },
+                      optionContainer: {
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        zIndex: 10,
+                        marginTop: '5px',
+                        backgroundColor: 'white',
+                        width: '100%',
+                        border: '1px solid #cbd5e0',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                        maxHeight: '250px',
+                        overflowY: 'auto',
+                      },
+                      option: {
+                        backgroundColor: 'white',
+                        color: 'black',
+                        padding: '8px',
+                        borderBottom: '1px solid #e2e8f0',
+                        cursor: 'pointer',
+                      },
+                      highlightOption: {
+                        background: '#ebf8ff',
+                      },
+                    }}
+                  />
+                ) : (
+                  <Text>
+                    {editableValues.selectedCategoryNames &&
+                    editableValues.selectedCategoryNames.length > 0
+                      ? editableValues.selectedCategoryNames.join(', ')
+                      : 'Chưa có thể loại'}
+                  </Text>
+                )}
+                <IconButton
+                  aria-label="Edit"
+                  icon={<MdEdit />}
+                  size="sm"
+                  onClick={() => handleEdit('selectedCategoryIDs')}
+                />
               </Flex>
               <Flex justify="space-between" align="center" mb={3}>
                 <Text fontWeight="bold">Người tạo:</Text>
