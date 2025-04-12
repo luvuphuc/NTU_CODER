@@ -5,22 +5,21 @@ import api from '../utils/api';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [coder, setCoder] = useState(() => {
-    const cached = sessionStorage.getItem('coder');
-    return cached ? JSON.parse(cached) : null;
-  });
-  const [isLoading, setIsLoading] = useState(!coder);
+  const [coder, setCoder] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       const token = Cookies.get('token');
-      if (!token || coder) return;
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
 
       try {
         const res = await api.get('/Auth/me');
         if (res.status === 200) {
           setCoder(res.data);
-          sessionStorage.setItem('coder', JSON.stringify(res.data));
         }
       } catch (err) {
         console.log('Lỗi xác thực:', err);
@@ -30,7 +29,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     fetchUserInfo();
-  }, [coder]);
+  }, []);
 
   const logout = async () => {
     try {
@@ -39,7 +38,6 @@ export const AuthProvider = ({ children }) => {
       console.log('Lỗi khi đăng xuất:', e);
     }
     Cookies.remove('token');
-    sessionStorage.removeItem('coder');
     setCoder(null);
     window.location.href = '/';
   };
