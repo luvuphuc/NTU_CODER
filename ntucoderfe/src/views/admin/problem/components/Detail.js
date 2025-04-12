@@ -15,6 +15,9 @@ import {
   SimpleGrid,
   useToast,
   Select,
+  Card,
+  CardBody,
+  CardHeader,
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
 import api from 'utils/api';
@@ -23,6 +26,7 @@ import { MdOutlineArrowBack, MdEdit } from 'react-icons/md';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import Editor from '@monaco-editor/react';
+import FullPageSpinner from 'components/spinner/FullPageSpinner';
 const ProblemDetail = () => {
   const { id } = useParams();
   const [errors, setErrors] = useState({});
@@ -209,354 +213,269 @@ const ProblemDetail = () => {
   };
 
   if (!problemDetail) {
-    return <Text>Loading...</Text>;
+    return <FullPageSpinner />;
   }
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    }
+  };
 
   return (
-    <Box pt={{ base: '130px', md: '80px', xl: '80px' }} px="25px">
-      <Box
-        bg="white"
-        p="6"
-        borderRadius="lg"
-        boxShadow="lg"
-        maxW="1000px"
-        mx="auto"
-        border="1px solid #e2e8f0"
-      >
-        <Flex mb="8px" justifyContent="end" align="end" px="25px">
-          <Link>
-            <Button
-              variant="solid"
-              size="lg"
-              colorScheme="blue"
-              borderRadius="md"
-              onClick={() => navigate(`/admin/problem`)}
-            >
-              Quay lại <MdOutlineArrowBack />
-            </Button>
-          </Link>
+    <Box pt="100px" px="25px">
+      <Box maxW="1000px" mx="auto">
+        <Flex justifyContent="space-between" mb={6}>
+          <Button
+            leftIcon={<MdOutlineArrowBack />}
+            colorScheme="blue"
+            onClick={() => navigate(`/admin/problem`)}
+          >
+            Quay lại
+          </Button>
+          <Button
+            colorScheme="teal"
+            onClick={handleSave}
+            disabled={editField === null}
+          >
+            Lưu thay đổi
+          </Button>
         </Flex>
 
-        <VStack spacing={6} align="stretch">
-          <Grid templateColumns="repeat(2, 1fr)" gap={6}>
-            {/* Left Column */}
-            <GridItem>
-              <VStack align="stretch" spacing={4}>
-                {['problemCode', 'problemName', 'timeLimit', 'memoryLimit'].map(
-                  (field) => (
-                    <Flex key={field} align="center">
-                      {editField === field ? (
-                        <Input
-                          type={
-                            field === 'timeLimit' || field === 'memoryLimit'
-                              ? 'number'
-                              : 'text'
-                          }
-                          value={editableValues[field] || ''}
-                          onChange={(e) =>
-                            handleInputChange(field, e.target.value)
-                          }
-                          placeholder={`Chỉnh sửa ${field}`}
-                        />
-                      ) : (
-                        <Text fontSize="lg">
-                          <strong>
-                            {field === 'problemCode'
-                              ? 'Mã bài tập'
-                              : field === 'problemName'
-                              ? 'Tên bài tập'
-                              : field === 'timeLimit'
-                              ? 'Thời gian giới hạn'
-                              : 'Bộ nhớ giới hạn'}
-                            :
-                          </strong>{' '}
-                          {problemDetail[field] || 'Chưa có thông tin'}
-                        </Text>
-                      )}
-                      <IconButton
-                        aria-label="Edit"
-                        icon={<MdEdit />}
-                        ml={2}
-                        size="sm"
-                        onClick={() => handleEdit(field)}
-                        cursor="pointer"
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+          {/* Cột bên trái */}
+          <Card>
+            <CardHeader mb={0} pb={0}>
+              <Text fontSize="xl" fontWeight="bold">
+                Thông tin chung
+              </Text>
+            </CardHeader>
+            <CardBody>
+              {['problemCode', 'problemName', 'timeLimit', 'memoryLimit'].map(
+                (field) => (
+                  <Flex
+                    key={field}
+                    justify="space-between"
+                    align="center"
+                    mb={3}
+                  >
+                    <Text fontWeight="bold">
+                      {field === 'problemCode'
+                        ? 'Mã bài tập'
+                        : field === 'problemName'
+                        ? 'Tên bài tập'
+                        : field === 'timeLimit'
+                        ? 'Thời gian giới hạn'
+                        : 'Hạn mức bộ nhớ'}
+                      :
+                    </Text>
+                    {editField === field ? (
+                      <Input
+                        type="text"
+                        value={editableValues[field] || ''}
+                        onChange={(e) =>
+                          handleInputChange(field, e.target.value)
+                        }
+                        w="60%"
+                        onKeyDown={handleKeyDown}
                       />
-                    </Flex>
-                  ),
-                )}
-                <Flex align="center">
-                  <Text fontSize="lg" fontWeight="bold">
-                    Nội dung:
-                  </Text>
-                  <IconButton
-                    aria-label="Edit"
-                    icon={<MdEdit />}
-                    ml={2}
-                    size="sm"
-                    onClick={() => handleEdit('problemContent')}
-                    cursor="pointer"
-                  />
-                </Flex>
-                {editField === 'problemContent' ? (
-                  <ReactQuill
-                    theme="snow"
-                    style={{
-                      maxHeight: '400px',
-                      overflowY: 'auto',
+                    ) : (
+                      <Text>{editableValues[field] || 'Chưa có'}</Text>
+                    )}
+                    <IconButton
+                      aria-label="Edit"
+                      icon={<MdEdit />}
+                      size="sm"
+                      onClick={() => handleEdit(field)}
+                    />
+                  </Flex>
+                ),
+              )}
+            </CardBody>
+          </Card>
+
+          {/* Cột bên phải */}
+          <Card>
+            <CardHeader mb={0} pb={0}>
+              <Text fontSize="xl" fontWeight="bold">
+                Chi tiết bài tập
+              </Text>
+            </CardHeader>
+            <CardBody>
+              <Flex justify="space-between" align="center" mb={3}>
+                <Text fontWeight="bold">Hình thức kiểm tra:</Text>
+                {editField === 'testType' ? (
+                  <Select
+                    value={editableValues.testType || ''}
+                    onChange={(e) => {
+                      handleInputChange('testType', e.target.value);
+                      setTimeout(() => {
+                        handleSave();
+                      }, 0);
                     }}
-                    value={editableValues.problemContent || ''}
-                    onChange={(value) =>
-                      handleInputChange('problemContent', value)
-                    }
-                  />
+                    onKeyDown={handleKeyDown}
+                    w="60%"
+                  >
+                    {Object.entries(testTypeMapping).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </Select>
                 ) : (
-                  <Box
-                    p={2}
-                    bg="gray.200"
-                    borderRadius="md"
-                    maxW="100%"
-                    maxH="300px"
-                    overflowY="auto"
-                    overflowX="hidden"
-                    w={{ base: '100%', md: '500px' }}
-                    wordBreak="break-word"
-                    whiteSpace="pre-wrap"
-                    dangerouslySetInnerHTML={{
-                      __html:
-                        problemDetail.problemContent || 'Chưa có thông tin',
-                    }}
-                  />
+                  <Text>{editableValues.testType || 'Chưa có'}</Text>
                 )}
+                <IconButton
+                  aria-label="Edit"
+                  icon={<MdEdit />}
+                  size="sm"
+                  onClick={() => handleEdit('testType')}
+                />
+              </Flex>
 
-                <Flex align="center">
-                  <Text fontSize="lg" fontWeight="bold">
-                    Giải thích:
-                  </Text>
-                  <IconButton
-                    aria-label="Edit"
-                    icon={<MdEdit />}
-                    ml={2}
-                    size="sm"
-                    onClick={() => handleEdit('problemExplanation')}
-                    cursor="pointer"
-                  />
-                </Flex>
-                {editField === 'problemExplanation' ? (
-                  <ReactQuill
-                    theme="snow"
-                    style={{
-                      maxHeight: '400px', // cao hơn 300px để chừa phần toolbar
-                      overflowY: 'auto',
-                    }}
-                    value={editableValues.problemExplanation || ''}
-                    onChange={(value) =>
-                      handleInputChange('problemExplanation', value)
-                    }
-                  />
-                ) : (
-                  <Box
-                    p={2}
-                    bg="gray.200"
-                    borderRadius="md"
-                    maxW="100%"
-                    maxH="300px" // đồng bộ với phần hiển thị nội dung khác
-                    overflowY="auto"
-                    overflowX="hidden"
-                    w={{ base: '100%', md: '500px' }}
-                    wordBreak="break-word"
-                    whiteSpace="pre-wrap"
-                    dangerouslySetInnerHTML={{
-                      __html:
-                        problemDetail.problemExplanation || 'Chưa có thông tin',
-                    }}
-                  />
-                )}
+              <Flex justify="space-between" align="center" mb={3}>
+                <Text fontWeight="bold">Mã bài tập:</Text>
+                <Text>{editableValues.problemCode || 'Chưa có'}</Text>
+              </Flex>
+              <Flex justify="space-between" align="center" mb={3}>
+                <Text fontWeight="bold">Người tạo:</Text>
+                <Text>{editableValues.coderName || 'Chưa có'}</Text>
+              </Flex>
+              <Flex justify="space-between" align="center" mb={3}>
+                <Text fontWeight="bold">Trạng thái:</Text>
+                <Text>
+                  {editableValues.published === 1 ? 'Công khai' : 'Riêng tư'}
+                </Text>
+              </Flex>
+            </CardBody>
+          </Card>
+        </SimpleGrid>
 
-                <Flex align="center">
-                  {editField === 'testType' ? (
-                    <Select
-                      value={
-                        editableValues.testType || problemDetail.testType || ''
-                      }
-                      onChange={(e) =>
-                        handleInputChange('testType', e.target.value)
-                      }
-                      width="50%"
-                    >
-                      <option value="Output Matching">Output Matching</option>
-                      <option value="Validate Output">Validate Output</option>
-                    </Select>
-                  ) : (
-                    <Text fontSize="lg">
-                      <strong>Hình thức kiểm tra:</strong>{' '}
-                      {testTypeMapping[problemDetail.testType] ||
-                        'Không xác định'}
-                    </Text>
-                  )}
-                  <IconButton
-                    aria-label="Edit"
-                    icon={<MdEdit />}
-                    ml={2}
-                    size="sm"
-                    onClick={() => handleEdit('testType')}
-                    cursor="pointer"
-                  />
-                </Flex>
-              </VStack>
-            </GridItem>
+        {/* Mô tả bài tập */}
+        <Card mt={6}>
+          <CardHeader mb={0} pb={0}>
+            <Flex align="center">
+              <Text fontSize="xl" fontWeight="bold">
+                Mô tả bài tập
+              </Text>
+              <IconButton
+                aria-label="Edit"
+                icon={<MdEdit />}
+                size="sm"
+                ml={2}
+                onClick={() => handleEdit('problemContent')}
+              />
+            </Flex>
+          </CardHeader>
+          <CardBody>
+            {editField === 'problemContent' ? (
+              <ReactQuill
+                theme="snow"
+                value={editableValues.problemContent || ''}
+                onChange={(value) => handleInputChange('problemContent', value)}
+                style={{
+                  minHeight: '200px',
+                  maxHeight: '200px',
+                  overflow: 'auto',
+                }}
+              />
+            ) : (
+              <Box
+                p={2}
+                minH={editField === 'problemContent' ? '200px' : 'unset'}
+                maxH="300px"
+                overflowY="auto"
+                dangerouslySetInnerHTML={{
+                  __html: editableValues.problemContent || 'Chưa có',
+                }}
+              />
+            )}
+          </CardBody>
+        </Card>
 
-            {/* Right Column */}
-            <GridItem>
-              <VStack align="stretch" spacing={4}>
-                <Flex align="center">
-                  <Text fontSize="lg">
-                    <strong>Tên người tạo:</strong>{' '}
-                    {problemDetail.coderName || 'Chưa có thông tin'}
-                  </Text>
-                </Flex>
+        <Card mt={6}>
+          <CardHeader mb={0} pb={0}>
+            <Flex align="center">
+              <Text fontSize="xl" fontWeight="bold">
+                Giải thích bài tập
+              </Text>
+              <IconButton
+                aria-label="Edit"
+                icon={<MdEdit />}
+                size="sm"
+                ml={2}
+                onClick={() => handleEdit('problemExplanation')}
+              />
+            </Flex>
+          </CardHeader>
+          <CardBody>
+            {editField === 'problemExplanation' ? (
+              <ReactQuill
+                theme="snow"
+                value={editableValues.problemExplanation || ''}
+                onChange={(value) =>
+                  handleInputChange('problemExplanation', value)
+                }
+                style={{
+                  minHeight: '200px',
+                  maxHeight: '200px',
+                  overflow: 'auto',
+                }}
+              />
+            ) : (
+              <Box
+                p={2}
+                minH={editField === 'problemExplanation' ? '200px' : 'unset'}
+                dangerouslySetInnerHTML={{
+                  __html: editableValues.problemExplanation || 'Chưa có',
+                }}
+              />
+            )}
+          </CardBody>
+        </Card>
 
-                <Flex align="center">
-                  <Text fontSize="lg">
-                    <strong>Trạng thái:</strong>{' '}
-                    {problemDetail.published === 1 ? 'Công khai' : 'Riêng tư'}
-                  </Text>
-                </Flex>
-
-                <Flex align="center">
-                  {editField === 'testCompiler' ? (
-                    <Select
-                      value={testCompilerID}
-                      onChange={(e) => {
-                        const newCompilerID = e.target.value;
-                        setTestCompilerID(newCompilerID);
-                        setEditableValues((prev) => ({
-                          ...prev,
-                          testCompilerID: newCompilerID,
-                        }));
-                      }}
-                    >
-                      {compilers.map((compiler) => (
-                        <option
-                          key={compiler.compilerID}
-                          value={compiler.compilerID}
-                        >
-                          {compiler.compilerName}
-                        </option>
-                      ))}
-                    </Select>
-                  ) : (
-                    <Text fontSize="lg">
-                      <strong>Trình biên dịch:</strong>{' '}
-                      {problemDetail.testCompilerName || 'Chưa có thông tin'}
-                    </Text>
-                  )}
-                  <IconButton
-                    aria-label="Edit"
-                    icon={<MdEdit />}
-                    ml={2}
-                    size="sm"
-                    onClick={() => handleEdit('testCompiler')}
-                  />
-                </Flex>
-
-                <Flex align="center">
-                  {editField === 'selectedCategory' ? (
-                    <SimpleGrid columns={2} spacing={2} w="full">
-                      {categories.map((category) => (
-                        <Checkbox
-                          key={category.categoryID}
-                          isChecked={selectedCategoryIDs.includes(
-                            category.categoryID,
-                          )}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedCategoryIDs([
-                                ...new Set([
-                                  ...selectedCategoryIDs,
-                                  category.categoryID,
-                                ]),
-                              ]);
-                            } else {
-                              setSelectedCategoryIDs(
-                                selectedCategoryIDs.filter(
-                                  (id) => id !== category.categoryID,
-                                ),
-                              );
-                            }
-                          }}
-                        >
-                          {category.catName}
-                        </Checkbox>
-                      ))}
-                    </SimpleGrid>
-                  ) : (
-                    <Text fontSize="lg">
-                      <strong>Thể loại:</strong>{' '}
-                      {problemDetail.selectedCategoryNames?.length > 0
-                        ? problemDetail.selectedCategoryNames.join(', ')
-                        : 'Chưa có danh mục'}
-                    </Text>
-                  )}
-                  <IconButton
-                    aria-label="Edit"
-                    icon={<MdEdit />}
-                    ml={2}
-                    size="sm"
-                    onClick={() => handleEdit('selectedCategory')}
-                  />
-                </Flex>
-                <Flex align="center">
-                  <Text fontSize="lg" fontWeight="bold">
-                    Code test:
-                  </Text>
-                  <IconButton
-                    aria-label="Edit"
-                    icon={<MdEdit />}
-                    ml={2}
-                    size="sm"
-                    onClick={() => handleEdit('testCode')}
-                  />
-                </Flex>
-
-                {editField === 'testCode' ? (
-                  <Editor
-                    height="400px"
-                    language="cpp"
-                    value={editableValues.testCode || ''}
-                    onChange={(value) => handleInputChange('testCode', value)}
-                    theme="vs"
-                    options={{
-                      selectOnLineNumbers: true,
-                      minimap: { enabled: false },
-                      lineNumbers: 'on',
-                      wordWrap: 'on',
-                      automaticLayout: true,
-                    }}
-                  />
-                ) : (
-                  <Box p={2} bg="gray.200" borderRadius="md" overflowX="auto">
-                    <pre>
-                      <code>{problemDetail.testCode || 'Chưa có'}</code>
-                    </pre>
-                  </Box>
-                )}
-              </VStack>
-            </GridItem>
-          </Grid>
-
-          <Flex justifyContent="flex-end" mt={6}>
-            <Button
-              variant="solid"
-              size="lg"
-              colorScheme="teal"
-              borderRadius="md"
-              onClick={handleSave}
-              disabled={editField === null}
-            >
-              Lưu
-            </Button>
-          </Flex>
-        </VStack>
+        {/* Mã kiểm tra (Code format) */}
+        <Card mt={6}>
+          <CardHeader mb={0} pb={0}>
+            <Flex align="center">
+              <Text fontSize="xl" fontWeight="bold">
+                Mã kiểm tra
+              </Text>
+              <IconButton
+                aria-label="Edit"
+                icon={<MdEdit />}
+                size="sm"
+                ml={2}
+                onClick={() => handleEdit('testCode')}
+              />
+            </Flex>
+          </CardHeader>
+          <CardBody>
+            {editField === 'testCode' ? (
+              <Editor
+                height="300px"
+                language="cpp"
+                value={editableValues.testCode || ''}
+                onChange={(value) => handleInputChange('testCode', value)}
+                options={{
+                  minimap: { enabled: false },
+                  wordWrap: 'on',
+                }}
+              />
+            ) : (
+              <Box
+                as="pre"
+                p={2}
+                minH={editField === 'testCode' ? '200px' : 'unset'}
+                bg="gray.100"
+                borderRadius="md"
+                fontFamily="mono"
+                dangerouslySetInnerHTML={{
+                  __html: editableValues.testCode || 'Chưa có',
+                }}
+              />
+            )}
+          </CardBody>
+        </Card>
       </Box>
     </Box>
   );
