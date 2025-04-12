@@ -5,16 +5,13 @@ import './assets/css/App.css';
 import { Spinner } from '@chakra-ui/react';
 import App from './App';
 import { AuthProvider, useAuth } from 'contexts/AuthContext';
+import FullPageSpinner from 'components/spinner/FullPageSpinner';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 function AuthGate() {
   const { isLoading } = useAuth();
 
   if (isLoading) {
-    return (
-      <div style={{ textAlign: 'center', paddingTop: '100px' }}>
-        <Spinner size="xl" />
-      </div>
-    );
+    return <FullPageSpinner />;
   }
 
   return <App />;
