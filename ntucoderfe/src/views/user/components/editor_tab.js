@@ -121,12 +121,19 @@ const EditorTab = () => {
       const res = await api.post('/Submission/create', {
         problemId,
         compilerId: selectedCompiler.compilerID,
-        submitTime: new Date().toISOString(),
         submissionCode: code,
         submissionStatus: 0,
       });
-      if (res.status === 201)
-        showModal('Nộp bài thành công!', 'Bài của bạn đã được gửi.', 'success');
+      if (res.status === 200)
+        showModal(
+          'Nộp bài thành công!',
+          <>
+            Bài của bạn đã được gửi.
+            <br />
+            Thời gian nộp: {new Date(new Date().toISOString()).toLocaleString()}
+          </>,
+          'success',
+        );
     } catch {
       showModal(
         'Lỗi khi nộp bài!',
