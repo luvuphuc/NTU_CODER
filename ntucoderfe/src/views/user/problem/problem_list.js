@@ -10,8 +10,6 @@ import {
   Button,
   Flex,
   Grid,
-  Checkbox,
-  Divider,
   IconButton,
   Spinner,
   Badge,
@@ -22,114 +20,113 @@ import {
   ModalHeader,
   ModalFooter,
   ModalOverlay,
-  useDisclosure,
   ModalContent,
+  Divider,
+  useDisclosure,
   useToast,
 } from '@chakra-ui/react';
 import { IoMdHeartEmpty } from 'react-icons/io';
 import { AiFillHeart } from 'react-icons/ai';
-import api from '../../../utils/api';
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../../../utils/api';
 import Pagination from 'components/pagination/pagination';
 import Layout from 'layouts/user';
 import Cookies from 'js-cookie';
-
+import Multiselect from 'multiselect-react-dropdown';
 export default function ProblemPage() {
-  const [problems, setProblems] = useState([]);
-  const [favouriteIds, setFavouriteIds] = useState(new Set());
-  const navigate = useNavigate();
+  const [state, setState] = useState({
+    problems: [],
+    favouriteIds: new Set(),
+    loading: true,
+    currentPage: 1,
+    pageSize: 5,
+    totalPages: 1,
+    totalRows: 0,
+    categories: [],
+    selectedCategories: [],
+  });
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [loading, setLoading] = useState(true);
   const toast = useToast();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalRows, setTotalRows] = useState(0);
-
-  const [difficulty, setDifficulty] = useState({
-    easy: false,
-    medium: false,
-    hard: false,
-  });
-  const [status, setStatus] = useState({
-    unsolved: false,
-    solved: false,
-    attempted: false,
-  });
-  const [showFavorites, setShowFavorites] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProblems = async () => {
-      setLoading(true);
+    const fetchInitialData = async () => {
       try {
-        const response = await api.get('/problem/all', {
-          params: {
-            Page: currentPage,
-            PageSize: pageSize,
-            published: true,
-          },
-        });
-        setProblems(response.data.data);
-        setTotalPages(response.data.totalPages || 1);
-        setTotalRows(response.data.totalCount || 0);
+        const [categoriesRes, favouritesRes] = await Promise.all([
+          api.get('/Category/all'),
+          Cookies.get('token') ? api.get('/Favourite/list') : { data: [] },
+        ]);
+
+        setState((prev) => ({
+          ...prev,
+          categories: categoriesRes.data.data,
+          favouriteIds: new Set(favouritesRes.data.map((f) => f.problemID)),
+        }));
       } catch (error) {
-        console.error('Error:', error);
-      } finally {
-        setLoading(false);
+        console.error('Error fetching initial data:', error);
       }
     };
 
-    const fetchFavourites = async () => {
+    fetchInitialData();
+  }, []);
+
+  useEffect(() => {
+    const fetchProblems = async () => {
       try {
-        const token = Cookies.get('token');
-        if (!token) return;
-        const res = await api.get('/Favourite/list');
-        const ids = new Set(res.data.map((f) => f.problemID));
-        setFavouriteIds(ids);
+        setState((prev) => ({ ...prev, loading: true }));
+
+        const problemsRes = await api.get('/Problem/all', {
+          params: {
+            Page: state.currentPage,
+            PageSize: state.pageSize,
+            published: true,
+            ...(state.selectedCategories.length > 0 && {
+              catList: state.selectedCategories.map((cat) => cat.id),
+            }),
+          },
+          paramsSerializer: { indexes: null },
+        });
+
+        setState((prev) => ({
+          ...prev,
+          problems: problemsRes.data.data,
+          totalPages: problemsRes.data.totalPages || 1,
+          totalRows: problemsRes.data.totalCount || 0,
+          loading: false,
+        }));
       } catch (error) {
-        console.error('Lỗi khi lấy danh sách yêu thích:', error);
+        console.error('Error fetching problems:', error);
+        setState((prev) => ({ ...prev, loading: false }));
       }
     };
 
     fetchProblems();
-    fetchFavourites();
-  }, [currentPage, pageSize]);
+  }, [state.selectedCategories, state.currentPage, state.pageSize]);
 
   const handleToggleFavorite = async (problemID) => {
-    const token = Cookies.get('token');
-
-    if (!token) {
-      onOpen();
-      return;
-    }
+    if (!Cookies.get('token')) return onOpen();
 
     try {
-      const response = await api.post('/Favourite/toggle', { problemID });
-      const { isFavourite, message } = response.data;
+      const res = await api.post('/Favourite/toggle', { problemID });
+      const updatedSet = new Set(state.favouriteIds);
+      res.data.isFavourite
+        ? updatedSet.add(problemID)
+        : updatedSet.delete(problemID);
 
-      const updatedSet = new Set(favouriteIds);
-      if (isFavourite) {
-        updatedSet.add(problemID);
-      } else {
-        updatedSet.delete(problemID);
-      }
-      setFavouriteIds(updatedSet);
-
+      setState((prev) => ({ ...prev, favouriteIds: updatedSet }));
       toast({
-        title: isFavourite ? 'Đã thêm yêu thích' : 'Đã bỏ yêu thích',
-        description: message,
+        title: res.data.isFavourite ? 'Đã thêm yêu thích' : 'Đã bỏ yêu thích',
+        description: res.data.message,
         status: 'success',
         position: 'top-right',
         duration: 3000,
         isClosable: true,
       });
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || 'Lỗi khi thao tác với yêu thích.';
-
       toast({
         title: 'Lỗi',
-        description: errorMessage,
+        description:
+          error.response?.data?.message || 'Lỗi khi thao tác với yêu thích.',
         status: 'error',
         position: 'top-right',
         duration: 5000,
@@ -138,188 +135,172 @@ export default function ProblemPage() {
     }
   };
 
+  const handleCategoryChange = (selectedList) => {
+    setState((prev) => ({
+      ...prev,
+      selectedCategories: [...selectedList],
+      currentPage: 1,
+    }));
+  };
+
+  const renderProblemCard = (problem) => {
+    const isFavourited = state.favouriteIds.has(problem.problemID);
+
+    return (
+      <Card
+        key={problem.problemID}
+        borderRadius="lg"
+        boxShadow="md"
+        minH="150px"
+        overflow="hidden"
+        _hover={{ bg: '#ebebf3', cursor: 'pointer' }}
+      >
+        <Link
+          to={`/problem/${problem.problemID}`}
+          style={{ textDecoration: 'none' }}
+        >
+          <CardBody _hover={{ bg: '#ebebf3' }}>
+            <Flex justify="space-between" align="center">
+              <Stack spacing={3} flex="1">
+                <Heading size="lg" color="gray.700" noOfLines={1}>
+                  {problem.problemName}
+                </Heading>
+                <Wrap>
+                  {problem.selectedCategoryNames.map((category, index) => (
+                    <WrapItem key={index}>
+                      <Badge colorScheme="purple" fontSize="0.8rem">
+                        {category}
+                      </Badge>
+                    </WrapItem>
+                  ))}
+                </Wrap>
+                <Text
+                  color="gray.600"
+                  fontSize="md"
+                  noOfLines={2}
+                  dangerouslySetInnerHTML={{ __html: problem.problemContent }}
+                />
+              </Stack>
+              <IconButton
+                icon={
+                  isFavourited ? (
+                    <AiFillHeart size={26} color="red" />
+                  ) : (
+                    <IoMdHeartEmpty size={24} color="gray" />
+                  )
+                }
+                aria-label="Yêu thích"
+                variant="ghost"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleToggleFavorite(problem.problemID);
+                }}
+                _hover={{ transform: 'scale(1.2)', bg: 'transparent' }}
+                transition="transform 0.2s ease"
+              />
+            </Flex>
+          </CardBody>
+        </Link>
+      </Card>
+    );
+  };
+
   return (
     <Layout>
-      <Box>
-        <Container maxW="7xl" py={{ base: 12, md: 12 }} px={{ base: 4, md: 8 }}>
-          <Heading textAlign="center" mb={10} color="gray.700">
-            DANH SÁCH BÀI TẬP
-          </Heading>
+      <Container maxW="7xl" py={{ base: 12, md: 12 }} px={{ base: 4, md: 8 }}>
+        <Heading textAlign="center" mb={10} color="gray.700">
+          DANH SÁCH BÀI TẬP
+        </Heading>
 
-          <Grid
-            templateColumns={{ base: '1fr', md: '7fr 3fr' }}
-            gap={6}
-            alignItems="start"
+        <Grid
+          templateColumns={{ base: '1fr', md: '7fr 3fr' }}
+          gap={6}
+          alignItems="start"
+        >
+          {state.loading ? (
+            <Flex
+              justify="center"
+              align="center"
+              minH="365px"
+              bg="white"
+              boxShadow="md"
+              borderRadius="md"
+            >
+              <Spinner size="xl" color="blue.500" />
+            </Flex>
+          ) : (
+            <Stack spacing={6} w="full">
+              {state.problems.map(renderProblemCard)}
+              {state.problems.length > 0 && (
+                <Pagination
+                  currentPage={state.currentPage}
+                  totalPages={state.totalPages}
+                  onPageChange={(page) =>
+                    setState((prev) => ({ ...prev, currentPage: page }))
+                  }
+                  onPageSizeChange={(size) =>
+                    setState((prev) => ({ ...prev, pageSize: size }))
+                  }
+                />
+              )}
+            </Stack>
+          )}
+
+          <Box
+            borderRadius="xl"
+            boxShadow="lg"
+            bg="white"
+            p={5}
+            border="1px solid"
+            borderColor="gray.200"
           >
-            {loading ? (
-              <Box
-                w="full"
-                display="flex"
-                flexDirection="column"
-                bg="white"
-                boxShadow="md"
-                borderRadius="md"
-              >
-                <Flex justify="center" align="center" minH="365px">
-                  <Spinner size="xl" color="blue.500" />
-                </Flex>
+            <Stack spacing={4}>
+              <Heading size="md" color="gray.700">
+                Bộ lọc
+              </Heading>
+
+              <Box>
+                <Multiselect
+                  options={state.categories.map((cat) => ({
+                    name: cat.catName,
+                    id: cat.categoryID,
+                  }))}
+                  showCheckbox
+                  selectedValues={state.selectedCategories}
+                  onSelect={handleCategoryChange}
+                  onRemove={handleCategoryChange}
+                  displayValue="name"
+                  placeholder="Chọn thể loại"
+                  style={{
+                    chips: {
+                      background: '#805AD5',
+                    },
+                    searchBox: {
+                      padding: '8px',
+                      borderRadius: '8px',
+                      border: '1px solid #CBD5E0',
+                    },
+                    multiselectContainer: {
+                      color: 'black',
+                    },
+                  }}
+                />
               </Box>
-            ) : (
-              <Stack spacing={6} w="full">
-                {problems.map((problem) => {
-                  const isFavourited = favouriteIds.has(problem.problemID);
-                  return (
-                    <Card
-                      key={problem.problemId}
-                      borderRadius="lg"
-                      boxShadow="md"
-                      minH="150px"
-                      overflow="hidden"
-                      _hover={{ bg: '#ebebf3', cursor: 'pointer' }}
-                    >
-                      <Link
-                        to={`/problem/${problem.problemID}`}
-                        style={{ textDecoration: 'none' }}
-                      >
-                        <CardBody _hover={{ bg: '#ebebf3' }}>
-                          <Flex justify="space-between" align="center">
-                            <Stack spacing={3} flex="1">
-                              <Heading size="lg" color="gray.700" noOfLines={1}>
-                                {problem.problemName}
-                              </Heading>
-                              <Wrap>
-                                {problem.selectedCategoryNames.map(
-                                  (category, index) => (
-                                    <WrapItem key={index}>
-                                      <Badge
-                                        colorScheme="purple"
-                                        fontSize="0.8rem"
-                                      >
-                                        {category}
-                                      </Badge>
-                                    </WrapItem>
-                                  ),
-                                )}
-                              </Wrap>
-                              <Box
-                                color="gray.600"
-                                fontSize="md"
-                                dangerouslySetInnerHTML={{
-                                  __html: problem.problemContent,
-                                }}
-                                noOfLines={2}
-                              />
-                            </Stack>
 
-                            <Flex align="center" ml={4}>
-                              <IconButton
-                                aria-label="Yêu thích"
-                                icon={
-                                  isFavourited ? (
-                                    <AiFillHeart size={26} color="red" />
-                                  ) : (
-                                    <IoMdHeartEmpty size={24} color="gray" />
-                                  )
-                                }
-                                variant="ghost"
-                                transition="transform 0.2s ease"
-                                _hover={{
-                                  transform: 'scale(1.2)',
-                                  bg: 'transparent',
-                                }}
-                                onClick={(e) => {
-                                  e.preventDefault(); // Ngăn click lan lên Link
-                                  handleToggleFavorite(problem.problemID);
-                                }}
-                              />
-                            </Flex>
-                          </Flex>
-                        </CardBody>
-                      </Link>
-                    </Card>
-                  );
-                })}
-
-                {problems.length > 0 && (
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={setCurrentPage}
-                    onPageSizeChange={setPageSize}
-                  />
-                )}
-              </Stack>
-            )}
-
-            <Box borderRadius="lg" boxShadow="md" p={4} bg="gray.100">
-              <Stack spacing={3}>
-                <Text fontWeight="bold" color="gray.600" fontSize="lg">
-                  Độ khó
-                </Text>
-                <Checkbox
-                  isChecked={difficulty.easy}
-                  onChange={(e) =>
-                    setDifficulty({ ...difficulty, easy: e.target.checked })
-                  }
+              {state.selectedCategories.length > 0 && (
+                <Button
+                  size="sm"
+                  colorScheme="red"
+                  variant="outline"
+                  onClick={() => handleCategoryChange([])}
                 >
-                  Dễ
-                </Checkbox>
-                <Checkbox
-                  isChecked={difficulty.medium}
-                  onChange={(e) =>
-                    setDifficulty({ ...difficulty, medium: e.target.checked })
-                  }
-                >
-                  Trung bình
-                </Checkbox>
-                <Checkbox
-                  isChecked={difficulty.hard}
-                  onChange={(e) =>
-                    setDifficulty({ ...difficulty, hard: e.target.checked })
-                  }
-                >
-                  Khó
-                </Checkbox>
-                <Divider my={4} />
-                <Text fontWeight="bold" color="gray.600">
-                  Trạng thái
-                </Text>
-                <Checkbox
-                  isChecked={status.unsolved}
-                  onChange={(e) =>
-                    setStatus({ ...status, unsolved: e.target.checked })
-                  }
-                >
-                  Chưa giải
-                </Checkbox>
-                <Checkbox
-                  isChecked={status.solved}
-                  onChange={(e) =>
-                    setStatus({ ...status, solved: e.target.checked })
-                  }
-                >
-                  Đã giải
-                </Checkbox>
-                <Checkbox
-                  isChecked={status.attempted}
-                  onChange={(e) =>
-                    setStatus({ ...status, attempted: e.target.checked })
-                  }
-                >
-                  Đã thử
-                </Checkbox>
-                <Checkbox
-                  colorScheme="blue"
-                  isChecked={showFavorites}
-                  onChange={(e) => setShowFavorites(e.target.checked)}
-                >
-                  Chỉ hiển thị bài tập yêu thích
-                </Checkbox>
-              </Stack>
-            </Box>
-          </Grid>
-        </Container>
-      </Box>
+                  Xóa lọc
+                </Button>
+              )}
+            </Stack>
+          </Box>
+        </Grid>
+      </Container>
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />

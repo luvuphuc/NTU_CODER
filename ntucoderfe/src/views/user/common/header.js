@@ -35,9 +35,15 @@ export default function Header({ hideHeader }) {
             py={{ base: 2 }}
             px={0}
           >
-            <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }}>
-              <Image src={logo} alt="Logo" width="300px" />
+            <Flex
+              flex={{ base: 1 }}
+              justify={{ base: 'center', md: 'start' }}
+              align="center"
+              gap={3}
+            >
+              <Image src={logo} alt="Logo" maxHeight="60px" width="auto" />
             </Flex>
+
             <Flex align="center" gap={4}>
               {isLoading ? null : coder ? (
                 <>

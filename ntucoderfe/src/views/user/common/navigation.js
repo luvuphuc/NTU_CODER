@@ -42,9 +42,10 @@ export default function Navigation({ hideHeader }) {
       style={{ position: 'fixed', width: '100%', zIndex: 10 }}
     >
       <Box
-        bg="#0186bd"
+        bgGradient="linear(to-r, blue.500, cyan.500)"
         w="100%"
-        py={3}
+        pt={4}
+        pb={3}
         borderBottom="1px solid"
         borderColor="#0170a3"
         boxShadow={isScrolled ? 'lg' : 'none'}
