@@ -9,6 +9,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using ntucoderbe.Infrashtructure.Services;
 using System.Security.Policy;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ntucoderbe.Infrashtructure.Repositories
 {
@@ -20,36 +21,52 @@ namespace ntucoderbe.Infrashtructure.Repositories
             _context = context;
         }
 
-        public async Task<PagedResponse<ProblemDTO>> GetAllProblemsAsync(QueryObject query, string? sortField = null, bool ascending = true, bool published = false)
+        public async Task<PagedResponse<ProblemDTO>> GetAllProblemsAsync(
+            QueryObject query,
+            string? sortField = null,
+            bool ascending = true,
+            bool published = false,
+            int[]? catList = null)
         {
-            var problemQuery = _context.Problems
+            var baseQuery = _context.Problems
                 .Include(p => p.Coder)
                 .Include(p => p.ProblemCategories)
                     .ThenInclude(pc => pc.Category)
-                .Select(p => new ProblemDTO
-                {
-                    ProblemID = p.ProblemID,
-                    ProblemCode = p.ProblemCode,
-                    ProblemName = p.ProblemName,
-                    TestType = p.TestType,
-                    Published = p.Published,
-                    CoderID = p.CoderID,
-                    CoderName = p.Coder.CoderName,
-                    ProblemContent = p.ProblemContent,
-                    SelectedCategoryIDs = p.ProblemCategories.Select(pc => pc.CategoryID).ToList(),
-                    SelectedCategoryNames = p.ProblemCategories.Select(pc => pc.Category.CatName).ToList()
-                });
+                .AsQueryable();
+
             if (published)
             {
-                problemQuery = problemQuery.Where(p => p.Published == 1);
+                baseQuery = baseQuery.Where(p => p.Published == 1);
             }
+            if (catList != null && catList.Length > 0)
+            {
+                baseQuery = baseQuery.Where(p =>
+                    p.ProblemCategories.Count(pc => catList.Contains(pc.CategoryID)) == catList.Length);
+            }
+
+            var problemQuery = baseQuery.Select(p => new ProblemDTO
+            {
+                ProblemID = p.ProblemID,
+                ProblemCode = p.ProblemCode,
+                ProblemName = p.ProblemName,
+                TestType = p.TestType,
+                Published = p.Published,
+                CoderID = p.CoderID,
+                CoderName = p.Coder.CoderName,
+                ProblemContent = p.ProblemContent,
+                SelectedCategoryIDs = p.ProblemCategories.Select(pc => pc.CategoryID).ToList(),
+                SelectedCategoryNames = p.ProblemCategories.Select(pc => pc.Category.CatName).ToList()
+            });
             problemQuery = ApplySorting(problemQuery, sortField, ascending);
+
             var problems = await PagedResponse<ProblemDTO>.CreateAsync(
                 problemQuery,
                 query.Page,
                 query.PageSize);
+
             return problems;
         }
+
 
 
         public IQueryable<ProblemDTO> ApplySorting(IQueryable<ProblemDTO> query, string? sortField, bool ascending)
@@ -109,7 +126,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
         private async Task<bool> CheckProblemCodeExist(string pc)
         {
-            return await _context.Problems.AnyAsync(p=>p.ProblemCode == pc);
+            return await _context.Problems.AnyAsync(p => p.ProblemCode == pc);
         }
         public async Task<bool> DeleteProblemAsync(int id)
         {
@@ -139,7 +156,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 .ThenInclude(pc => pc.Category)
              .Include(c => c.Coder)
              .Include(com => com.Compiler)
-             
+
              .FirstOrDefaultAsync();
 
             if (problem == null)
@@ -162,6 +179,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 TestCompilerID = problem.TestCompilerID,
                 CoderName = problem.Coder.CoderName,
                 TestCompilerName = problem.Compiler.CompilerName,
+                SelectedCategoryIDs = problem.ProblemCategories.Select(pc => pc.Category.CategoryID).ToList(),
                 SelectedCategoryNames = problem.ProblemCategories
                 .Select(pc => pc.Category.CatName)
                 .ToList(),
@@ -211,7 +229,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                         {
                             ProblemID = existing.ProblemID,
                             CategoryID = categoryId,
-                            Note  = dto.Note,
+                            Note = dto.Note,
                         };
                         _context.ProblemCategories.Add(problemCategory);
                     }
@@ -219,7 +237,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             }
             await _context.SaveChangesAsync();
 
-            dto.ProblemID = existing.ProblemID; 
+            dto.ProblemID = existing.ProblemID;
             return dto;
         }
     }
