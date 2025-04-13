@@ -22,6 +22,7 @@ import {
   ModalOverlay,
   ModalContent,
   Divider,
+  Checkbox,
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
@@ -34,6 +35,7 @@ import Layout from 'layouts/user';
 import Cookies from 'js-cookie';
 import Multiselect from 'multiselect-react-dropdown';
 import { RiResetLeftFill } from 'react-icons/ri';
+import AuthToast from 'views/auth/auth_toast';
 export default function ProblemPage() {
   const [state, setState] = useState({
     problems: [],
@@ -45,6 +47,7 @@ export default function ProblemPage() {
     totalRows: 0,
     categories: [],
     selectedCategories: [],
+    filterByFavourite: false,
   });
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -102,6 +105,15 @@ export default function ProblemPage() {
           },
           paramsSerializer: { indexes: null },
         });
+        if (state.filterByFavourite) {
+          problemsRes.data.data = problemsRes.data.data.filter((p) =>
+            state.favouriteIds.has(p.problemID),
+          );
+          problemsRes.data.totalCount = problemsRes.data.data.length;
+          problemsRes.data.totalPages = Math.ceil(
+            problemsRes.data.totalCount / state.pageSize,
+          );
+        }
 
         setState((prev) => ({
           ...prev,
@@ -111,16 +123,30 @@ export default function ProblemPage() {
           loading: false,
         }));
       } catch (error) {
-        console.error('Error fetching problems:', error);
+        console.error('Error:', error);
         setState((prev) => ({ ...prev, loading: false }));
       }
     };
 
     fetchProblems();
-  }, [state.selectedCategories, state.currentPage, state.pageSize]);
+  }, [
+    state.selectedCategories,
+    state.currentPage,
+    state.pageSize,
+    state.filterByFavourite,
+    state.favouriteIds,
+  ]);
 
   const handleToggleFavorite = async (problemID) => {
-    if (!Cookies.get('token')) return onOpen();
+    if (!Cookies.get('token')) {
+      toast({
+        position: 'top',
+        duration: 3000,
+        isClosable: true,
+        render: () => <AuthToast />,
+      });
+      return;
+    }
 
     try {
       const res = await api.post('/Favourite/toggle', { problemID });
@@ -158,7 +184,6 @@ export default function ProblemPage() {
       currentPage: 1,
     }));
   };
-
   const renderProblemCard = (problem) => {
     const isFavourited = state.favouriteIds.has(problem.problemID);
 
@@ -294,9 +319,14 @@ export default function ProblemPage() {
           >
             <Stack spacing={4}>
               <Flex justify="space-between" align="center">
-                <Heading size="md" color="gray.700">
-                  Bộ lọc
-                </Heading>
+                <Text
+                  fontSize="md"
+                  fontWeight="semibold"
+                  color="gray.500"
+                  mb={2}
+                >
+                  THỂ LOẠI
+                </Text>
                 {state.selectedCategories.length > 0 && (
                   <Button
                     size="sm"
@@ -326,18 +356,71 @@ export default function ProblemPage() {
                   placeholder="Chọn thể loại"
                   style={{
                     chips: {
-                      background: '#805AD5',
+                      background: '#718096',
+                      borderRadius: '5px',
+                      fontSize: '14px',
+                      padding: '5px 10px',
                     },
                     searchBox: {
-                      padding: '8px',
+                      padding: '10px 14px',
                       borderRadius: '8px',
-                      border: '1px solid #CBD5E0',
+                      border: '1px solid #E2E8F0',
+                      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                      fontSize: '14px',
                     },
                     multiselectContainer: {
-                      color: 'black',
+                      color: '#2D3748',
+                    },
+                    optionContainer: {
+                      border: '1px solid #E2E8F0',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+                    },
+                    option: {
+                      padding: '10px 14px',
                     },
                   }}
                 />
+              </Box>
+
+              <Divider borderWidth="2px" borderColor="gray.200" />
+              <Box>
+                <Text
+                  fontSize="md"
+                  fontWeight="semibold"
+                  color="gray.500"
+                  mb={2}
+                >
+                  TRẠNG THÁI
+                </Text>
+                <Stack spacing={2}>
+                  <Checkbox colorScheme="purple">Đã hoàn thành</Checkbox>
+                  <Checkbox colorScheme="purple">Chưa hoàn thành</Checkbox>
+                </Stack>
+              </Box>
+              <Divider borderWidth="2px" borderColor="gray.200" />
+              <Box>
+                <Text
+                  fontSize="md"
+                  fontWeight="semibold"
+                  color="gray.500"
+                  mb={2}
+                >
+                  YÊU THÍCH
+                </Text>
+                <Checkbox
+                  colorScheme="purple"
+                  isChecked={state.filterByFavourite}
+                  onChange={(e) =>
+                    setState((prev) => ({
+                      ...prev,
+                      filterByFavourite: e.target.checked,
+                      currentPage: 1,
+                    }))
+                  }
+                >
+                  Danh sách yêu thích
+                </Checkbox>
               </Box>
             </Stack>
           </Box>
