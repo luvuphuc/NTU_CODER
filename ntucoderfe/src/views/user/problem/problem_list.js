@@ -33,6 +33,7 @@ import Pagination from 'components/pagination/pagination';
 import Layout from 'layouts/user';
 import Cookies from 'js-cookie';
 import Multiselect from 'multiselect-react-dropdown';
+import { RiResetLeftFill } from 'react-icons/ri';
 export default function ProblemPage() {
   const [state, setState] = useState({
     problems: [],
@@ -52,18 +53,33 @@ export default function ProblemPage() {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const [categoriesRes, favouritesRes] = await Promise.all([
-          api.get('/Category/all'),
-          Cookies.get('token') ? api.get('/Favourite/list') : { data: [] },
-        ]);
-
+        const categoriesRes = await api.get('/Category/all');
         setState((prev) => ({
           ...prev,
-          categories: categoriesRes.data.data,
-          favouriteIds: new Set(favouritesRes.data.map((f) => f.problemID)),
+          categories: categoriesRes.data.data || [],
         }));
       } catch (error) {
-        console.error('Error fetching initial data:', error);
+        console.error('Error:', error);
+        setState((prev) => ({ ...prev, categories: [] }));
+      }
+
+      if (Cookies.get('token')) {
+        try {
+          const favouritesRes = await api.get('/Favourite/list');
+          setState((prev) => ({
+            ...prev,
+            favouriteIds: new Set(
+              Array.isArray(favouritesRes.data)
+                ? favouritesRes.data.map((f) => f.problemID)
+                : [],
+            ),
+          }));
+        } catch (error) {
+          console.error('Error:', error);
+          setState((prev) => ({ ...prev, favouriteIds: new Set() }));
+        }
+      } else {
+        setState((prev) => ({ ...prev, favouriteIds: new Set() }));
       }
     };
 
@@ -245,7 +261,6 @@ export default function ProblemPage() {
               )}
             </Stack>
           )}
-
           <Box
             borderRadius="xl"
             boxShadow="lg"
@@ -255,10 +270,24 @@ export default function ProblemPage() {
             borderColor="gray.200"
           >
             <Stack spacing={4}>
-              <Heading size="md" color="gray.700">
-                Bộ lọc
-              </Heading>
+              <Flex justify="space-between" align="center">
+                <Heading size="md" color="gray.700">
+                  Bộ lọc
+                </Heading>
+                {state.selectedCategories.length > 0 && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleCategoryChange([])}
+                    leftIcon={<RiResetLeftFill />}
+                    color="black"
+                  >
+                    Tải lại
+                  </Button>
+                )}
+              </Flex>
 
+              {/* Filter dropdown */}
               <Box>
                 <Multiselect
                   options={state.categories.map((cat) => ({
@@ -266,6 +295,7 @@ export default function ProblemPage() {
                     id: cat.categoryID,
                   }))}
                   showCheckbox
+                  showArrow
                   selectedValues={state.selectedCategories}
                   onSelect={handleCategoryChange}
                   onRemove={handleCategoryChange}
@@ -286,17 +316,6 @@ export default function ProblemPage() {
                   }}
                 />
               </Box>
-
-              {state.selectedCategories.length > 0 && (
-                <Button
-                  size="sm"
-                  colorScheme="red"
-                  variant="outline"
-                  onClick={() => handleCategoryChange([])}
-                >
-                  Xóa lọc
-                </Button>
-              )}
             </Stack>
           </Box>
         </Grid>
