@@ -27,7 +27,7 @@ namespace ntucoderbe.Controllers
         {
             try
             {
-                var result = await _problemRepository.GetAllProblemsAsync(query, sortField, ascending, published,catList);
+                var result = await _problemRepository.GetAllProblemsAsync(query, sortField, ascending, published, catList);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -142,5 +142,29 @@ namespace ntucoderbe.Controllers
                 });
             }
         }
+
+
+
+        [HttpGet("solved/{id}")]
+        public async Task<IActionResult> CountSolvedProblem(int id)
+        {
+            try
+            {
+
+                var count = await _problemRepository.CountSolvedProblemAsync(id);
+
+                if (count < 0)
+                {
+                    return Ok(new { count = 0 });
+                }
+
+                return Ok(new { count = count });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
+            }
+        }
+
     }
 }
