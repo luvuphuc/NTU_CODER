@@ -244,6 +244,28 @@ export default function ProblemPage() {
             >
               <Spinner size="xl" color="blue.500" />
             </Flex>
+          ) : state.problems.length === 0 ? (
+            <Flex
+              direction="column"
+              justify="center"
+              align="center"
+              minH="365px"
+              bg="white"
+              boxShadow="md"
+              borderRadius="md"
+              p={8}
+            >
+              <Box boxSize="120px" mb={4}>
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/4076/4076507.png"
+                  alt="No data"
+                  style={{ width: '100%', height: 'auto' }}
+                />
+              </Box>
+              <Heading size="md" color="gray.600">
+                Không có dữ liệu
+              </Heading>
+            </Flex>
           ) : (
             <Stack spacing={6} w="full">
               {state.problems.map(renderProblemCard)}
@@ -261,6 +283,7 @@ export default function ProblemPage() {
               )}
             </Stack>
           )}
+
           <Box
             borderRadius="xl"
             boxShadow="lg"
