@@ -147,7 +147,8 @@ namespace ntucoderbe.Infrashtructure.Services
 
                 ".java" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"echo '{encodedSource}' | base64 -d > Main.java && javac Main.java && echo '{input.Replace("\"", "\\\"")}' | java Main\"",
 
-                ".py" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"echo '{encodedSource}' | base64 -d | python3 -\"",
+                ".py" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"echo '{encodedSource}' | base64 -d > temp.py && echo '{input.Replace("\"", "\\\"")}' | python3 temp.py\"",
+
 
                 _ => throw new Exception($"Compiler {compiler.CompilerName} không được hỗ trợ.")
             };
