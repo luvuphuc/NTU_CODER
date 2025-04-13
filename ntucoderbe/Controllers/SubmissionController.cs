@@ -91,7 +91,7 @@ namespace ntucoderbe.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateSubmission(int id, [FromBody] SubmissionDTO dto)
+        public async Task<IActionResult> UpdateSubmission([FromBody] SubmissionDTO dto)
         {
             if (dto == null)
             {
@@ -100,7 +100,7 @@ namespace ntucoderbe.Controllers
 
             try
             {
-                var result = await _submissionRepository.UpdateSubmissionAsync(id, dto);
+                var result = await _submissionRepository.UpdateSubmissionAsync(dto);
                 return Ok(result);
             }
             catch (KeyNotFoundException ex)

@@ -56,6 +56,10 @@ namespace ntucoderbe.Infrashtructure.Repositories
         
         public async Task<SubmissionDTO> CreateSubmissionAsync(SubmissionDTO dto)
         {
+            if (await IsSubmissionExistAsync(dto.ProblemID, dto.CoderID))
+            {
+                return await UpdateSubmissionAsync(dto);
+            }
             var obj = new Submission
             {
                 ProblemID = dto.ProblemID,
@@ -67,11 +71,20 @@ namespace ntucoderbe.Infrashtructure.Repositories
             };
 
             _context.Submissions.Add(obj);
+            var solved = new Solved
+            {
+                ProblemID = dto.ProblemID,
+                CoderID = dto.CoderID,
+            };
+            _context.Solved.Add(solved);
             await _context.SaveChangesAsync();
             dto.SubmissionID = obj.SubmissionID;
             return dto;
         }
-
+        private async Task<bool> IsSubmissionExistAsync(int problemID, int coderID)
+        {
+            return await _context.Solved.AnyAsync(s=>s.CoderID == coderID && s.ProblemID == problemID);
+        }
         public async Task<bool> DeleteSubmissionAsync(int id)
         {
             var obj = await _context.Submissions.FirstOrDefaultAsync(o => o.SubmissionID == id);
@@ -115,11 +128,10 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
             };
         }
-        public async Task<SubmissionDTO> UpdateSubmissionAsync(int id, SubmissionDTO dto)
+        public async Task<SubmissionDTO> UpdateSubmissionAsync(SubmissionDTO dto)
         {
             var obj = await _context.Submissions
-                .Include(s => s.TestRuns)
-                .FirstOrDefaultAsync(o => o.SubmissionID == id);
+        .FirstOrDefaultAsync(o => o.CoderID == dto.CoderID && o.ProblemID == dto.ProblemID);
 
             if (obj == null)
             {
