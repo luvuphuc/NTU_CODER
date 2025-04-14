@@ -27,13 +27,14 @@ namespace ntucoderbe.Infrashtructure.Repositories
             bool ascending = true,
             bool published = false,
             int[]? catList = null,
-            bool isSolved = false)
+            bool? isSolved = null,
+            int? coderID = null)
         {
             var baseQuery = _context.Problems
                 .Include(p => p.Coder)
                 .Include(p => p.ProblemCategories)
                     .ThenInclude(pc => pc.Category)
-                .Include(p=>p.Solveds)
+                .Include(p => p.Solveds)
                 .AsQueryable();
 
             if (published)
@@ -45,14 +46,20 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 baseQuery = baseQuery.Where(p =>
                     p.ProblemCategories.Count(pc => catList.Contains(pc.CategoryID)) == catList.Length);
             }
-            if (isSolved)
+
+            if (isSolved.HasValue && coderID.HasValue)
             {
-                baseQuery = baseQuery.Where(p => p.Solveds.Any(sol => sol.CoderID == p.CoderID));
+                if (isSolved.Value)
+                {
+                    baseQuery = baseQuery.Where(p => p.Solveds.Any(sol => sol.CoderID == coderID.Value));
+                }
+                else
+                {
+                    baseQuery = baseQuery.Where(p => !p.Solveds.Any(sol => sol.CoderID == coderID.Value));
+                }
             }
-            else
-            {
-                baseQuery = baseQuery.Where(p => p.Solveds.All(sol => sol.CoderID != p.CoderID));
-            }
+
+
             var problemQuery = baseQuery.Select(p => new ProblemDTO
             {
                 ProblemID = p.ProblemID,
@@ -66,6 +73,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 SelectedCategoryIDs = p.ProblemCategories.Select(pc => pc.CategoryID).ToList(),
                 SelectedCategoryNames = p.ProblemCategories.Select(pc => pc.Category.CatName).ToList()
             });
+
             problemQuery = ApplySorting(problemQuery, sortField, ascending);
 
             var problems = await PagedResponse<ProblemDTO>.CreateAsync(
@@ -75,7 +83,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
             return problems;
         }
-
 
 
         public IQueryable<ProblemDTO> ApplySorting(IQueryable<ProblemDTO> query, string? sortField, bool ascending)

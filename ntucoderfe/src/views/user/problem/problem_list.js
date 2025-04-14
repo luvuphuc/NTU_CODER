@@ -40,6 +40,7 @@ export default function ProblemPage() {
   const [state, setState] = useState({
     problems: [],
     favouriteIds: new Set(),
+    solvedProblemIds: new Set(),
     loading: true,
     currentPage: 1,
     pageSize: 5,
@@ -48,6 +49,7 @@ export default function ProblemPage() {
     categories: [],
     selectedCategories: [],
     filterByFavourite: false,
+    solvedProblem: null,
   });
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -102,6 +104,9 @@ export default function ProblemPage() {
             ...(state.selectedCategories.length > 0 && {
               catList: state.selectedCategories.map((cat) => cat.id),
             }),
+            ...(state.solvedProblem !== null && {
+              isSolved: state.solvedProblem,
+            }),
           },
           paramsSerializer: { indexes: null },
         });
@@ -135,6 +140,7 @@ export default function ProblemPage() {
     state.pageSize,
     state.filterByFavourite,
     state.favouriteIds,
+    state.solvedProblem,
   ]);
 
   const handleToggleFavorite = async (problemID) => {
@@ -394,8 +400,30 @@ export default function ProblemPage() {
                   TRẠNG THÁI
                 </Text>
                 <Stack spacing={2}>
-                  <Checkbox colorScheme="purple">Đã hoàn thành</Checkbox>
-                  <Checkbox colorScheme="purple">Chưa hoàn thành</Checkbox>
+                  <Checkbox
+                    isChecked={state.solvedProblem === true}
+                    onChange={(e) =>
+                      setState((prev) => ({
+                        ...prev,
+                        solvedProblem: e.target.checked ? true : null,
+                        currentPage: 1,
+                      }))
+                    }
+                  >
+                    Đã hoàn thành
+                  </Checkbox>
+                  <Checkbox
+                    isChecked={state.solvedProblem === false}
+                    onChange={(e) =>
+                      setState((prev) => ({
+                        ...prev,
+                        solvedProblem: e.target.checked ? false : null,
+                        currentPage: 1,
+                      }))
+                    }
+                  >
+                    Chưa hoàn thành
+                  </Checkbox>
                 </Stack>
               </Box>
               <Divider borderWidth="2px" borderColor="gray.200" />
