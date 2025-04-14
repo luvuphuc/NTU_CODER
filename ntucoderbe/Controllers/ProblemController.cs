@@ -23,11 +23,11 @@ namespace ntucoderbe.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllProblems([FromQuery] QueryObject query, [FromQuery] string? sortField = null, [FromQuery] bool ascending = true, [FromQuery] bool published = false, [FromQuery] int[]? catList = null)
+        public async Task<IActionResult> GetAllProblems([FromQuery] QueryObject query, [FromQuery] string? sortField = null, [FromQuery] bool ascending = true, [FromQuery] bool published = false, [FromQuery] int[]? catList = null, bool isSolved = false)
         {
             try
             {
-                var result = await _problemRepository.GetAllProblemsAsync(query, sortField, ascending, published, catList);
+                var result = await _problemRepository.GetAllProblemsAsync(query, sortField, ascending, published, catList,isSolved);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -142,9 +142,6 @@ namespace ntucoderbe.Controllers
                 });
             }
         }
-
-
-
         [HttpGet("solved/{id}")]
         public async Task<IActionResult> CountSolvedProblem(int id)
         {

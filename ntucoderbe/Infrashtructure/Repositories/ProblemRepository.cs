@@ -26,12 +26,14 @@ namespace ntucoderbe.Infrashtructure.Repositories
             string? sortField = null,
             bool ascending = true,
             bool published = false,
-            int[]? catList = null)
+            int[]? catList = null,
+            bool isSolved = false)
         {
             var baseQuery = _context.Problems
                 .Include(p => p.Coder)
                 .Include(p => p.ProblemCategories)
                     .ThenInclude(pc => pc.Category)
+                .Include(p=>p.Solveds)
                 .AsQueryable();
 
             if (published)
@@ -43,7 +45,14 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 baseQuery = baseQuery.Where(p =>
                     p.ProblemCategories.Count(pc => catList.Contains(pc.CategoryID)) == catList.Length);
             }
-
+            if (isSolved)
+            {
+                baseQuery = baseQuery.Where(p => p.Solveds.Any(sol => sol.CoderID == p.CoderID));
+            }
+            else
+            {
+                baseQuery = baseQuery.Where(p => p.Solveds.All(sol => sol.CoderID != p.CoderID));
+            }
             var problemQuery = baseQuery.Select(p => new ProblemDTO
             {
                 ProblemID = p.ProblemID,
