@@ -36,6 +36,7 @@ import Cookies from 'js-cookie';
 import Multiselect from 'multiselect-react-dropdown';
 import { RiResetLeftFill } from 'react-icons/ri';
 import AuthToast from 'views/auth/auth_toast';
+import { RiUser3Fill } from 'react-icons/ri';
 export default function ProblemPage() {
   const [state, setState] = useState({
     problems: [],
@@ -54,6 +55,16 @@ export default function ProblemPage() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const navigate = useNavigate();
+  const fetchSolvedCount = async (problemID) => {
+    try {
+      const res = await api.get(`/Problem/solved/${problemID}`);
+      console.log('Count:', res.data.count);
+      return res.data.count;
+    } catch (error) {
+      console.error(`Error:${problemID}`, error);
+      return 0;
+    }
+  };
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -119,10 +130,15 @@ export default function ProblemPage() {
             problemsRes.data.totalCount / state.pageSize,
           );
         }
-
+        const problemsWithSolvedCount = await Promise.all(
+          problemsRes.data.data.map(async (problem) => {
+            const solvedCount = await fetchSolvedCount(problem.problemID);
+            return { ...problem, solvedCount };
+          }),
+        );
         setState((prev) => ({
           ...prev,
-          problems: problemsRes.data.data,
+          problems: problemsWithSolvedCount,
           totalPages: problemsRes.data.totalPages || 1,
           totalRows: problemsRes.data.totalCount || 0,
           loading: false,
@@ -194,25 +210,33 @@ export default function ProblemPage() {
     const isFavourited = state.favouriteIds.has(problem.problemID);
 
     return (
-      <Card
-        key={problem.problemID}
-        borderRadius="lg"
-        boxShadow="md"
-        minH="150px"
-        overflow="hidden"
-        _hover={{ bg: '#ebebf3', cursor: 'pointer' }}
-      >
-        <Link
-          to={`/problem/${problem.problemID}`}
-          style={{ textDecoration: 'none' }}
+      <Box position="relative" key={problem.problemID}>
+        <Card
+          borderRadius="lg"
+          boxShadow="md"
+          minH="150px"
+          overflow="hidden"
+          _hover={{ bg: '#ebebf3', cursor: 'pointer' }}
         >
-          <CardBody _hover={{ bg: '#ebebf3' }}>
-            <Flex justify="space-between" align="center">
-              <Stack spacing={3} flex="1">
-                <Heading size="lg" color="gray.700" noOfLines={1}>
-                  {problem.problemName}
-                </Heading>
-                <Wrap>
+          <Link
+            to={`/problem/${problem.problemID}`}
+            style={{ textDecoration: 'none' }}
+          >
+            <CardBody _hover={{ bg: '#ebebf3' }}>
+              <Flex direction="column" justify="space-between" height="100%">
+                <Flex justify="space-between" align="start">
+                  <Heading size="lg" color="gray.700" noOfLines={1} maxW="70%">
+                    {problem.problemName}
+                  </Heading>
+                  <Flex align="center" gap={1}>
+                    <Text color="green.600" fontSize="sm">
+                      {problem.solvedCount ?? 0}
+                    </Text>
+                    <RiUser3Fill color="#2F855A" />
+                  </Flex>
+                </Flex>
+
+                <Wrap mt={2}>
                   {problem.selectedCategoryNames.map((category, index) => (
                     <WrapItem key={index}>
                       <Badge colorScheme="purple" fontSize="0.8rem">
@@ -221,34 +245,46 @@ export default function ProblemPage() {
                     </WrapItem>
                   ))}
                 </Wrap>
+
                 <Text
+                  mt={2}
                   color="gray.600"
                   fontSize="md"
                   noOfLines={2}
                   dangerouslySetInnerHTML={{ __html: problem.problemContent }}
                 />
-              </Stack>
-              <IconButton
-                icon={
-                  isFavourited ? (
-                    <AiFillHeart size={26} color="red" />
-                  ) : (
-                    <IoMdHeartEmpty size={24} color="gray" />
-                  )
-                }
-                aria-label="Yêu thích"
-                variant="ghost"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleToggleFavorite(problem.problemID);
-                }}
-                _hover={{ transform: 'scale(1.2)', bg: 'transparent' }}
-                transition="transform 0.2s ease"
-              />
-            </Flex>
-          </CardBody>
-        </Link>
-      </Card>
+              </Flex>
+            </CardBody>
+          </Link>
+        </Card>
+
+        {/* Icon tim góc phải giữa */}
+        <Box
+          position="absolute"
+          right="16px"
+          top="50%"
+          transform="translateY(-50%)"
+          zIndex={1}
+        >
+          <IconButton
+            icon={
+              isFavourited ? (
+                <AiFillHeart size={24} color="red" />
+              ) : (
+                <IoMdHeartEmpty size={22} color="gray" />
+              )
+            }
+            aria-label="Yêu thích"
+            variant="ghost"
+            onClick={(e) => {
+              e.preventDefault();
+              handleToggleFavorite(problem.problemID);
+            }}
+            _hover={{ transform: 'scale(1.2)', bg: 'transparent' }}
+            transition="transform 0.2s ease"
+          />
+        </Box>
+      </Box>
     );
   };
 
