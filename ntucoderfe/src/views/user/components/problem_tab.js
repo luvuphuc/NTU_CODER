@@ -15,11 +15,12 @@ const ProblemTab = ({ problem }) => {
         bg="gray.200"
         borderRadius="md"
         boxShadow="sm"
-        overflow="hidden" // Không cho phép cuộn ngang
+        overflowX="hidden"
         style={{
           wordWrap: 'break-word',
           wordBreak: 'break-word',
-          whiteSpace: 'normal',
+          whiteSpace: 'pre-wrap',
+          overflowWrap: 'break-word',
         }}
       >
         <Box dangerouslySetInnerHTML={{ __html: problem.problemContent }} />

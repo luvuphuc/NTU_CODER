@@ -13,8 +13,8 @@ export default function ContestPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalRows, setTotalRows] = useState(0);
-  
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
 
   const handleSortStatusChange = () => {
@@ -25,22 +25,24 @@ export default function ContestPage() {
     setLoading(true);
     try {
       const response = await api.get('/contest/all', {
-        params: { 
-          page: currentPage, 
+        params: {
+          page: currentPage,
           pageSize,
           sortField: 'status',
-          ascending: sortOrder === 'asc'
+          ascending: sortOrder === 'asc',
+          status: filterStatus !== 'all' ? filterStatus : null,
+          searchString: searchTerm || null,
         },
       });
       setContests(response.data.data);
       setTotalPages(response.data.totalPages || 1);
-      setTotalRows(response.data.totalCount || 0);
     } catch (error) {
       console.error('Error:', error);
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, sortOrder]);
+  }, [currentPage, pageSize, sortOrder, filterStatus, searchTerm]);
+  
 
   useEffect(() => {
     fetchContests();
@@ -56,13 +58,17 @@ export default function ContestPage() {
         <Container maxW="7xl" py={12} px={0}>
           <UpcomingContests />
           <Grid templateColumns={{ base: '1fr', md: '3.2fr 1fr' }} gap={8} alignItems="stretch">
-            <ContestTableUser 
-              contests={contests} 
-              loading={loading} 
-              sortOrder={sortOrder} 
-              onSortStatusChange={handleSortStatusChange}
-              onRefresh={handleRefresh}  
-            />
+          <ContestTableUser
+            contests={contests}
+            loading={loading}
+            sortOrder={sortOrder}
+            onSortStatusChange={handleSortStatusChange}
+            onRefresh={handleRefresh}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            filterStatus={filterStatus}
+            setFilterStatus={setFilterStatus}
+          />
             <Box alignSelf="start">
               <RankingTable />
             </Box>

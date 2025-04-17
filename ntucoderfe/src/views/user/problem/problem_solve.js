@@ -108,7 +108,7 @@ const ProblemSolver = () => {
           direction="horizontal"
         >
           {/* Tabs: Bài tập, Xếp hạng, Thảo luận */}
-          <Box width="40%" overflowY="auto">
+          <Box width="40%" overflowY="auto" sx={customScrollbarStyle}>
             <Tabs variant="unstyled">
               <TabList
                 width="100%"
@@ -202,5 +202,18 @@ const ProblemSolver = () => {
     </Box>
   );
 };
-
+const customScrollbarStyle = {
+  '&::-webkit-scrollbar': {
+    width: '10px',
+    backgroundColor: '#f0f0f0',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    borderRadius: '5px',
+    backgroundColor: '#888',
+    border: '2px solid #f0f0f0',
+  },
+  '&::-webkit-scrollbar-thumb:hover': {
+    backgroundColor: '#555',
+  },
+};
 export default ProblemSolver;

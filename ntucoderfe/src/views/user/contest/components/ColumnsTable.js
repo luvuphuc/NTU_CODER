@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   Thead,
@@ -23,25 +23,41 @@ import { Link as RouterLink } from 'react-router-dom';
 import Card from 'components/card/Card';
 
 const ContestTableUser = React.memo(
-  ({ contests, loading, sortOrder, onSortStatusChange, onRefresh }) => {
-    const [filterStatus, setFilterStatus] = useState('all');
-    const [searchTerm, setSearchTerm] = useState('');
+  ({
+    contests,
+    loading,
+    sortOrder,
+    onSortStatusChange,
+    onRefresh,
+    searchTerm,
+    setSearchTerm,
+    filterStatus,
+    setFilterStatus,
+  }) => {
+    const handleSearchChange = (e) => {
+      setSearchTerm(e.target.value);
+    };
+
+    const handleStatusChange = (e) => {
+      setFilterStatus(e.target.value);
+    };
+
+    useEffect(() => {
+      const delayDebounce = setTimeout(() => {
+        onRefresh();
+      }, 500);
+
+      return () => clearTimeout(delayDebounce);
+    }, [searchTerm, filterStatus]);
+
     const contestStats = {
       total: contests.length,
       ongoing: contests.filter((c) => c.status === 1).length,
       upcoming: contests.filter((c) => c.status === 2).length,
       ended: contests.filter((c) => c.status === 0).length,
     };
-    const filteredContests = contests.filter((contest) => {
-      const matchStatus =
-        filterStatus === 'all' || contest.status.toString() === filterStatus;
-      const matchSearch = contest.contestName
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      return matchStatus && matchSearch;
-    });
     return (
-      <Card w="100%" p={4} h="full">
+      <Card w="100%" p={4} h="600px">
         <Box mb={4}>
           <Text fontSize="2xl" align="center" fontWeight="bold">
             CÁC CUỘC THI
@@ -61,14 +77,14 @@ const ContestTableUser = React.memo(
           <Input
             placeholder="Tìm kiếm contest..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearchChange}
             maxW="300px"
           />
           <HStack spacing={4}>
             <Select
               maxW="200px"
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
+              onChange={handleStatusChange}
             >
               <option value="all">Tất cả</option>
               <option value="1">Đang diễn ra</option>
@@ -78,7 +94,11 @@ const ContestTableUser = React.memo(
             <IconButton
               aria-label="Refresh table"
               icon={<RepeatIcon />}
-              onClick={onRefresh}
+              onClick={() => {
+                setSearchTerm('');
+                setFilterStatus('all');
+                onRefresh();
+              }}
               variant="outline"
             />
           </HStack>
@@ -89,65 +109,71 @@ const ContestTableUser = React.memo(
             <Spinner size="xl" color="blue.500" />
           </Flex>
         ) : (
-          <TableContainer>
-            <Table variant="striped">
-              <Thead>
-                <Tr>
-                  <Th>Tên Contest</Th>
-                  <Th>Thời gian bắt đầu</Th>
-                  <Th>Thời gian kết thúc</Th>
-                  <Th>Người tham gia</Th>
-                  <Th>
-                    <Flex align="center">
-                      <Text>Trạng thái</Text>
-                      <Box ml={2} cursor="pointer" onClick={onSortStatusChange}>
-                        {sortOrder === 'asc' ? (
-                          <ArrowUpIcon boxSize={4} />
-                        ) : (
-                          <ArrowDownIcon boxSize={4} />
-                        )}
-                      </Box>
-                    </Flex>
-                  </Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {filteredContests.map((contest) => (
-                  <Tr key={contest.contestID}>
-                    <Td>
-                      <Link
-                        as={RouterLink}
-                        to={`/contest/${contest.id}`}
-                        color="blue.500"
-                      >
-                        {contest.contestName}
-                      </Link>
-                    </Td>
-                    <Td>{formatDateTime(contest.startTime)}</Td>
-                    <Td>{formatDateTime(contest.endTime)}</Td>
-                    <Td>{contest.participants || 0}</Td>
-                    <Td>
-                      <Badge
-                        colorScheme={
-                          contest.status === 1
-                            ? 'green'
-                            : contest.status === 2
-                            ? 'yellow'
-                            : 'red'
-                        }
-                      >
-                        {contest.status === 1
-                          ? 'Đang diễn ra'
-                          : contest.status === 2
-                          ? 'Sắp diễn ra'
-                          : 'Đã kết thúc'}
-                      </Badge>
-                    </Td>
+          <Box flex="1" overflowY="auto" sx={customScrollbarStyle}>
+            <TableContainer>
+              <Table variant="striped">
+                <Thead>
+                  <Tr>
+                    <Th>Tên Contest</Th>
+                    <Th>Thời gian bắt đầu</Th>
+                    <Th>Thời gian kết thúc</Th>
+                    <Th>Người tham gia</Th>
+                    <Th>
+                      <Flex align="center">
+                        <Text>Trạng thái</Text>
+                        <Box
+                          ml={2}
+                          cursor="pointer"
+                          onClick={onSortStatusChange}
+                        >
+                          {sortOrder === 'asc' ? (
+                            <ArrowUpIcon boxSize={4} />
+                          ) : (
+                            <ArrowDownIcon boxSize={4} />
+                          )}
+                        </Box>
+                      </Flex>
+                    </Th>
                   </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          </TableContainer>
+                </Thead>
+                <Tbody>
+                  {contests.map((contest) => (
+                    <Tr key={contest.contestID}>
+                      <Td>
+                        <Link
+                          as={RouterLink}
+                          to={`/contest/${contest.id}`}
+                          color="blue.500"
+                        >
+                          {contest.contestName}
+                        </Link>
+                      </Td>
+                      <Td>{formatDateTime(contest.startTime)}</Td>
+                      <Td>{formatDateTime(contest.endTime)}</Td>
+                      <Td>{contest.participants || 0}</Td>
+                      <Td>
+                        <Badge
+                          colorScheme={
+                            contest.status === 1
+                              ? 'green'
+                              : contest.status === 2
+                              ? 'yellow'
+                              : 'red'
+                          }
+                        >
+                          {contest.status === 1
+                            ? 'Đang diễn ra'
+                            : contest.status === 2
+                            ? 'Sắp diễn ra'
+                            : 'Đã kết thúc'}
+                        </Badge>
+                      </Td>
+                    </Tr>
+                  ))}
+                </Tbody>
+              </Table>
+            </TableContainer>
+          </Box>
         )}
       </Card>
     );
@@ -166,5 +192,18 @@ function formatDateTime(dateTime) {
     hour12: false,
   })}`;
 }
-
+const customScrollbarStyle = {
+  '&::-webkit-scrollbar': {
+    width: '10px',
+    backgroundColor: '#f0f0f0',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    borderRadius: '5px',
+    backgroundColor: '#888',
+    border: '2px solid #f0f0f0',
+  },
+  '&::-webkit-scrollbar-thumb:hover': {
+    backgroundColor: '#555',
+  },
+};
 export default ContestTableUser;
