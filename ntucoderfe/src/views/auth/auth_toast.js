@@ -21,18 +21,7 @@ const AuthToast = () => {
         <IoIosAlert />
       </Box>
       <Text fontSize="sm" color="white">
-        Please{' '}
-        <Box
-          as="span"
-          color="yellow"
-          fontWeight="bold"
-          cursor="pointer"
-          onClick={() => navigate('/register')}
-          _hover={{ textDecoration: 'underline', color: 'yellow.300' }}
-        >
-          Register
-        </Box>{' '}
-        or{' '}
+        Vui lòng{' '}
         <Box
           as="span"
           color="yellow"
@@ -41,7 +30,18 @@ const AuthToast = () => {
           onClick={() => navigate('/login')}
           _hover={{ textDecoration: 'underline', color: 'yellow.300' }}
         >
-          Sign in
+          Đăng nhập
+        </Box>{' '}
+        hoặc{' '}
+        <Box
+          as="span"
+          color="yellow"
+          fontWeight="bold"
+          cursor="pointer"
+          onClick={() => navigate('/register')}
+          _hover={{ textDecoration: 'underline', color: 'yellow.300' }}
+        >
+          Đăng ký
         </Box>
         .
       </Text>
