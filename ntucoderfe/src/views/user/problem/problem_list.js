@@ -397,7 +397,7 @@ export default function ProblemPage() {
                   placeholder="Chọn thể loại"
                   style={{
                     chips: {
-                      background: '#718096',
+                      background: '#0096fb',
                       borderRadius: '5px',
                       fontSize: '14px',
                       padding: '5px 10px',
