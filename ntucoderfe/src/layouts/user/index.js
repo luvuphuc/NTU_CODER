@@ -31,9 +31,15 @@ function LayoutUser({ children }) {
     <Box>
       <MemoizedHeader hideHeader={hideHeader} />
       <MemoizedNavigation hideHeader={hideHeader} />
-      <Box as="main" pt="130px">
+      <Box
+        as="main"
+        pt="130px"
+        flex="1"
+        minHeight="calc(100vh - 130px - FOOTER_HEIGHT)"
+      >
         {children}
       </Box>
+
       <MemoizedFooter />
     </Box>
   );
