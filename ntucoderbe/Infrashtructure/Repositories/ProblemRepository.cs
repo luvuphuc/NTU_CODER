@@ -47,15 +47,22 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     p.ProblemCategories.Count(pc => catList.Contains(pc.CategoryID)) == catList.Length);
             }
 
-            if (isSolved.HasValue && coderID.HasValue)
+            if (isSolved.HasValue)
             {
-                if (isSolved.Value)
+                if (!coderID.HasValue)
                 {
-                    baseQuery = baseQuery.Where(p => p.Solveds.Any(sol => sol.CoderID == coderID.Value));
+                    baseQuery = _context.Problems.Where(p => false);
                 }
                 else
                 {
-                    baseQuery = baseQuery.Where(p => !p.Solveds.Any(sol => sol.CoderID == coderID.Value));
+                    if (isSolved.Value)
+                    {
+                        baseQuery = baseQuery.Where(p => p.Solveds.Any(sol => sol.CoderID == coderID.Value));
+                    }
+                    else
+                    {
+                        baseQuery = baseQuery.Where(p => !p.Solveds.Any(sol => sol.CoderID == coderID.Value));
+                    }
                 }
             }
 
