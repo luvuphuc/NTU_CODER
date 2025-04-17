@@ -32,7 +32,7 @@ namespace ntucoderbe.Controllers
             try
             {
                 var created = await _repository.CreateHasProblemAsync(dto);
-                return CreatedAtAction(nameof(GetHasProblemById), new { id = created.HasProblemID }, created);
+                return Ok();
             }
             catch (InvalidOperationException ex)
             {
@@ -69,7 +69,7 @@ namespace ntucoderbe.Controllers
         public async Task<IActionResult> GetHasProblemCount(int contestId)
         {
             var count = await _repository.GetTotalHasProblemByContestIdAsync(contestId);
-            return Ok(new { TotalTestCases = count });
+            return Ok(new { count = count });
         }
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteHasProblem(int id)

@@ -3,6 +3,7 @@ using ntucoderbe.DTOs;
 using ntucoderbe.Models.ERD;
 using ntucoderbe.Models;
 using Microsoft.EntityFrameworkCore;
+using FluentValidation;
 
 namespace ntucoderbe.Infrashtructure.Repositories
 {
@@ -54,24 +55,35 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
         public async Task<HasProblemDTO> CreateHasProblemAsync(HasProblemDTO dto)
         {
-            if (dto.ProblemID is null || dto.ContestID is null)
-            {
-                throw new ArgumentNullException(nameof(dto), "ProblemID và ContestID không được để trống.");
 
+            if (dto.ProblemID.HasValue)
+            {
+                if (await IsProblemExistAsync(dto.ProblemID!.Value, dto.ContestID))
+                {
+                    throw new InvalidOperationException("Bài tập đã tồn tại");
+                }
             }
+            else
+            {
+                throw new ArgumentNullException("ProblemID hoặc ContestID bị thiếu");
+            }
+
             var obj = new HasProblem
             {
-                ProblemID = (int)dto.ProblemID!,
-                ContestID = (int)dto.ContestID!,
-                ProblemOrder = dto.ProblemOrder ?? 0,
+                ContestID = dto.ContestID,
+                ProblemID = dto.ProblemID ?? 0,
                 Point = dto.Point ?? 0,
+                ProblemOrder = dto.ProblemOrder ?? 0,
             };
 
             _context.HasProblems.Add(obj);
             await _context.SaveChangesAsync();
             return dto;
         }
-
+        public async Task<bool> IsProblemExistAsync(int problemId, int contestId)
+        {
+            return await _context.HasProblems.AnyAsync(p => p.ProblemID == problemId && p.ContestID == contestId);
+        }
         public async Task<HasProblemDTO> GetHasProblemByIdAsync(int id)
         {
             var obj = await _context.HasProblems.Include(o => o.Problem).Include(o => o.Contest).FirstOrDefaultAsync(o => o.HasProblemID == id);
@@ -100,8 +112,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 throw new KeyNotFoundException("Không tìm thấy.");
             }
             obj.ProblemOrder = dto.ProblemOrder ?? obj.ProblemOrder;
-            obj.ProblemID = dto.ProblemID ?? obj.ProblemID;
-            obj.ContestID = dto.ContestID ?? obj.ContestID;
             obj.Point = dto.Point ?? obj.Point;
             _context.HasProblems.Update(obj);
             await _context.SaveChangesAsync();
