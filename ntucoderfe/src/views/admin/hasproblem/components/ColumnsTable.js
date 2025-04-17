@@ -11,6 +11,7 @@ import {
   Thead,
   Tr,
   useColorMode,
+  useColorModeValue,
   useToast,
   Modal,
   ModalOverlay,
@@ -21,6 +22,7 @@ import {
   ModalFooter,
   useDisclosure,
   Input,
+  Switch,
 } from '@chakra-ui/react';
 import { BiSort, BiEdit } from 'react-icons/bi';
 import { MdDelete } from 'react-icons/md';
@@ -31,8 +33,9 @@ import {
   AiOutlineSortAscending,
   AiOutlineSortDescending,
 } from 'react-icons/ai';
+import UpdateHasProblemModal from './Update';
 
-export default function CategoryTable({
+export default function HasProblemTable({
   tableData,
   onSort,
   sortField,
@@ -43,6 +46,7 @@ export default function CategoryTable({
   const textColor = colorMode === 'light' ? 'black' : 'white';
   const borderColor = colorMode === 'light' ? 'gray.200' : 'whiteAlpha.300';
   const toast = useToast();
+  const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isEditOpen,
@@ -50,30 +54,23 @@ export default function CategoryTable({
     onClose: onEditClose,
   } = useDisclosure();
   const [loading, setLoading] = useState(false);
-  const [currentcategoryID, setCurrentcategoryID] = useState(null);
+  const [currentHasProblemID, setCurrentHasProblemID] = useState(null);
 
-  const [editData, setEditData] = useState({
-    categoryID: '',
-    catName: '',
-    catOrder: '',
-  });
-  const handleEditClick = (row) => {
-    setEditData(row);
+  const handleEditClick = (hasProblemID) => {
+    setCurrentHasProblemID(hasProblemID);
     onEditOpen();
   };
-  const handleChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
-  };
+
   const handleDeleteClick = async () => {
     try {
       setLoading(true);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const response = await api.delete(`/Category/${currentcategoryID}`);
+      const response = await api.delete(`/HasProblem/${currentHasProblemID}`);
       if (response.status === 200) {
         toast({
           title: 'Xóa thành công!',
-          description: 'Thể loại đã bị xóa.',
+          description: 'Bài tập đã bị xóa.',
           status: 'success',
           duration: 5000,
           isClosable: true,
@@ -97,41 +94,7 @@ export default function CategoryTable({
       setLoading(false);
     }
   };
-  const handleUpdateCategory = async () => {
-    try {
-      setLoading(true);
-      const response = await api.put(`/Category/${editData.categoryID}`, {
-        catName: editData.catName,
-        catOrder: editData.catOrder,
-      });
 
-      if (response.status === 200) {
-        toast({
-          title: 'Cập nhật thành công!',
-          description: 'Thể loại đã được cập nhật.',
-          status: 'success',
-          duration: 5000,
-          isClosable: true,
-          position: 'top-right',
-        });
-        onEditClose();
-        refetchData();
-      } else {
-        throw new Error('Có lỗi xảy ra khi cập nhật');
-      }
-    } catch (error) {
-      toast({
-        title: 'Lỗi',
-        description: error.message || 'Có lỗi xảy ra khi cập nhật.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-        position: 'top-right',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
   const columnsData = [
     {
       Header: 'STT',
@@ -140,12 +103,16 @@ export default function CategoryTable({
       minWidth: '20px',
     },
     {
-      Header: 'Tên thể loại',
-      accessor: 'catName',
+      Header: 'Tên bài tập',
+      accessor: 'problemName',
     },
     {
-      Header: 'Sắp xếp',
-      accessor: 'catOrder',
+      Header: 'Điểm',
+      accessor: 'point',
+    },
+    {
+      Header: 'Thứ tự',
+      accessor: 'problemOrder',
     },
     {
       Header: '',
@@ -158,7 +125,7 @@ export default function CategoryTable({
             colorScheme="blue"
             borderRadius="md"
             minW="auto"
-            onClick={() => handleEditClick(row)}
+            onClick={() => handleEditClick(row.hasProblemID)}
           >
             <BiEdit size="18" />
           </Button>
@@ -169,7 +136,7 @@ export default function CategoryTable({
             borderRadius="md"
             minW="auto"
             onClick={() => {
-              setCurrentcategoryID(row.categoryID);
+              setCurrentHasProblemID(row.hasProblemID);
               onOpen();
             }}
           >
@@ -181,7 +148,7 @@ export default function CategoryTable({
   ];
 
   const renderSortIcon = (field) => {
-    if (sortField !== field) return <BiSort size="18px" />;
+    if (sortField !== field) return <AiOutlineSortAscending size="20px" />;
     return ascending ? (
       <Box as="span" fontWeight="bold">
         <AiOutlineSortAscending size="20px" />
@@ -192,6 +159,7 @@ export default function CategoryTable({
       </Box>
     );
   };
+
   return (
     <>
       <Card
@@ -224,8 +192,7 @@ export default function CategoryTable({
                       >
                         {column.Header}
                       </Text>
-                      {/* Sorting icon is enabled only for the "CatOrder" column */}
-                      {column.accessor === 'CatOrder' && onSort && (
+                      {column.accessor === 'problemOrder' && onSort && (
                         <Box
                           onClick={() => onSort(column.accessor)}
                           cursor="pointer"
@@ -293,48 +260,14 @@ export default function CategoryTable({
           </ModalFooter>
         </ModalContent>
       </Modal>
-      <Modal isOpen={isEditOpen} onClose={onEditClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Chỉnh sửa thể loại</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Box mb={4}>
-              <Text fontSize="sm" mb={1}>
-                Tên thể loại
-              </Text>
-              <Input
-                name="catName"
-                value={editData.catName}
-                onChange={handleChange}
-              />
-            </Box>
-            <Box mb={4}>
-              <Text fontSize="sm" mb={1}>
-                Sắp xếp
-              </Text>
-              <Input
-                name="catOrder"
-                type="number"
-                value={editData.catOrder}
-                onChange={handleChange}
-              />
-            </Box>
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="gray" onClick={onEditClose}>
-              Hủy
-            </Button>
-            <Button
-              colorScheme="blue"
-              isLoading={loading}
-              onClick={handleUpdateCategory}
-            >
-              Lưu
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      {currentHasProblemID !== null && (
+        <UpdateHasProblemModal
+          isOpen={isEditOpen}
+          onClose={onEditClose}
+          hasProblemID={currentHasProblemID}
+          refetchData={refetchData}
+        />
+      )}
     </>
   );
 }

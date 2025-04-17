@@ -8,16 +8,6 @@ import { SidebarContext } from 'contexts/SidebarContext';
 import React, { useState } from 'react';
 import { Navigate, Route, Routes,Outlet } from 'react-router-dom';
 import routes from 'routes.js';
-import CreateCoder from 'views/admin/coder/components/Create';
-import CoderIndex from 'views/admin/coder';
-import CoderDetail from 'views/admin/coder/components/Detail';
-import CategoryIndex from 'views/admin/category';
-import ProblemIndex from 'views/admin/problem';
-import ProblemDetail from 'views/admin/problem/components/Detail';
-import ProblemCreate from 'views/admin/problem/components/Create';
-import CompilerIndex from 'views/admin/compiler';
-import ProtectedRoute from 'views/admin/protectedRoute';
-import TestCaseIndex from 'views/admin/testcase';
   // Custom Chakra theme
   export default function Dashboard(props) {
     const { ...rest } = props;

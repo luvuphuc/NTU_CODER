@@ -258,7 +258,6 @@ export default function ProblemPage() {
           </Link>
         </Card>
 
-        {/* Icon tim góc phải giữa */}
         <Box
           position="absolute"
           right="16px"

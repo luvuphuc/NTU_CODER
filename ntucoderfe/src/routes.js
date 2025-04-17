@@ -23,6 +23,7 @@ import HomePage from 'views/user/homepage';
 import ContestPage from 'views/user/contest';
 import SubmissionPage from 'views/user/submission';
 import ContestDetailPage from 'views/user/contest/components/Contest_Detail';
+import HasProblemIndex from 'views/admin/hasproblem';
 const routes = [
   {
     name: 'Người dùng',
@@ -96,6 +97,13 @@ const routes = [
     path: 'testcase/:problemID',
     hidden: true,
     component: <TestCaseIndex />,
+  },
+  {
+    name: 'HasProblem',
+    layout: '/admin',
+    path: 'hasproblem/:contestID',
+    hidden: true,
+    component: <HasProblemIndex />,
   },
   {
     name: 'Trình biên dịch',

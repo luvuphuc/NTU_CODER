@@ -48,7 +48,7 @@ export default function ContestTable({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(false);
   const [currentcontestID, setCurrentcontestID] = useState(null);
-  const [testCaseCounts, setTestCaseCounts] = useState({});
+  const [problemCount, setProblemCounts] = useState({});
   const handleDetailClick = (contestID) => {
     navigate(`/admin/contest/detail/${contestID}`);
   };
@@ -170,6 +170,17 @@ export default function ContestTable({
       accessor: 'coderName',
     },
     {
+      Header: 'Bài tập',
+      accessor: 'problemCount',
+      Cell: ({ row }) => (
+        <Link to={`/admin/hasproblem/${row.contestID}`}>
+          <Text color="blue">
+            {problemCount[row.contestID] + ' bài' ?? 'Đang tải...'}
+          </Text>
+        </Link>
+      ),
+    },
+    {
       Header: 'Trạng thái',
       accessor: 'status',
       Cell: ({ row }) => {
@@ -251,6 +262,26 @@ export default function ContestTable({
       </Box>
     );
   };
+  useEffect(() => {
+    const fetchProblemCounts = async () => {
+      try {
+        const counts = {};
+        for (const contest of tableData) {
+          const response = await api.get(
+            `/HasProblem/count?contestId=${contest.contestID}`,
+          );
+          counts[contest.contestID] = response.data.count || 0;
+        }
+        setProblemCounts(counts);
+      } catch (error) {
+        console.error('Lỗi khi lấy số lượng problem:', error);
+      }
+    };
+
+    if (tableData.length > 0) {
+      fetchProblemCounts();
+    }
+  }, [tableData]);
 
   return (
     <>
