@@ -10,7 +10,7 @@ const ProblemTab = ({ problem }) => {
       </Text>
       <Text fontWeight="bold">Nội dung bài toán:</Text>
       <Box
-        maxWidth="100%" // Giới hạn chiều rộng
+        maxWidth="100%"
         p={3}
         bg="gray.200"
         borderRadius="md"

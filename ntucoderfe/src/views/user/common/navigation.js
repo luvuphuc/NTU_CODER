@@ -19,12 +19,15 @@ import { Link, useLocation } from 'react-router-dom';
 import { SearchIcon, HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 import routes from 'routes.js';
 import { useState, useEffect } from 'react';
-
+import api from 'utils/api';
+import SearchResultDropdown from './SearchResult';
+import { LuSearchCode } from 'react-icons/lu';
 export default function Navigation({ hideHeader }) {
   const location = useLocation();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isScrolled, setIsScrolled] = useState(false);
-
+  const [searchString, setSearchString] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 70);
@@ -33,6 +36,26 @@ export default function Navigation({ hideHeader }) {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+  useEffect(() => {
+    const fetchResults = async () => {
+      if (searchString.trim() === '') {
+        setSearchResults([]);
+        return;
+      }
+
+      try {
+        const response = await api.get('/Search', {
+          params: { searchString: searchString.trim() },
+        });
+        setSearchResults(response.data);
+      } catch (error) {
+        console.error('Lỗi tìm kiếm:', error);
+      }
+    };
+
+    const delayDebounce = setTimeout(fetchResults, 300);
+    return () => clearTimeout(delayDebounce);
+  }, [searchString]);
 
   return (
     <motion.div
@@ -95,19 +118,21 @@ export default function Navigation({ hideHeader }) {
                 })}
             </Stack>
 
-            {/* Search Input (Desktop Only) */}
-            <InputGroup maxW="250px" display={{ base: 'none', md: 'block' }}>
-              <Input placeholder="Tìm kiếm..." bg="white" color="black" />
-              <InputRightElement>
-                <IconButton
-                  aria-label="Tìm kiếm"
-                  icon={<SearchIcon />}
-                  size="sm"
-                  bg="transparent"
-                  _hover={{ bg: 'gray.200' }}
+            <Box position="relative">
+              <InputGroup w="250px">
+                <Input
+                  placeholder="Tìm kiếm..."
+                  bg="white"
+                  borderRadius="md"
+                  value={searchString}
+                  onChange={(e) => setSearchString(e.target.value)}
                 />
-              </InputRightElement>
-            </InputGroup>
+                <InputRightElement pointerEvents="none">
+                  <LuSearchCode color="gray.500" />
+                </InputRightElement>
+              </InputGroup>
+              <SearchResultDropdown searchResults={searchResults} />
+            </Box>
           </Flex>
         </Box>
 
