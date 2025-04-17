@@ -1,4 +1,5 @@
 ﻿using AddressManagementSystem.Infrashtructure.Helpers;
+using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using ntucoderbe.DTOs;
 using ntucoderbe.Infrashtructure.Services;
@@ -18,7 +19,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             _context = context;
         }
 
-        public async Task<PagedResponse<ContestDTO>> GetAllContestsAsync(QueryObject query, string? sortField = null, bool ascending = true, bool published = false)
+        public async Task<PagedResponse<ContestDTO>> GetAllContestsAsync(QueryObject query, string? sortField = null, bool ascending = true, bool published = false, int? status = null,string? searchString = null)
         {
             await UpdateContestStatusesAsync();
             var contestQuery = _context.Contest
@@ -39,6 +40,15 @@ namespace ntucoderbe.Infrashtructure.Repositories
             {
                 contestQuery = contestQuery.Where(c => c.Published == 1);
             }
+            if (!string.IsNullOrWhiteSpace(searchString))
+            {
+                contestQuery = contestQuery.Where(c => c.ContestName!.ToLower().Contains(searchString.ToLower()));
+            }
+            if (status.HasValue)
+            {
+                contestQuery = contestQuery.Where(c => c.Status == status.Value);
+            }
+
             contestQuery = ApplySorting(contestQuery, sortField, ascending);
             var contests = await PagedResponse<ContestDTO>.CreateAsync(contestQuery, query.Page, query.PageSize);
             return contests;
