@@ -21,6 +21,8 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import api from 'utils/api';
 import moment from 'moment-timezone';
+import FullPageSpinner from 'components/spinner/FullPageSpinner';
+
 const ContestDetail = () => {
   const { id } = useParams();
   const [contestDetail, setContestDetail] = useState(null);
@@ -49,13 +51,35 @@ const ContestDetail = () => {
     fetchContestDetail();
   }, [id]);
 
+  const utcToLocalDatetime = (utcTime) => {
+    if (!utcTime) return '';
+    return moment.utc(utcTime).local().format('YYYY-MM-DDTHH:mm');
+  };
+
+  const localDatetimeToUtc = (localTime) => {
+    if (!localTime) return null;
+    return moment(localTime).utc().format();
+  };
+
   const handleEdit = (field) => {
+    if (editField && editField !== field) {
+      setContestDetail((prev) => ({
+        ...prev,
+        [editField]: editableValues[editField],
+      }));
+    }
     setEditField(field);
   };
 
   const handleInputChange = (field, value) => {
-    setEditableValues((prev) => ({ ...prev, [field]: value }));
-    setContestDetail((prev) => ({ ...prev, [field]: value }));
+    if (['startTime', 'endTime', 'frozenTime'].includes(field)) {
+      const utcValue = localDatetimeToUtc(value);
+      setEditableValues((prev) => ({ ...prev, [field]: utcValue }));
+      setContestDetail((prev) => ({ ...prev, [field]: utcValue }));
+    } else {
+      setEditableValues((prev) => ({ ...prev, [field]: value }));
+      setContestDetail((prev) => ({ ...prev, [field]: value }));
+    }
   };
 
   const handleSave = async () => {
@@ -74,7 +98,6 @@ const ContestDetail = () => {
       });
     } catch (error) {
       console.error('Lỗi cập nhật:', error);
-
       let errorMessage =
         'Đã xảy ra lỗi khi cập nhật. Vui lòng kiểm tra lại thông tin.';
 
@@ -94,8 +117,14 @@ const ContestDetail = () => {
   };
 
   if (!contestDetail) {
-    return <Text textAlign="center">Đang tải dữ liệu...</Text>;
+    return <FullPageSpinner />;
   }
+
+  // Hàm định dạng hiển thị thời gian
+  const formatDisplayTime = (time) => {
+    if (!time) return 'Chưa có';
+    return moment.utc(time).local().format('DD/MM/YYYY HH:mm');
+  };
 
   return (
     <Box pt="100px" px="25px">
@@ -150,11 +179,10 @@ const ContestDetail = () => {
                           field.includes('Time') ? 'datetime-local' : 'text'
                         }
                         value={
-                          field.includes('Time') && editableValues[field]
-                            ? moment
-                                .utc(editableValues[field])
-                                .tz('Asia/Ho_Chi_Minh')
-                                .format('YYYY-MM-DDTHH:mm')
+                          field === 'contestName'
+                            ? editableValues[field] || ''
+                            : field.includes('Time')
+                            ? utcToLocalDatetime(editableValues[field])
                             : editableValues[field] || ''
                         }
                         onChange={(e) =>
@@ -164,11 +192,8 @@ const ContestDetail = () => {
                       />
                     ) : (
                       <Text>
-                        {field.includes('Time') && contestDetail[field]
-                          ? moment
-                              .utc(contestDetail[field])
-                              .tz('Asia/Ho_Chi_Minh')
-                              .format('DD/MM/YYYY HH:mm')
+                        {field.includes('Time')
+                          ? formatDisplayTime(contestDetail[field])
                           : contestDetail[field] || 'Chưa có'}
                       </Text>
                     )}
@@ -181,17 +206,16 @@ const ContestDetail = () => {
                   </Flex>
                 ),
               )}
+
               <Flex justify="space-between" align="center" mb={3}>
                 <Text fontWeight="bold">Quá trình xếp hạng:</Text>
 
                 {editField === 'rankingFinished' ? (
                   <Select
-                    value={editableValues.rankingFinished || ''}
-                    onChange={async (e) => {
-                      const value = e.target.value;
-                      handleInputChange('rankingFinished', value);
-                      await handleSave(); // Gọi API lưu ngay lập tức
-                    }}
+                    value={editableValues.rankingFinished ?? ''}
+                    onChange={(e) =>
+                      handleInputChange('rankingFinished', e.target.value)
+                    }
                     w="60%"
                   >
                     <option value="0">Chưa hoàn thành</option>
@@ -199,7 +223,7 @@ const ContestDetail = () => {
                   </Select>
                 ) : (
                   <Text>
-                    {contestDetail.rankingFinished === '1'
+                    {contestDetail.rankingFinished == '1'
                       ? 'Hoàn thành'
                       : 'Chưa hoàn thành'}
                   </Text>
@@ -227,14 +251,10 @@ const ContestDetail = () => {
                 <Text fontWeight="bold">Hình thức kiểm tra:</Text>
                 {editField === 'ruleType' ? (
                   <Select
-                    value={
-                      editableValues.ruleType || contestDetail.ruleType || ''
+                    value={editableValues.ruleType ?? ''}
+                    onChange={(e) =>
+                      handleInputChange('ruleType', e.target.value)
                     }
-                    onChange={async (e) => {
-                      const value = e.target.value;
-                      handleInputChange('ruleType', value);
-                      await handleSave(); // Gọi API lưu ngay lập tức
-                    }}
                     w="60%"
                   >
                     <option value="ACM Rule">ACM Rule</option>

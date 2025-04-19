@@ -6,7 +6,7 @@ import RankingTable from './components/RankingsTable';
 import Pagination from 'components/pagination/pagination';
 import api from 'utils/api';
 import UpcomingContests from './components/UpcomingContest';
-
+import OnGoingContests from './components/OnGoingContest';
 export default function ContestPage() {
   const [contests, setContests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -57,6 +57,7 @@ export default function ContestPage() {
       <Box>
         <Container maxW="7xl" py={12} px={0}>
           <UpcomingContests />
+          <OnGoingContests contests={contests.filter((c) => c.status === 1)} />
           <Grid templateColumns={{ base: '1fr', md: '3.2fr 1fr' }} gap={8} alignItems="stretch">
           <ContestTableUser
             contests={contests}

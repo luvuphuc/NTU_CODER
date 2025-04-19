@@ -14,7 +14,7 @@ import api from 'utils/api';
 import { LuClock } from 'react-icons/lu';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-
+import moment from 'moment-timezone';
 const MotionBox = motion(Box);
 
 const UpcomingContests = () => {
@@ -89,7 +89,10 @@ const ContestCard = ({ contest }) => {
     return () => clearInterval(interval);
   }, [contest.startTime]);
 
-  const isStarted = new Date(contest.startTime) - new Date() <= 0;
+  const isStarted = moment().isSameOrAfter(
+    moment.utc(contest.startTime).tz('Asia/Ho_Chi_Minh'),
+  );
+
   const pad = (num) => String(num).padStart(2, '0');
 
   return (
@@ -201,26 +204,27 @@ const CountdownBox = ({ value, label }) => {
 };
 
 function formatDateTime(dateTime) {
-  const date = new Date(dateTime);
-  return `${date.toLocaleDateString('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  })} - ${date.toLocaleTimeString('vi-VN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  })}`;
+  return moment
+    .utc(dateTime)
+    .tz('Asia/Ho_Chi_Minh')
+    .format('DD-MM-YYYY - HH:mm');
 }
 
 function getTimeRemainingValues(startTime) {
-  const total = new Date(startTime) - new Date();
-  if (total <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-  const seconds = Math.floor((total / 1000) % 60);
-  const minutes = Math.floor((total / 1000 / 60) % 60);
-  const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
-  const days = Math.floor(total / (1000 * 60 * 60 * 24));
-  return { days, hours, minutes, seconds };
+  const now = moment.tz('Asia/Ho_Chi_Minh');
+  const start = moment.utc(startTime).tz('Asia/Ho_Chi_Minh');
+  const duration = moment.duration(start.diff(now));
+
+  if (duration.asMilliseconds() <= 0) {
+    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+  }
+
+  return {
+    days: Math.floor(duration.asDays()),
+    hours: duration.hours(),
+    minutes: duration.minutes(),
+    seconds: duration.seconds(),
+  };
 }
 
 export default UpcomingContests;

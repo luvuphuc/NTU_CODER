@@ -297,10 +297,9 @@ const ProblemDetail = () => {
                 {editField === 'testCompilerID' ? (
                   <Select
                     value={editableValues.testCompilerID || ''}
-                    onChange={(e) => {
-                      handleInputChange('testCompilerID', e.target.value);
-                      handleSave();
-                    }}
+                    onChange={(e) =>
+                      handleInputChange('testCompilerID', e.target.value)
+                    }
                     w="60%"
                   >
                     {compilers.map((compiler) => (
@@ -342,10 +341,9 @@ const ProblemDetail = () => {
                 {editField === 'testType' ? (
                   <Select
                     value={editableValues.testType || ''}
-                    onChange={(e) => {
-                      handleInputChange('testType', e.target.value);
-                      handleSave();
-                    }}
+                    onChange={(e) =>
+                      handleInputChange('testType', e.target.value)
+                    }
                     onKeyDown={handleKeyDown}
                     w="60%"
                   >
