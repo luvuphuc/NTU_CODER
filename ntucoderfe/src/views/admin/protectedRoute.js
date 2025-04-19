@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import api from 'utils/api';
+import FullPageSpinner from 'components/spinner/FullPageSpinner';
 
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ const ProtectedRoute = ({ children }) => {
     checkAuth();
   }, []);
 
-  if (isAuthorized === null) return <div>Loading...</div>;
+  if (isAuthorized === null) return <FullPageSpinner />;
   if (!isAuthorized) {
     navigate('/login', { replace: true });
     return null;

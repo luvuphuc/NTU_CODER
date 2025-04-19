@@ -23,7 +23,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 .Where(p => p.ProblemName.ToLower().Contains(searchString))
                 .Select(p => new SearchResultDTO
                 {
-                    Type = "Problem",
+                    Type = "Bài tập",
                     ID = p.ProblemID,
                     Name = p.ProblemName
                 }).ToListAsync();
@@ -32,7 +32,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 .Where(c => c.ContestName.ToLower().Contains(searchString))
                 .Select(c => new SearchResultDTO
                 {
-                    Type = "Contest",
+                    Type = "Kì thi",
                     ID = c.ContestID,
                     Name = c.ContestName
                 }).ToListAsync();

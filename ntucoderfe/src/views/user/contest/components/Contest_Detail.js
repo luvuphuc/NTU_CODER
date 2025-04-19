@@ -27,6 +27,7 @@ import api from 'utils/api';
 import { HiChevronLeft } from 'react-icons/hi';
 import AuthToast from '../../../auth/auth_toast.js';
 import Cookies from 'js-cookie';
+import FullPageSpinner from 'components/spinner/FullPageSpinner.jsx';
 export default function ContestDetailPage() {
   const { id } = useParams();
   const [contest, setContest] = useState(null);
@@ -145,7 +146,7 @@ export default function ContestDetailPage() {
   const formatCountdown = ({ days, hours, minutes, seconds }) =>
     `${days} ngày : ${hours} giờ : ${minutes} phút : ${seconds} giây`;
 
-  if (!contest || !countdown) return <Text>Loading...</Text>;
+  if (!contest || !countdown) return <FullPageSpinner />;
 
   return (
     <LayoutUser>

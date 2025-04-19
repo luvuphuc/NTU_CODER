@@ -51,18 +51,18 @@ export default function SearchResultDropdown({ searchResults }) {
               borderRadius="md"
               overflowX="hidden"
               px="2"
-              py="1"
-              mb="2"
+              pt="3"
+              pb="1"
             >
               {type}
             </Text>
-            <Divider borderWidth="1.5px" borderColor="gray.200" mb="2" />
+            <Divider borderWidth="1.5px" borderColor="gray.200" mb="1" />
             <Stack spacing="1">
               {items.map((item, itemIndex) => (
                 <Link key={`${type}/${item.id}`} to={`/${type}/${item.id}`}>
                   <Box
                     px="3"
-                    py="2"
+                    py="1"
                     borderRadius="md"
                     border="1px solid"
                     borderColor="gray.100"
@@ -83,7 +83,7 @@ export default function SearchResultDropdown({ searchResults }) {
                     </Text>
                   </Box>
                   {itemIndex < items.length - 1 && (
-                    <Divider borderColor="gray.200" />
+                    <Divider borderWidth="1.5px" borderColor="gray.200" />
                   )}
                 </Link>
               ))}

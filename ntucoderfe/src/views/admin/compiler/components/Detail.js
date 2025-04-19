@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Text,
@@ -14,17 +14,18 @@ import {
   IconButton,
   useToast,
   Select,
-} from "@chakra-ui/react";
-import { useParams } from "react-router-dom";
+} from '@chakra-ui/react';
+import { useParams } from 'react-router-dom';
 import moment from 'moment-timezone';
-import api from "utils/api";
-import { useNavigate } from "react-router-dom";
-import { MdOutlineArrowBack, MdEdit } from "react-icons/md";
+import api from 'utils/api';
+import { useNavigate } from 'react-router-dom';
+import { MdOutlineArrowBack, MdEdit } from 'react-icons/md';
+import FullPageSpinner from 'components/spinner/FullPageSpinner';
 
 const genderMapping = {
-  0: "Nam", // Male
-  1: "Nữ", // Female
-  2: "Khác", // Other
+  0: 'Nam', // Male
+  1: 'Nữ', // Female
+  2: 'Khác', // Other
 };
 
 const CoderDetail = () => {
@@ -43,7 +44,7 @@ const CoderDetail = () => {
         setCoderDetail(response.data);
         setEditableValues(response.data);
       } catch (error) {
-        console.error("Đã xảy ra lỗi", error);
+        console.error('Đã xảy ra lỗi', error);
       }
     };
 
@@ -61,45 +62,45 @@ const CoderDetail = () => {
       const updatedValues = { ...prev, [field]: value };
       setCoderDetail((prevCoderDetail) => ({
         ...prevCoderDetail,
-        [field]: value,  
+        [field]: value,
       }));
       return updatedValues;
     });
   };
-  
+
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = async () => {
-        setEditableValues((prev) => ({ ...prev, avatar: reader.result })); 
-        
+        setEditableValues((prev) => ({ ...prev, avatar: reader.result }));
+
         const formData = new FormData();
-        formData.append("CoderID", id);
-        formData.append("AvatarFile", file);
-  
+        formData.append('CoderID', id);
+        formData.append('AvatarFile', file);
+
         try {
           await api.put(`/Coder/${id}/`, formData, {
             headers: {
-              "Content-Type": "multipart/form-data",
+              'Content-Type': 'multipart/form-data',
             },
           });
-  
+
           toast({
-            title: "Cập nhật avatar thành công!",
-            status: "success",
+            title: 'Cập nhật avatar thành công!',
+            status: 'success',
             duration: 3000,
             isClosable: true,
-            position: "top-right"
+            position: 'top-right',
           });
         } catch (error) {
-          console.error("Đã xảy ra lỗi khi cập nhật avatar", error);
+          console.error('Đã xảy ra lỗi khi cập nhật avatar', error);
           toast({
-            title: "Đã xảy ra lỗi khi cập nhật avatar.",
-            status: "error",
+            title: 'Đã xảy ra lỗi khi cập nhật avatar.',
+            status: 'error',
             duration: 3000,
             isClosable: true,
-            position: "top-right"
+            position: 'top-right',
           });
         }
       };
@@ -111,68 +112,66 @@ const CoderDetail = () => {
   const handleSave = async () => {
     try {
       const formData = new FormData();
-      formData.append("CoderID", id);
+      formData.append('CoderID', id);
       Object.keys(editableValues).forEach((field) => {
         formData.append(field, editableValues[field]);
       });
       if (avatarFile) {
-        formData.append("AvatarFile", avatarFile);
+        formData.append('AvatarFile', avatarFile);
       }
-  
+
       const response = await api.put(`/Coder/${id}`, formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          'Content-Type': 'multipart/form-data',
         },
       });
-  
+
       setCoderDetail((prev) => ({
         ...prev,
         ...editableValues,
       }));
-  
+
       setEditField(null);
       toast({
-        title: "Cập nhật thành công!",
-        status: "success",
+        title: 'Cập nhật thành công!',
+        status: 'success',
         duration: 3000,
         isClosable: true,
-        position: "top-right",
+        position: 'top-right',
       });
     } catch (error) {
       let errorMessage = error.response.data.errors;
       if (Array.isArray(errorMessage)) {
         errorMessage.forEach((msg, index) => {
           toast({
-            title: "Lỗi khi cập nhật.",
+            title: 'Lỗi khi cập nhật.',
             description: msg,
-            status: "error",
+            status: 'error',
             duration: 3000,
             isClosable: true,
-            position: "top-right",
+            position: 'top-right',
             key: index,
           });
         });
       } else {
         toast({
-          title: "Đã xảy ra lỗi khi cập nhật.",
-          description: "Vui lòng kiểm tra lại thông tin.",
-          status: "error",
+          title: 'Đã xảy ra lỗi khi cập nhật.',
+          description: 'Vui lòng kiểm tra lại thông tin.',
+          status: 'error',
           duration: 3000,
           isClosable: true,
-          position: "top-right",
+          position: 'top-right',
         });
       }
     }
   };
-  
-  
-  
+
   if (!coderDetail) {
-    return <Text>Loading...</Text>;
+    return <FullPageSpinner />;
   }
 
   return (
-    <Box pt={{ base: "130px", md: "80px", xl: "80px" }} px="25px">
+    <Box pt={{ base: '130px', md: '80px', xl: '80px' }} px="25px">
       <Box
         bg="white"
         p="6"
@@ -199,20 +198,24 @@ const CoderDetail = () => {
           {/* Avatar Section */}
           <Flex direction="column" align="center">
             <Image
-              src={editableValues.avatar || coderDetail.avatar || "https://firebasestorage.googleapis.com/v0/b/luvuphuc-firebase-790e8.appspot.com/o/ntucoder%2Favatars%2Fdefault.jpg?alt=media"}
+              src={
+                editableValues.avatar ||
+                coderDetail.avatar ||
+                'https://firebasestorage.googleapis.com/v0/b/luvuphuc-firebase-790e8.appspot.com/o/ntucoder%2Favatars%2Fdefault.jpg?alt=media'
+              }
               alt="Coder Avatar"
               borderRadius="full"
               boxSize="150px"
               objectFit="cover"
               mb={4}
-              onClick={() => document.getElementById("avatarInput").click()}
+              onClick={() => document.getElementById('avatarInput').click()}
               cursor="pointer"
             />
             <Input
               id="avatarInput"
               type="file"
               onChange={handleAvatarChange}
-              style={{ display: "none" }}
+              style={{ display: 'none' }}
             />
           </Flex>
           <Divider />
@@ -222,26 +225,32 @@ const CoderDetail = () => {
               <VStack align="stretch" spacing={4}>
                 <Flex align="center">
                   <Text fontSize="lg">
-                    <strong>Tên đăng nhập:</strong> {coderDetail.userName || "Chưa có thông tin"}
+                    <strong>Tên đăng nhập:</strong>{' '}
+                    {coderDetail.userName || 'Chưa có thông tin'}
                   </Text>
                 </Flex>
 
-                {["coderName", "coderEmail", "phoneNumber"].map((field) => (
+                {['coderName', 'coderEmail', 'phoneNumber'].map((field) => (
                   <Flex key={field} align="center">
                     {editField === field ? (
                       <Input
-                        value={editableValues[field] || ""}
-                        onChange={(e) => handleInputChange(field, e.target.value)}
+                        value={editableValues[field] || ''}
+                        onChange={(e) =>
+                          handleInputChange(field, e.target.value)
+                        }
                         placeholder={`Chỉnh sửa ${field}`}
                       />
                     ) : (
                       <Text fontSize="lg">
-                        <strong>{field === "coderName"
-                          ? "Họ và tên"
-                          : field === "coderEmail"
-                          ? "Email"
-                          : "Số điện thoại"}:</strong>{" "}
-                        {coderDetail[field] || "Chưa có thông tin"}
+                        <strong>
+                          {field === 'coderName'
+                            ? 'Họ và tên'
+                            : field === 'coderEmail'
+                            ? 'Email'
+                            : 'Số điện thoại'}
+                          :
+                        </strong>{' '}
+                        {coderDetail[field] || 'Chưa có thông tin'}
                       </Text>
                     )}
                     <IconButton
@@ -257,10 +266,12 @@ const CoderDetail = () => {
 
                 {/* Gender field */}
                 <Flex align="center">
-                  {editField === "gender" ? (
+                  {editField === 'gender' ? (
                     <Select
-                      value={editableValues.gender || ""}
-                      onChange={(e) => handleInputChange("gender", e.target.value)}
+                      value={editableValues.gender || ''}
+                      onChange={(e) =>
+                        handleInputChange('gender', e.target.value)
+                      }
                       placeholder="Chọn giới tính"
                       width="50%"
                     >
@@ -270,7 +281,8 @@ const CoderDetail = () => {
                     </Select>
                   ) : (
                     <Text fontSize="lg">
-                      <strong>Giới tính:</strong> {genderMapping[coderDetail.gender] || "Khác"}
+                      <strong>Giới tính:</strong>{' '}
+                      {genderMapping[coderDetail.gender] || 'Khác'}
                     </Text>
                   )}
                   <IconButton
@@ -278,22 +290,25 @@ const CoderDetail = () => {
                     icon={<MdEdit />}
                     ml={2}
                     size="sm"
-                    onClick={() => handleEdit("gender")}
+                    onClick={() => handleEdit('gender')}
                     cursor="pointer"
                   />
                 </Flex>
 
                 {/* Description field */}
                 <Flex align="center">
-                  {editField === "description" ? (
+                  {editField === 'description' ? (
                     <Input
-                      value={editableValues.description || ""}
-                      onChange={(e) => handleInputChange("description", e.target.value)}
+                      value={editableValues.description || ''}
+                      onChange={(e) =>
+                        handleInputChange('description', e.target.value)
+                      }
                       placeholder="Chỉnh sửa mô tả"
                     />
                   ) : (
                     <Text fontSize="lg">
-                      <strong>Mô tả:</strong> {coderDetail.description || "Chưa có thông tin"}
+                      <strong>Mô tả:</strong>{' '}
+                      {coderDetail.description || 'Chưa có thông tin'}
                     </Text>
                   )}
                   <IconButton
@@ -301,19 +316,22 @@ const CoderDetail = () => {
                     icon={<MdEdit />}
                     ml={2}
                     size="sm"
-                    onClick={() => handleEdit("description")}
+                    onClick={() => handleEdit('description')}
                     cursor="pointer"
                   />
                 </Flex>
               </VStack>
             </GridItem>
 
-
             {/* Right Column */}
             <GridItem>
               <VStack align="stretch" spacing={4}>
                 <Text fontSize="lg">
-                <strong>Ngày tạo:</strong> {moment.utc(coderDetail.updatedAt).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY HH:mm:ss')}
+                  <strong>Ngày tạo:</strong>{' '}
+                  {moment
+                    .utc(coderDetail.updatedAt)
+                    .tz('Asia/Ho_Chi_Minh')
+                    .format('DD/MM/YYYY HH:mm:ss')}
                 </Text>
                 <Text fontSize="lg">
                   <strong>Người tạo:</strong> {coderDetail.createdBy}
@@ -321,7 +339,11 @@ const CoderDetail = () => {
                 {coderDetail.updatedAt && (
                   <>
                     <Text fontSize="lg">
-                    <strong>Ngày cập nhật:</strong> {moment.utc(coderDetail.updatedAt).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY HH:mm:ss')}
+                      <strong>Ngày cập nhật:</strong>{' '}
+                      {moment
+                        .utc(coderDetail.updatedAt)
+                        .tz('Asia/Ho_Chi_Minh')
+                        .format('DD/MM/YYYY HH:mm:ss')}
                     </Text>
                     <Text fontSize="lg">
                       <strong>Người cập nhật:</strong> {coderDetail.updatedBy}
