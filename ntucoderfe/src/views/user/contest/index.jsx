@@ -3,7 +3,6 @@ import { Box, Container, Grid } from '@chakra-ui/react';
 import LayoutUser from 'layouts/user';
 import ContestTableUser from './components/ColumnsTable';
 import RankingTable from './components/RankingsTable';
-import Pagination from 'components/pagination/pagination';
 import api from 'utils/api';
 import UpcomingContests from './components/UpcomingContest';
 import OnGoingContests from './components/OnGoingContest';
@@ -42,7 +41,6 @@ export default function ContestPage() {
       setLoading(false);
     }
   }, [currentPage, pageSize, sortOrder, filterStatus, searchTerm]);
-  
 
   useEffect(() => {
     fetchContests();
@@ -58,28 +56,30 @@ export default function ContestPage() {
         <Container maxW="7xl" py={12} px={0}>
           <UpcomingContests />
           <OnGoingContests contests={contests.filter((c) => c.status === 1)} />
-          <Grid templateColumns={{ base: '1fr', md: '3.2fr 1fr' }} gap={8} alignItems="stretch">
-          <ContestTableUser
-            contests={contests}
-            loading={loading}
-            sortOrder={sortOrder}
-            onSortStatusChange={handleSortStatusChange}
-            onRefresh={handleRefresh}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            filterStatus={filterStatus}
-            setFilterStatus={setFilterStatus}
-          />
+          <Grid
+            templateColumns={{ base: '1fr', md: '3.2fr 1fr' }}
+            gap={8}
+            alignItems="stretch"
+          >
+            <ContestTableUser
+              contests={contests}
+              loading={loading}
+              sortOrder={sortOrder}
+              onSortStatusChange={handleSortStatusChange}
+              onRefresh={handleRefresh}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              filterStatus={filterStatus}
+              setFilterStatus={setFilterStatus}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+            />
             <Box alignSelf="start">
               <RankingTable />
             </Box>
           </Grid>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            onPageSizeChange={setPageSize}
-          />
         </Container>
       </Box>
     </LayoutUser>

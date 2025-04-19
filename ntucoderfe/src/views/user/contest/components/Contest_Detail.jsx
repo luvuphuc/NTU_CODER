@@ -175,7 +175,12 @@ export default function ContestDetailPage() {
               />
               <Text fontSize="1.125rem" color="gray.700" fontWeight="medium">
                 {countdown.hasStarted
-                  ? `Kết thúc trong ${formatCountdown(countdown)}`
+                  ? countdown.days < 0 ||
+                    countdown.hours < 0 ||
+                    countdown.minutes < 0 ||
+                    countdown.seconds < 0
+                    ? 'Đã kết thúc'
+                    : `Kết thúc trong ${formatCountdown(countdown)}`
                   : `Bắt đầu trong ${formatCountdown(countdown)}`}
               </Text>
             </HStack>
@@ -235,6 +240,7 @@ export default function ContestDetailPage() {
                 bg="white"
                 borderWidth="1px"
                 borderColor="gray.200"
+                maxW="3xl"
               >
                 <Text
                   fontSize="1.5rem"
