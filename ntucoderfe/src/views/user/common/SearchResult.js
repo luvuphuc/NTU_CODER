@@ -59,7 +59,10 @@ export default function SearchResultDropdown({ searchResults }) {
             <Divider borderWidth="1.5px" borderColor="gray.200" mb="1" />
             <Stack spacing="1">
               {items.map((item, itemIndex) => (
-                <Link key={`${type}/${item.id}`} to={`/${type}/${item.id}`}>
+                <Link
+                  key={`${item.url}/${item.id}`}
+                  to={`/${item.url}/${item.id}`}
+                >
                   <Box
                     px="3"
                     py="1"

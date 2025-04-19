@@ -24,6 +24,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 .Select(p => new SearchResultDTO
                 {
                     Type = "Bài tập",
+                    Url = "problem",
                     ID = p.ProblemID,
                     Name = p.ProblemName
                 }).ToListAsync();
@@ -33,6 +34,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 .Select(c => new SearchResultDTO
                 {
                     Type = "Kì thi",
+                    Url = "contest",
                     ID = c.ContestID,
                     Name = c.ContestName
                 }).ToListAsync();
