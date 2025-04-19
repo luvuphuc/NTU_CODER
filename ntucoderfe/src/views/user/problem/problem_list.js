@@ -28,7 +28,7 @@ import {
 } from '@chakra-ui/react';
 import { IoMdHeartEmpty } from 'react-icons/io';
 import { AiFillHeart } from 'react-icons/ai';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from '../../../utils/api';
 import Pagination from 'components/pagination/pagination';
 import Layout from 'layouts/user';
@@ -58,7 +58,6 @@ export default function ProblemPage() {
   const fetchSolvedCount = async (problemID) => {
     try {
       const res = await api.get(`/Problem/solved/${problemID}`);
-      console.log('Count:', res.data.count);
       return res.data.count;
     } catch (error) {
       console.error(`Error:${problemID}`, error);
@@ -208,7 +207,19 @@ export default function ProblemPage() {
   };
   const renderProblemCard = (problem) => {
     const isFavourited = state.favouriteIds.has(problem.problemID);
-
+    const handleCardClick = (e) => {
+      e.preventDefault();
+      if (!Cookies.get('token')) {
+        toast({
+          position: 'top',
+          duration: 3000,
+          isClosable: true,
+          render: () => <AuthToast />,
+        });
+      } else {
+        navigate(`/problem/${problem.problemID}`);
+      }
+    };
     return (
       <Box position="relative" key={problem.problemID}>
         <Card
@@ -217,45 +228,41 @@ export default function ProblemPage() {
           minH="150px"
           overflow="hidden"
           _hover={{ bg: '#ebebf3', cursor: 'pointer' }}
+          onClick={handleCardClick}
         >
-          <Link
-            to={`/problem/${problem.problemID}`}
-            style={{ textDecoration: 'none' }}
-          >
-            <CardBody _hover={{ bg: '#ebebf3' }}>
-              <Flex direction="column" justify="space-between" height="100%">
-                <Flex justify="space-between" align="start">
-                  <Heading size="lg" color="gray.700" noOfLines={1} maxW="70%">
-                    {problem.problemName}
-                  </Heading>
-                  <Flex align="center" gap={1}>
-                    <Text color="green.600" fontSize="sm">
-                      {problem.solvedCount ?? 0}
-                    </Text>
-                    <RiUser3Fill color="#2F855A" />
-                  </Flex>
+          <CardBody _hover={{ bg: '#ebebf3' }}>
+            <Flex direction="column" justify="space-between" height="100%">
+              <Flex justify="space-between" align="start">
+                <Heading size="lg" color="gray.700" noOfLines={1} maxW="70%">
+                  {problem.problemName}
+                </Heading>
+                <Flex align="center" gap={1}>
+                  <Text color="green.600" fontSize="sm">
+                    {problem.solvedCount ?? 0}
+                  </Text>
+                  <RiUser3Fill color="#2F855A" />
                 </Flex>
-
-                <Wrap mt={2}>
-                  {problem.selectedCategoryNames.map((category, index) => (
-                    <WrapItem key={index}>
-                      <Badge colorScheme="purple" fontSize="0.8rem">
-                        {category}
-                      </Badge>
-                    </WrapItem>
-                  ))}
-                </Wrap>
-
-                <Text
-                  mt={2}
-                  color="gray.600"
-                  fontSize="md"
-                  noOfLines={2}
-                  dangerouslySetInnerHTML={{ __html: problem.problemContent }}
-                />
               </Flex>
-            </CardBody>
-          </Link>
+
+              <Wrap mt={2}>
+                {problem.selectedCategoryNames.map((category, index) => (
+                  <WrapItem key={index}>
+                    <Badge colorScheme="purple" fontSize="0.8rem">
+                      {category}
+                    </Badge>
+                  </WrapItem>
+                ))}
+              </Wrap>
+
+              <Text
+                mt={2}
+                color="gray.600"
+                fontSize="md"
+                noOfLines={2}
+                dangerouslySetInnerHTML={{ __html: problem.problemContent }}
+              />
+            </Flex>
+          </CardBody>
         </Card>
 
         <Box
@@ -264,6 +271,9 @@ export default function ProblemPage() {
           top="50%"
           transform="translateY(-50%)"
           zIndex={1}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
         >
           <IconButton
             icon={
