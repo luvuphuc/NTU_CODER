@@ -21,6 +21,7 @@ import {
 import { ArrowUpIcon, ArrowDownIcon, RepeatIcon } from '@chakra-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
 import Card from 'components/card/Card';
+import moment from 'moment-timezone';
 
 const ContestTableUser = React.memo(
   ({
@@ -52,10 +53,17 @@ const ContestTableUser = React.memo(
 
     const contestStats = {
       total: contests.length,
-      ongoing: contests.filter((c) => c.status === 1).length,
-      upcoming: contests.filter((c) => c.status === 2).length,
-      ended: contests.filter((c) => c.status === 0).length,
+      ongoing: contests.filter(
+        (c) => getContestStatus(c.startTime, c.endTime) === 'ongoing',
+      ).length,
+      upcoming: contests.filter(
+        (c) => getContestStatus(c.startTime, c.endTime) === 'upcoming',
+      ).length,
+      ended: contests.filter(
+        (c) => getContestStatus(c.startTime, c.endTime) === 'ended',
+      ).length,
     };
+
     return (
       <Card w="100%" p={4} h="600px">
         <Box mb={4}>
@@ -154,16 +162,28 @@ const ContestTableUser = React.memo(
                       <Td>
                         <Badge
                           colorScheme={
-                            contest.status === 1
+                            getContestStatus(
+                              contest.startTime,
+                              contest.endTime,
+                            ) === 'ongoing'
                               ? 'green'
-                              : contest.status === 2
+                              : getContestStatus(
+                                  contest.startTime,
+                                  contest.endTime,
+                                ) === 'upcoming'
                               ? 'yellow'
                               : 'red'
                           }
                         >
-                          {contest.status === 1
+                          {getContestStatus(
+                            contest.startTime,
+                            contest.endTime,
+                          ) === 'ongoing'
                             ? 'Đang diễn ra'
-                            : contest.status === 2
+                            : getContestStatus(
+                                contest.startTime,
+                                contest.endTime,
+                              ) === 'upcoming'
                             ? 'Sắp diễn ra'
                             : 'Đã kết thúc'}
                         </Badge>
@@ -180,18 +200,27 @@ const ContestTableUser = React.memo(
   },
 );
 
-function formatDateTime(dateTime) {
-  const date = new Date(dateTime);
-  return `${date.toLocaleDateString('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  })} - ${date.toLocaleTimeString('vi-VN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  })}`;
+function getContestStatus(startTime, endTime) {
+  const currentTime = moment().tz('Asia/Ho_Chi_Minh');
+  const start = moment.utc(startTime).tz('Asia/Ho_Chi_Minh');
+  const end = moment.utc(endTime).tz('Asia/Ho_Chi_Minh');
+
+  if (currentTime.isBefore(start)) {
+    return 'upcoming';
+  } else if (currentTime.isBetween(start, end)) {
+    return 'ongoing';
+  } else {
+    return 'ended';
+  }
 }
+
+function formatDateTime(dateTime) {
+  return moment
+    .utc(dateTime)
+    .tz('Asia/Ho_Chi_Minh')
+    .format('DD-MM-YYYY - HH:mm');
+}
+
 const customScrollbarStyle = {
   '&::-webkit-scrollbar': {
     width: '10px',
@@ -206,4 +235,5 @@ const customScrollbarStyle = {
     backgroundColor: '#555',
   },
 };
+
 export default ContestTableUser;
