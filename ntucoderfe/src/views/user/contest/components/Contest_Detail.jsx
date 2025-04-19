@@ -45,7 +45,7 @@ const formatTime = (date) => {
     'Thứ 7',
   ];
   const d = moment(date).tz('Asia/Ho_Chi_Minh');
-  return `${weekdays[d.day()]}, ${d.format('D MMMM YYYY')}`;
+  return `${weekdays[d.day()]}, ${d.format('D [Tháng] M, YYYY')}`;
 };
 
 const formatCountdown = ({ days, hours, minutes, seconds }) =>
