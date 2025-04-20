@@ -27,7 +27,7 @@ import { RiEyeCloseLine } from 'react-icons/ri';
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import logo from '../../assets/img/ntu-coders.png';
 import api from 'utils/api';
-
+import CustomToast from 'components/toast/CustomToast';
 const InputField = ({ label, type, value, onChange, error, placeholder }) => (
   <FormControl mb={8} animation={error ? 'shake 0.3s' : ''}>
     <FormLabel>{label}</FormLabel>
@@ -110,28 +110,59 @@ function Register() {
     try {
       await api.post('/Coder/create', { ...credentials, role: 2 });
       toast({
-        title: 'Đăng ký thành công!',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-        position: 'top-right',
+        render: () => (
+          <CustomToast success={true} messages="Đăng ký thành công!" />
+        ),
+        position: 'top',
+        duration: 5000,
       });
       navigate('/login');
     } catch (error) {
-      console.error('Lỗi API:', error.response ? error.response.data : error);
-      setError((prev) => ({ ...prev, coderEmail: 'Email đã tồn tại.' }));
-      toast({
-        title: 'Đã xảy ra lỗi.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-        position: 'top-right',
-      });
+      const errorMessages = error.response?.data?.errors || [];
+
+      if (errorMessages.length > 0) {
+        // Assuming the first error in the array is the one we need
+        const errorMessage = errorMessages[0];
+
+        if (
+          errorMessage === 'Tên đăng nhập đã tồn tại.' ||
+          errorMessage === 'Email đã tồn tại.'
+        ) {
+          setError((prev) => ({
+            ...prev,
+            coderEmail:
+              errorMessage === 'Email đã tồn tại.'
+                ? 'Email đã tồn tại.'
+                : prev.coderEmail,
+            userName:
+              errorMessage === 'Tên đăng nhập đã tồn tại.'
+                ? 'Tên đăng nhập đã tồn tại.'
+                : prev.userName,
+          }));
+        } else {
+          setError((prev) => ({ ...prev, general: 'Đã có lỗi xảy ra!' }));
+          toast({
+            render: () => (
+              <CustomToast success={false} messages="Đã xảy ra lỗi!" />
+            ),
+            position: 'top',
+            duration: 5000,
+          });
+        }
+      } else {
+        setError((prev) => ({ ...prev, general: 'Đã có lỗi xảy ra!' }));
+        toast({
+          render: () => (
+            <CustomToast success={false} messages="Đã xảy ra lỗi!" />
+          ),
+          position: 'top',
+          duration: 5000,
+        });
+      }
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <Flex
       w="100vw"

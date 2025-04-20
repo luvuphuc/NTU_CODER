@@ -129,9 +129,6 @@ const ContestTableUser = React.memo(
               justify="center"
               align="center"
               minH="365px"
-              bg="white"
-              boxShadow="md"
-              borderRadius="md"
               p={8}
             >
               <Box boxSize="120px" mb={4}>

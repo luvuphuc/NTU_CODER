@@ -30,6 +30,7 @@ import { FiUpload } from 'react-icons/fi';
 import api from 'utils/api';
 import { useParams, useNavigate } from 'react-router-dom';
 import TestCasesComponent from './testcase_tab';
+import CustomToast from 'components/toast/CustomToast';
 const defaultSampleCode = {
   '.cpp': `#include <stdio.h>\nint main() {\n    printf("Hello world");\n    return 0;\n}`,
   '.py': `print("Hello, World!")`,
@@ -153,10 +154,13 @@ const EditorTab = () => {
       if (match) setUploadModalCompilerId(match.compilerID.toString());
       else
         toast({
-          title: 'Không tìm thấy trình biên dịch khớp',
-          description: `Không tự động tìm thấy compiler cho đuôi file "${ext}".`,
-          status: 'warning',
-          position: 'top-right',
+          render: () => (
+            <CustomToast
+              success={false}
+              messages="Không tìm thấy trình biên dịch khớp"
+            />
+          ),
+          position: 'top',
           duration: 4000,
           isClosable: true,
         });
@@ -166,10 +170,10 @@ const EditorTab = () => {
   const handleConfirmUpload = () => {
     if (!fileToUpload || !fileExtensionValid) {
       toast({
-        title: 'File không hợp lệ',
-        description: 'Vui lòng chọn một file hợp lệ.',
-        status: 'error',
-        position: 'top-right',
+        render: () => (
+          <CustomToast success={false} messages="File không hợp lệ!" />
+        ),
+        position: 'top',
         duration: 3000,
         isClosable: true,
       });
@@ -180,10 +184,10 @@ const EditorTab = () => {
     );
     if (!compiler) {
       toast({
-        title: 'Chưa chọn trình biên dịch',
-        description: 'Vui lòng chọn trình biên dịch phù hợp.',
-        status: 'error',
-        position: 'top-right',
+        render: () => (
+          <CustomToast success={false} messages="Chưa chọn trình biên dịch!" />
+        ),
+        position: 'top',
         duration: 3000,
         isClosable: true,
       });
@@ -196,10 +200,10 @@ const EditorTab = () => {
         setCode(content);
         setSelectedCompiler(compiler);
         toast({
-          title: 'Tải lên thành công',
-          description: `File "${fileToUpload.name}" đã được tải lên.`,
-          status: 'success',
-          position: 'top-right',
+          render: () => (
+            <CustomToast success={true} messages="Tải lên thành công!" />
+          ),
+          position: 'top',
           duration: 3000,
           isClosable: true,
         });
@@ -207,10 +211,11 @@ const EditorTab = () => {
         setFileToUpload(null);
       } else {
         toast({
+          render: () => (
+            <CustomToast success={false} messages="Lỗi đọc file!" />
+          ),
           title: 'Lỗi đọc file',
-          description: 'Không thể đọc nội dung file.',
-          status: 'error',
-          position: 'top-right',
+          position: 'top',
           duration: 3000,
           isClosable: true,
         });
@@ -218,10 +223,8 @@ const EditorTab = () => {
     };
     reader.onerror = () =>
       toast({
-        title: 'Lỗi đọc file',
-        description: 'Đã xảy ra lỗi khi đọc file.',
-        status: 'error',
-        position: 'top-right',
+        render: () => <CustomToast success={false} messages="Lỗi đọc file!" />,
+        position: 'top',
         duration: 3000,
         isClosable: true,
       });

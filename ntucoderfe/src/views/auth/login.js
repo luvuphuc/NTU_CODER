@@ -21,6 +21,7 @@ import {
 import { FcGoogle } from 'react-icons/fc';
 import { keyframes } from '@emotion/react';
 import { useToast } from '@chakra-ui/react';
+import CustomToast from 'components/toast/CustomToast';
 import { FaGithub, FaTwitter } from 'react-icons/fa';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
@@ -56,12 +57,14 @@ function SignIn() {
         password: !credentials.password.trim(),
       });
       toast({
-        title: 'Lỗi!',
-        description: 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-        position: 'top-right',
+        render: () => (
+          <CustomToast
+            success={false}
+            messages="Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu."
+          />
+        ),
+        position: 'top',
+        duration: 5000,
       });
       return;
     }
@@ -74,28 +77,24 @@ function SignIn() {
         Cookies.set('token', response.data.token);
         setCoder(response.data);
         toast({
-          title: 'Đăng nhập thành công!',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-          position: 'top-right',
+          render: () => (
+            <CustomToast success={true} messages="Đăng nhập thành công!" />
+          ),
+          position: 'top',
+          duration: 5000,
         });
         navigate(-1);
       }
     } catch (error) {
       let errorMessage = 'Có lỗi xảy ra, vui lòng thử lại.';
-      console.log(error);
       if (error.response) {
         errorMessage =
           error.response.data?.message || 'Sai tài khoản hoặc mật khẩu.';
       }
       toast({
-        title: 'Đăng nhập thất bại!',
-        description: errorMessage,
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-        position: 'top-right',
+        render: () => <CustomToast success={false} messages={errorMessage} />,
+        position: 'top',
+        duration: 5000,
       });
     } finally {
       setLoading(false);

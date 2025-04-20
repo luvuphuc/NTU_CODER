@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Container,
@@ -55,6 +55,7 @@ export default function ProblemPage() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const navigate = useNavigate();
+  const favouriteIdsRef = useRef(new Set());
   const fetchSolvedCount = async (problemID) => {
     try {
       const res = await api.get(`/Problem/solved/${problemID}`);
@@ -122,7 +123,7 @@ export default function ProblemPage() {
         });
         if (state.filterByFavourite) {
           problemsRes.data.data = problemsRes.data.data.filter((p) =>
-            state.favouriteIds.has(p.problemID),
+            favouriteIdsRef.current.has(p.problemID),
           );
           problemsRes.data.totalCount = problemsRes.data.data.length;
           problemsRes.data.totalPages = Math.ceil(
@@ -171,11 +172,11 @@ export default function ProblemPage() {
 
     try {
       const res = await api.post('/Favourite/toggle', { problemID });
-      const updatedSet = new Set(state.favouriteIds);
+      const updatedSet = new Set(favouriteIdsRef.current);
       res.data.isFavourite
         ? updatedSet.add(problemID)
         : updatedSet.delete(problemID);
-
+      favouriteIdsRef.current = updatedSet;
       setState((prev) => ({ ...prev, favouriteIds: updatedSet }));
       toast({
         title: res.data.isFavourite ? 'Đã thêm yêu thích' : 'Đã bỏ yêu thích',
