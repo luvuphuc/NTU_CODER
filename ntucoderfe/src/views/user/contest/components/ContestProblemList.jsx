@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { CiViewList } from 'react-icons/ci';
 import { Link as RouterLink } from 'react-router-dom';
-const ContestProblemList = ({ problems }) => (
+const ContestProblemList = ({ problems, handleGoToProblem }) => (
   <Box p={4} rounded="xl" bg="gray.50" shadow="md">
     <Flex align="center" justify="space-between" mb={4}>
       <HStack spacing={2}>
@@ -55,6 +55,10 @@ const ContestProblemList = ({ problems }) => (
                 fontWeight="medium"
                 color="blue.600"
                 _hover={{ color: 'blue.800' }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleGoToProblem(p.contestId, p.problemID);
+                }}
               >
                 {p.problemName}
               </Link>

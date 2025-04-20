@@ -33,6 +33,7 @@ import FullPageSpinner from 'components/spinner/FullPageSpinner.jsx';
 import moment from 'moment-timezone';
 import ContestProblemList from './ContestProblemList.jsx';
 import Leaderboard from './Leaderboard.jsx';
+import CustomToast from 'components/toast/CustomToast.jsx';
 // Format thời gian hiển thị
 const formatTime = (date) => {
   const weekdays = [
@@ -139,6 +140,47 @@ export default function ContestDetailPage() {
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
   }, [contest]);
+  const handleGoToProblem = async (contestId, problemId) => {
+    if (!token) {
+      toast({
+        position: 'top',
+        duration: 3000,
+        isClosable: true,
+        render: () => <AuthToast />,
+      });
+      return;
+    }
+
+    try {
+      const res = await api.get('/Contest/check', {
+        params: { contestId },
+      });
+
+      if (res.data === true) {
+        localStorage.setItem('isContested', 'true');
+        navigate(`/problem/${problemId}`);
+      } else {
+        toast({
+          render: () => (
+            <CustomToast
+              success={false}
+              messages="Chưa đăng ký hoặc cuộc thi chưa bắt đầu!"
+            />
+          ),
+          position: 'top',
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      toast({
+        render: () => <CustomToast success={false} messages="Đã xảy ra lỗi!" />,
+        position: 'top',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
 
   if (!contest || !countdown) return <FullPageSpinner />;
 
@@ -262,7 +304,10 @@ export default function ContestDetailPage() {
             </GridItem>
             <GridItem>
               <Leaderboard />
-              <ContestProblemList problems={hasProblems} />
+              <ContestProblemList
+                problems={hasProblems}
+                handleGoToProblem={handleGoToProblem}
+              />
             </GridItem>
           </Grid>
         </Box>

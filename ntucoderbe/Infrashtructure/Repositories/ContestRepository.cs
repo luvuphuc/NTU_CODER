@@ -34,7 +34,8 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     Published = c.Published,
                     Status = c.Status,
                     Duration = c.Duration,
-                    CoderName = c.Coder.CoderName
+                    CoderName = c.Coder.CoderName,
+                    ContestDescription = c.ContestDescription,
                 });
             if (published)
             {
@@ -144,18 +145,18 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
             existing.ContestName = dto.ContestName ?? existing.ContestName;
             existing.ContestDescription = dto.ContestDescription ?? existing.ContestDescription;
-
             existing.StartTime = dto.StartTime != default(DateTime)
-                ? new DateTimeOffset(dto.StartTime, TimeSpan.FromHours(7)).UtcDateTime
+                ? dto.StartTime.ToUniversalTime()
                 : existing.StartTime;
 
             existing.EndTime = dto.EndTime != default(DateTime)
-                ? new DateTimeOffset(dto.EndTime, TimeSpan.FromHours(7)).UtcDateTime
+                ? dto.EndTime.ToUniversalTime()
                 : existing.EndTime;
 
             existing.FrozenTime = dto.FrozenTime != default(DateTime)
-                ? new DateTimeOffset(dto.FrozenTime, TimeSpan.FromHours(7)).UtcDateTime
+                ? dto.FrozenTime.ToUniversalTime()
                 : existing.FrozenTime;
+
 
             existing.RuleType = dto.RuleType ?? existing.RuleType;
             existing.FailedPenalty = dto.FailedPenalty ?? existing.FailedPenalty;
@@ -214,6 +215,12 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 .Take(3);
 
             return await contestQuery.ToListAsync();
+        }
+        public async Task<bool> CheckPermissionPartiAsync(int coderId, int contestId)
+        {
+            return await _context.Contest
+                .Where(c => c.ContestID == contestId && c.Status == 1)
+                .AnyAsync(c => c.Participations.Any(p => p.CoderID == coderId));
         }
 
 
