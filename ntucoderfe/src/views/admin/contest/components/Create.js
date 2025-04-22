@@ -134,12 +134,14 @@ export default function CreateContest() {
                   *
                 </Text>
               </FormLabel>
-              <ReactQuill
-                value={contestDescription}
-                onChange={setContestDescription}
-                placeholder="Nhập nội dung cuộc thi"
-                style={{ height: '300px' }}
-              />
+              <Box width="md" mx="auto">
+                <ReactQuill
+                  value={contestDescription}
+                  onChange={setContestDescription}
+                  placeholder="Nhập nội dung cuộc thi"
+                  style={{ height: '300px', wordWrap: 'break-word' }}
+                />
+              </Box>
               <FormErrorMessage mt="50px">
                 {errors.contestDescription}
               </FormErrorMessage>
