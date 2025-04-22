@@ -14,12 +14,14 @@ namespace ntucoderbe.Controllers
         private readonly SubmissionRepository _submissionRepository;
         private readonly CodeExecutionService _codeExecutionService;
         private readonly AuthService _authService;
+        private readonly TakePartsRepository _takePartsRepository;
 
-        public SubmissionController(SubmissionRepository submissionRepository, CodeExecutionService codeExecutionService, AuthService authService)
+        public SubmissionController(SubmissionRepository submissionRepository, CodeExecutionService codeExecutionService, AuthService authService, TakePartsRepository takePartsRepository)
         {
             _submissionRepository = submissionRepository;
             _codeExecutionService = codeExecutionService;
             _authService = authService;
+            _takePartsRepository = takePartsRepository;
         }
 
         [HttpGet("all")]
@@ -51,7 +53,10 @@ namespace ntucoderbe.Controllers
 
                 var result = await _submissionRepository.CreateSubmissionAsync(dto);
                 var testRunResults = await _codeExecutionService.ExecuteSubmissionAsync(result.SubmissionID);
-
+                if (dto.TakePartID.HasValue)
+                {
+                    await _takePartsRepository.UpdateTakePartAsync(dto.TakePartID.Value);
+                }
                 return Ok(new
                 {
                     Submission = result,
