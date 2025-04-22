@@ -138,5 +138,14 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
             return true;
         }
+        public async Task<(bool isRegistered, bool onGoing)> CheckRegisteredAndPerAsync(int coderID, int contestId)
+        {
+            var isRegistered = await IsParticipationExistAsync(coderID, contestId);
+            var onGoing = await _context.Contest
+                .AnyAsync(c => c.ContestID == contestId && c.Status == 1);
+
+            return (isRegistered, onGoing);
+        }
+
     }
 }

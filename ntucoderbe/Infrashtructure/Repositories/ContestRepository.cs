@@ -216,13 +216,5 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
             return await contestQuery.ToListAsync();
         }
-        public async Task<bool> CheckPermissionPartiAsync(int coderId, int contestId)
-        {
-            return await _context.Contest
-                .Where(c => c.ContestID == contestId && c.Status == 1)
-                .AnyAsync(c => c.Participations.Any(p => p.CoderID == coderId));
-        }
-
-
     }
 }

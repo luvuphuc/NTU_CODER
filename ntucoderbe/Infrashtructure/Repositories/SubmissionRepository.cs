@@ -64,6 +64,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             {
                 ProblemID = dto.ProblemID,
                 CoderID = dto.CoderID,
+                TakePartID = dto.TakePartID ?? null,
                 CompilerID = dto.CompilerID,
                 SubmitTime = DateTime.UtcNow,
                 SubmissionCode = dto.SubmissionCode,
