@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
 using ntucoderbe.Infrashtructure.Repositories;
 using ntucoderbe.Infrashtructure.Services;
+using System.Net;
 
 namespace ntucoderbe.Controllers
 {
@@ -132,15 +133,17 @@ namespace ntucoderbe.Controllers
         }
         [Authorize]
         [HttpGet("check")]
-        public async Task<IActionResult> CheckParticipation( int contestID)
+        public async Task<IActionResult> CheckParticipationAndPermission(int contestID)
         {
             var coderID = _authService.GetUserIdFromToken();
             try
             {
-                bool check = await _repository.IsParticipationExistAsync(coderID, contestID);
+                var (isRegistered, onGoing) = await _repository.CheckRegisteredAndPerAsync(coderID, contestID);
+
                 return Ok(new
                 {
-                    registed = check,
+                    registered = isRegistered,
+                    onGoing = onGoing
                 });
             }
             catch (Exception ex)

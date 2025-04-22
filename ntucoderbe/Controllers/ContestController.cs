@@ -148,21 +148,5 @@ namespace ntucoderbe.Controllers
                 });
             }
         }
-
-        [HttpGet("check")]
-        public async Task<IActionResult> CheckPermissionParti(int contestId)
-        {
-            var coderID = _authService.GetUserIdFromToken();
-            var hasPermission = await _contestRepository.CheckPermissionPartiAsync(coderID, contestId);
-
-            if (hasPermission)
-            {
-                return Ok(true);
-            }
-            else
-            {
-                return Ok(false);
-            }
-        }
     }
 }
