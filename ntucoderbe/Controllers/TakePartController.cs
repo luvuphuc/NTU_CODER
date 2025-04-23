@@ -13,11 +13,13 @@ namespace ntucoderbe.Controllers
     {
         private readonly TakePartsRepository _takepartrepository;
         private readonly AuthService _authservice;
+        private readonly ParticipationRepository _participationrepository;
 
-        public TakePartController(TakePartsRepository takepartrepository, AuthService authservice)
+        public TakePartController(TakePartsRepository takepartrepository, AuthService authservice, ParticipationRepository participationrepository)
         {
             _takepartrepository = takepartrepository;
             _authservice = authservice;
+            _participationrepository = participationrepository;
         }
 
         [HttpGet("all")]
@@ -45,7 +47,6 @@ namespace ntucoderbe.Controllers
             try
             {
                 var result = await _takepartrepository.CreateTakePartAsync(dto);
-
                 return CreatedAtAction(nameof(GetTakePartById), new { id = result.TakePartID }, result);
 
             }
@@ -55,7 +56,7 @@ namespace ntucoderbe.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Lỗi server: " + ex.Message });
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 

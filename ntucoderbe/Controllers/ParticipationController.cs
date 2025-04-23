@@ -138,12 +138,12 @@ namespace ntucoderbe.Controllers
             var coderID = _authService.GetUserIdFromToken();
             try
             {
-                var (isRegistered, onGoing) = await _repository.CheckRegisteredAndPerAsync(coderID, contestID);
+                var (participationId, onGoing) = await _repository.CheckRegisteredAndPerAsync(coderID, contestID);
 
                 return Ok(new
                 {
-                    registered = isRegistered,
-                    onGoing = onGoing
+                    participationId,
+                    onGoing
                 });
             }
             catch (Exception ex)

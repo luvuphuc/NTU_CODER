@@ -24,6 +24,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 .Include(c => c.Problem)
                .Select(c => new TakePartDTO
                {
+                   TakePartID = c.TakePartID,
                    ParticipationID = c.ParticipationID,
                    ProblemID = c.ProblemID,
                    CoderName = c.Participation.Coder.CoderName,
@@ -48,12 +49,18 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
         public async Task<TakePartDTO> CreateTakePartAsync(TakePartDTO dto)
         {
-            if (await IsTakePartExistAsync(dto.TakePartID, dto.ProblemID))
-            {
-                throw new ValidationException("Đã tham gia.");
-            }
 
-            var takePart = new TakePart
+            TakePart existing = await IsTakePartExistAsync(dto.ParticipationID, dto.ProblemID);
+            if (existing != null)
+            {
+                return new TakePartDTO
+                {
+                    TakePartID = existing.TakePartID,
+                    ParticipationID = existing.ParticipationID,
+                    ProblemID = existing.ProblemID
+                };
+            }
+            TakePart takePart = new TakePart
             {
                 ParticipationID = dto.ParticipationID,
                 ProblemID = dto.ProblemID,
@@ -66,12 +73,18 @@ namespace ntucoderbe.Infrashtructure.Repositories
             _context.TakeParts.Add(takePart);
             await _context.SaveChangesAsync();
 
-            return dto;
+            return new TakePartDTO
+            {
+                TakePartID = takePart.TakePartID,
+                ParticipationID = takePart.ParticipationID,
+                ProblemID = takePart.ProblemID
+            };
+
         }
 
-        public async Task<bool> IsTakePartExistAsync(int partID, int problemID)
+        public async Task<TakePart> IsTakePartExistAsync(int partID, int problemID)
         {
-            return await _context.TakeParts.AnyAsync(f => f.ProblemID == problemID && f.ParticipationID == partID);
+            return await _context.TakeParts.FirstOrDefaultAsync(f => f.ProblemID == problemID && f.ParticipationID == partID);
         }
 
         public async Task<TakePartDTO> GetTakePartByIdAsync(int id)

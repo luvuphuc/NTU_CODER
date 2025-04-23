@@ -4,6 +4,8 @@
     {
         public int TakePartID { get; set; }
         public int ParticipationID { get; set; }
+        public int? CoderID { get; set; }
+        public int? ContestID { get; set; }
         public string? CoderName { get; set; }
         public int ProblemID { get; set; }
         public string? ProblemName { get; set; }

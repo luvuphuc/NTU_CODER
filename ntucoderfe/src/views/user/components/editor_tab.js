@@ -124,6 +124,7 @@ const EditorTab = () => {
         compilerId: selectedCompiler.compilerID,
         submissionCode: code,
         submissionStatus: 0,
+        takePartId: localStorage.getItem('takepart'),
       });
       if (res.status === 200)
         showModal(
@@ -135,6 +136,7 @@ const EditorTab = () => {
           </>,
           'success',
         );
+      localStorage.removeItem('takepart');
     } catch {
       showModal(
         'Lỗi khi nộp bài!',

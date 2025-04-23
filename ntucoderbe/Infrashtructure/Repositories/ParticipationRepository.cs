@@ -52,11 +52,12 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
         public async Task<ParticipationDTO> CreateParticipationAsync(ParticipationDTO dto)
         {
-            if (await IsParticipationExistAsync(dto.CoderID, dto.ContestID))
+            Participation participation = await IsParticipationExistAsync(dto.CoderID, dto.ContestID);
+            if (participation != null)
             {
                 throw new InvalidOperationException("Đã đăng ký là thành viên.");
             }
-            var par = new Participation
+            Participation par = new Participation
             {
                 ContestID = dto.ContestID,
                 CoderID = dto.CoderID,
@@ -72,14 +73,14 @@ namespace ntucoderbe.Infrashtructure.Repositories
             await _context.SaveChangesAsync();
             return dto;
         }
-        public async Task<bool> IsParticipationExistAsync(int coderID, int contestID)
+        public async Task<Participation> IsParticipationExistAsync(int coderID, int contestID)
         {
-            return await _context.Participations.AnyAsync(c => c.CoderID == coderID && c.ContestID ==contestID);
+            return await _context.Participations.FirstOrDefaultAsync(c => c.CoderID == coderID && c.ContestID ==contestID);
         }
 
         public async Task<ParticipationDTO> GetParticipationByIdAsync(int id)
         {
-            var obj = await _context.Participations.FirstOrDefaultAsync(c => c.ParticipationID == id);
+            Participation obj = await _context.Participations.FirstOrDefaultAsync(c => c.ParticipationID == id);
             if (obj == null)
             {
                 throw new KeyNotFoundException("Không tìm thấy thể loại.");
@@ -138,13 +139,15 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
             return true;
         }
-        public async Task<(bool isRegistered, bool onGoing)> CheckRegisteredAndPerAsync(int coderID, int contestId)
+        public async Task<(int participationId, bool onGoing)> CheckRegisteredAndPerAsync(int coderID, int contestId)
         {
-            var isRegistered = await IsParticipationExistAsync(coderID, contestId);
-            var onGoing = await _context.Contest
+            Participation participation = await IsParticipationExistAsync(coderID, contestId);
+            int participationId = participation != null ? participation.ParticipationID : -1;
+
+            bool onGoing = await _context.Contest
                 .AnyAsync(c => c.ContestID == contestId && c.Status == 1);
 
-            return (isRegistered, onGoing);
+            return (participationId, onGoing);
         }
 
     }

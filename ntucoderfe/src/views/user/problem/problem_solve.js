@@ -57,7 +57,10 @@ const ProblemSolver = () => {
     };
 
     if (id) fetchData();
-  }, [id, token, onOpen]);
+    return () => {
+      localStorage.removeItem('takepart');
+    };
+  }, [id, token, onOpen, navigate]);
 
   if (!token) {
     return (
