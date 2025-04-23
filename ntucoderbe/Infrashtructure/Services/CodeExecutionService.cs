@@ -143,7 +143,7 @@ namespace ntucoderbe.Infrashtructure.Services
 
             string command = compiler.CompilerExtension.ToLower() switch
             {
-                ".cpp" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"echo '{encodedSource}' | base64 -d | tee temp.c | gcc -x c - -o temp.out && echo '{input.Replace("\"", "\\\"")}' | ./temp.out\"",
+                ".cpp" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"echo '{encodedSource}' | base64 -d | tee temp.cpp | g++ -x c++ - -o temp.out && echo '{input.Replace("\"", "\\\"")}' | ./temp.out\"",
 
                 ".java" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"echo '{encodedSource}' | base64 -d > Main.java && javac Main.java && echo '{input.Replace("\"", "\\\"")}' | java Main\"",
 
