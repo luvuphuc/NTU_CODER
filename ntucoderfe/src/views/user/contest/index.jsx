@@ -55,7 +55,7 @@ export default function ContestPage() {
       <Box>
         <Container maxW="7xl" py={12} px={0}>
           <UpcomingContests />
-          <OnGoingContests contests={contests.filter((c) => c.status === 1)} />
+          <OnGoingContests />
           <Grid
             templateColumns={{ base: '1fr', md: '3.2fr 1fr' }}
             gap={8}

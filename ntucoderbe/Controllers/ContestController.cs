@@ -34,11 +34,24 @@ namespace ntucoderbe.Controllers
             }
         }
         [HttpGet("upcoming")]
-        public async Task<IActionResult> GetUpcomingContests([FromQuery] QueryObject query)
+        public async Task<IActionResult> GetUpcomingContests()
         {
             try
             {
-                var result = await _contestRepository.GetUpcomingContest(query);
+                var result = await _contestRepository.GetUpcomingContest();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+        [HttpGet("ongoing")]
+        public async Task<IActionResult> GetOnGoingContests()
+        {
+            try
+            {
+                var result = await _contestRepository.GetOnGoingContest();
                 return Ok(result);
             }
             catch (Exception ex)

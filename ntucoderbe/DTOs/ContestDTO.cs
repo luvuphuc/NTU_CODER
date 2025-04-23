@@ -16,5 +16,6 @@
         public int? RankingFinished { get; set; }
         public DateTime FrozenTime { get; set; }
         public string? CoderName { get; set; }
+        public int? ParticipationCount { get; set; }
     }
 }

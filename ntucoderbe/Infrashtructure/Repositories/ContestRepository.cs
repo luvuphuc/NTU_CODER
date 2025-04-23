@@ -193,10 +193,10 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
             await _context.SaveChangesAsync();
         }
-        public async Task<List<ContestDTO>> GetUpcomingContest(QueryObject query)
+        public async Task<List<ContestDTO>> GetUpcomingContest()
         {
             await UpdateContestStatusesAsync();
-            var contestQuery = _context.Contest
+            IQueryable<ContestDTO> contestQuery = _context.Contest
                 .Include(c => c.Coder)
                 .Select(c => new ContestDTO
                 {
@@ -210,11 +210,41 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     Duration = c.Duration,
                     CoderName = c.Coder.CoderName
                 })
-                .Where(c => c.Status == 2 && c.Published ==1)
+                .Where(c => c.Status == 2 && c.Published == 1)
                 .OrderByDescending(c => c.ContestID)
                 .Take(3);
 
             return await contestQuery.ToListAsync();
         }
+        public async Task<List<ContestDTO>> GetOnGoingContest()
+        {
+            await UpdateContestStatusesAsync();
+            IQueryable<ContestDTO> contestQuery = _context.Contest
+                .Include(c => c.Coder)
+                .Select(c => new ContestDTO
+                {
+                    ContestID = c.ContestID,
+                    CoderID = c.CoderID,
+                    ContestName = c.ContestName,
+                    StartTime = c.StartTime,
+                    EndTime = c.EndTime,
+                    Published = c.Published,
+                    Status = c.Status,
+                    Duration = c.Duration,
+                    CoderName = c.Coder.CoderName,
+                    ContestDescription = c.ContestDescription,
+                    ParticipationCount = c.Participations.Count()
+                })
+                .Where(c => c.Status == 1 && c.Published == 1)
+                .OrderByDescending(c => c.ContestID);
+
+            return await contestQuery.ToListAsync();
+        }
+        public async Task<int> CountParticipationInContestAsync(int contestID)
+        {
+            return await _context.Participations
+                .CountAsync(p => p.ContestID == contestID);
+        }
+
     }
 }

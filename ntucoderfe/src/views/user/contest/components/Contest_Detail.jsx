@@ -101,7 +101,11 @@ export default function ContestDetailPage() {
 
         if (token) {
           const regRes = await api.get(`/Participation/check?contestID=${id}`);
-          setIsRegistered(regRes.data.registed);
+          if (regRes.data.participationId !== -1) {
+            setIsRegistered(true);
+          } else {
+            setIsRegistered(false);
+          }
         }
 
         if (contestData.status === 1 || contestData.status === 2) {
@@ -152,25 +156,64 @@ export default function ContestDetailPage() {
     }
 
     try {
-      const res = await api.get('/Contest/check', {
-        params: { contestId },
-      });
+      if (contest.status === 0) {
+        toast({
+          render: () => (
+            <CustomToast success={false} messages="Cuộc thi đã kết thúc!" />
+          ),
+          position: 'top',
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+      const res = await api.get(`/Participation/check?contestID=${id}`);
+      const { participationId, onGoing } = res.data;
 
-      if (res.data === true) {
-        localStorage.setItem('isContested', 'true');
-        navigate(`/problem/${problemId}`);
-      } else {
+      if (participationId !== -1 && onGoing) {
+        try {
+          const takepartRes = await api.post('/TakePart/create', {
+            problemID: problemId,
+            participationID: participationId,
+          });
+
+          localStorage.setItem('takepart', takepartRes.data.takePartID);
+          navigate(`/problem/${problemId}`);
+        } catch (error) {
+          toast({
+            render: () => (
+              <CustomToast
+                success={false}
+                messages="Không thể ghi nhận tham gia bài này!"
+              />
+            ),
+            position: 'top',
+            duration: 3000,
+            isClosable: true,
+          });
+        }
+      } else if (participationId === -1) {
         toast({
           render: () => (
             <CustomToast
               success={false}
-              messages="Chưa đăng ký hoặc cuộc thi chưa bắt đầu!"
+              messages="Bạn chưa đăng ký tham gia cuộc thi!"
             />
           ),
           position: 'top',
           duration: 3000,
           isClosable: true,
         });
+      } else if (!onGoing) {
+        toast({
+          render: () => (
+            <CustomToast success={false} messages="Cuộc thi chưa bắt đầu!" />
+          ),
+          position: 'top',
+          duration: 3000,
+          isClosable: true,
+        });
+        setIsRegistered(true);
       }
     } catch (error) {
       toast({

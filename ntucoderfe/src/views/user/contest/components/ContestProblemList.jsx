@@ -60,7 +60,9 @@ const ContestProblemList = ({ problems, handleGoToProblem }) => (
                   handleGoToProblem(p.contestId, p.problemID);
                 }}
               >
-                {p.problemName}
+                {p.problemName.length > 18
+                  ? `${p.problemName.slice(0, 18)}...`
+                  : p.problemName}
               </Link>
             </HStack>
             <Box
