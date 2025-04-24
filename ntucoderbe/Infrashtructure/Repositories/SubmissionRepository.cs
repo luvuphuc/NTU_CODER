@@ -56,7 +56,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
         
         public async Task<SubmissionDTO> CreateSubmissionAsync(SubmissionDTO dto)
         {
-            if (await IsSubmissionExistAsync(dto.ProblemID, dto.CoderID))
+            if (await IsSubmissionExistAsync(dto.ProblemID, dto.CoderID,dto.TakePartID))
             {
                 return await UpdateSubmissionAsync(dto);
             }
@@ -72,19 +72,35 @@ namespace ntucoderbe.Infrashtructure.Repositories
             };
 
             _context.Submissions.Add(obj);
-            var solved = new Solved
+            if(!(await IsSolved(dto.ProblemID, dto.CoderID)))
             {
-                ProblemID = dto.ProblemID,
-                CoderID = dto.CoderID,
-            };
-            _context.Solved.Add(solved);
+                var solved = new Solved
+                {
+                    ProblemID = dto.ProblemID,
+                    CoderID = dto.CoderID,
+                };
+                _context.Solved.Add(solved);
+                
+            }
             await _context.SaveChangesAsync();
             dto.SubmissionID = obj.SubmissionID;
             return dto;
         }
-        private async Task<bool> IsSubmissionExistAsync(int problemID, int coderID)
+        private async Task<bool> IsSubmissionExistAsync(int problemID, int coderID, int? takePartID = null)
         {
-            return await _context.Solved.AnyAsync(s=>s.CoderID == coderID && s.ProblemID == problemID);
+            if (takePartID == null)
+            {
+                return await _context.Solved.AnyAsync(s => s.CoderID == coderID && s.ProblemID == problemID);
+            }
+            else
+            {
+                return await _context.Submissions
+                    .AnyAsync(s => s.CoderID == coderID && s.ProblemID == problemID && s.TakePartID == takePartID);
+            }
+        }
+        private async Task<bool> IsSolved(int problemID, int coderID)
+        {
+            return await _context.Solved.AnyAsync(s => s.ProblemID == problemID && s.CoderID == coderID);
         }
         public async Task<bool> DeleteSubmissionAsync(int id)
         {
@@ -145,7 +161,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             obj.SubmissionStatus = dto.SubmissionStatus != 0 ? dto.SubmissionStatus : obj.SubmissionStatus;
             obj.TestRunCount = dto.TestRunCount ?? obj.TestRunCount;
             obj.TestResult = string.IsNullOrEmpty(dto.TestResult) ? obj.TestResult : dto.TestResult;
-
+  
             if (obj.TestRuns.Any())
             {
                 obj.MaxTimeDuration = obj.TestRuns.Max(tr => tr.TimeDuration);

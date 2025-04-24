@@ -42,11 +42,11 @@ const ProblemSolver = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const token = Cookies.get('token');
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isRegistered, setIsRegistered] = useState(false);
+  const [participationId, setParticipationId] = useState(null);
   const [contestProblems, setContestProblems] = useState([]);
   const isPrevDisabled = currentIndex <= 0;
   const isNextDisabled = currentIndex >= contestProblems.length - 1;
-
+  const [takepart, setTakepart] = useState(null);
   const sidebarVariants = {
     hidden: { x: '-100%' },
     visible: { x: '0%' },
@@ -72,14 +72,24 @@ const ProblemSolver = () => {
         console.error('Đã xảy ra lỗi', error);
       }
       if (contestId) {
-        const regRes = await api.get(
-          `/Participation/check?contestID=${contestId}`,
-        );
-        setIsRegistered(regRes.data.participationId !== -1);
-        const contestDataRes = await api.get(`/Contest/${contestId}`);
-        const contestData = contestDataRes.data;
+        try {
+          const [regRes, contestDataRes] = await Promise.all([
+            api.get(`/Participation/check?contestID=${contestId}`),
+            api.get(`/Contest/${contestId}`),
+          ]);
+          if (!regRes.data.onGoing) {
+            return;
+          }
+          const participationId = regRes.data.participationId;
+          setParticipationId(participationId);
 
-        if (contestData.status === 1) {
+          const takepartRes = await api.post(`/TakePart/create`, {
+            problemID: id,
+            participationID: participationId,
+          });
+
+          setTakepart(takepartRes.data.takePartID);
+
           const probRes = await api.get('/HasProblem/all', {
             params: { contestId: contestId, ascending: true },
           });
@@ -98,6 +108,8 @@ const ProblemSolver = () => {
             );
             setCurrentIndex(currentIndex !== -1 ? currentIndex : 0);
           }
+        } catch (error) {
+          console.error('Lỗi khi lấy thông tin contest:', error);
         }
       } else {
         const problemListRes = await api.get('/Problem/all');
@@ -122,7 +134,7 @@ const ProblemSolver = () => {
     return () => {
       localStorage.removeItem('takepart');
     };
-  }, [id, token, onOpen, navigate]);
+  }, [id, token, onOpen, navigate, takepart]);
   const handlePrev = () => {
     if (currentIndex > 0) {
       const newIndex = currentIndex - 1;
@@ -341,7 +353,7 @@ const ProblemSolver = () => {
 
           {/* Editor */}
           <Box width="60%" height="100%" bgColor="gray.200">
-            <EditorTab />
+            <EditorTab takepart={takepart} />
           </Box>
         </Split>
       </Container>

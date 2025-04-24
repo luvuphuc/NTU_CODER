@@ -37,7 +37,7 @@ const defaultSampleCode = {
   '.java': `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}`,
 };
 
-const EditorTab = () => {
+const EditorTab = ({ takepart }) => {
   const [compilers, setCompilers] = useState([]);
   const [selectedCompiler, setSelectedCompiler] = useState(null);
   const [theme, setTheme] = useState('vs-dark');
@@ -124,7 +124,7 @@ const EditorTab = () => {
         compilerId: selectedCompiler.compilerID,
         submissionCode: code,
         submissionStatus: 0,
-        takePartId: localStorage.getItem('takepart'),
+        takePartID: takepart,
       });
       if (res.status === 200)
         showModal(
