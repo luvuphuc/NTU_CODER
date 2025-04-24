@@ -131,7 +131,6 @@ namespace ntucoderbe.Controllers
                 });
             }
         }
-        [Authorize]
         [HttpGet("check")]
         public async Task<IActionResult> CheckParticipationAndPermission(int contestID)
         {

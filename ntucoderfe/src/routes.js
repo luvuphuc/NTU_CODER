@@ -146,6 +146,11 @@ const routes = [
         path: '/:id',
         component: <ContestDetailPage />,
       },
+      {
+        name: 'Chi tiết bài tập cuộc thi',
+        path: '/:contestId/problem/:id',
+        component: <ProblemSolver />,
+      },
     ],
   },
   {

@@ -1,4 +1,3 @@
-// Imports giữ nguyên như ban đầu
 import React, { useEffect, useState } from 'react';
 import {
   Box,
@@ -98,7 +97,15 @@ export default function ContestDetailPage() {
         const contestRes = await api.get(`/Contest/${id}`);
         const contestData = contestRes.data;
         setContest(contestData);
-
+        if (contestData.status === 1 || contestData.status === 2) {
+          const probRes = await api.get('/HasProblem/all', {
+            params: { contestId: id, ascending: true },
+          });
+          if (probRes.status === 200) {
+            const problems = probRes.data.data;
+            setHasProblems(problems);
+          }
+        }
         if (token) {
           const regRes = await api.get(`/Participation/check?contestID=${id}`);
           if (regRes.data.participationId !== -1) {
@@ -106,13 +113,6 @@ export default function ContestDetailPage() {
           } else {
             setIsRegistered(false);
           }
-        }
-
-        if (contestData.status === 1 || contestData.status === 2) {
-          const probRes = await api.get('/HasProblem/all', {
-            params: { contestId: id, ascending: true },
-          });
-          if (probRes.status === 200) setHasProblems(probRes.data.data);
         }
       } catch (error) {
         console.error('Lỗi khi tải dữ liệu:', error);
@@ -144,7 +144,7 @@ export default function ContestDetailPage() {
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
   }, [contest]);
-  const handleGoToProblem = async (contestId, problemId) => {
+  const handleGoToProblem = async (problemId) => {
     if (!token) {
       toast({
         position: 'top',
@@ -156,43 +156,10 @@ export default function ContestDetailPage() {
     }
 
     try {
-      if (contest.status === 0) {
-        toast({
-          render: () => (
-            <CustomToast success={false} messages="Cuộc thi đã kết thúc!" />
-          ),
-          position: 'top',
-          duration: 3000,
-          isClosable: true,
-        });
-        return;
-      }
       const res = await api.get(`/Participation/check?contestID=${id}`);
       const { participationId, onGoing } = res.data;
 
-      if (participationId !== -1 && onGoing) {
-        try {
-          const takepartRes = await api.post('/TakePart/create', {
-            problemID: problemId,
-            participationID: participationId,
-          });
-
-          localStorage.setItem('takepart', takepartRes.data.takePartID);
-          navigate(`/problem/${problemId}`);
-        } catch (error) {
-          toast({
-            render: () => (
-              <CustomToast
-                success={false}
-                messages="Không thể ghi nhận tham gia bài này!"
-              />
-            ),
-            position: 'top',
-            duration: 3000,
-            isClosable: true,
-          });
-        }
-      } else if (participationId === -1) {
+      if (participationId === -1) {
         toast({
           render: () => (
             <CustomToast
@@ -204,7 +171,10 @@ export default function ContestDetailPage() {
           duration: 3000,
           isClosable: true,
         });
-      } else if (!onGoing) {
+        return;
+      }
+
+      if (!onGoing) {
         toast({
           render: () => (
             <CustomToast success={false} messages="Cuộc thi chưa bắt đầu!" />
@@ -213,8 +183,10 @@ export default function ContestDetailPage() {
           duration: 3000,
           isClosable: true,
         });
-        setIsRegistered(true);
+        return;
       }
+
+      navigate(`/contest/${id}/problem/${problemId}`);
     } catch (error) {
       toast({
         render: () => <CustomToast success={false} messages="Đã xảy ra lỗi!" />,

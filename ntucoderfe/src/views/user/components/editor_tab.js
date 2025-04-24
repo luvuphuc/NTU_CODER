@@ -136,7 +136,6 @@ const EditorTab = () => {
           </>,
           'success',
         );
-      localStorage.removeItem('takepart');
     } catch {
       showModal(
         'Lỗi khi nộp bài!',

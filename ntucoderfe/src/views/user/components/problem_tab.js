@@ -4,7 +4,9 @@ import { VStack, Heading, Text, Box } from '@chakra-ui/react';
 const ProblemTab = ({ problem }) => {
   return (
     <VStack align="start" spacing={4}>
-      <Heading size="lg">{problem.problemName}</Heading>
+      <Heading size="lg" maxWidth="100%">
+        {problem.problemName}
+      </Heading>
       <Text>
         <strong>Mã bài toán:</strong> {problem.problemCode}
       </Text>

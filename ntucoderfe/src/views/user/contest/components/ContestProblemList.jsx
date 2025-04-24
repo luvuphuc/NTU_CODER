@@ -57,7 +57,7 @@ const ContestProblemList = ({ problems, handleGoToProblem }) => (
                 _hover={{ color: 'blue.800' }}
                 onClick={(e) => {
                   e.preventDefault();
-                  handleGoToProblem(p.contestId, p.problemID);
+                  handleGoToProblem(p.problemID);
                 }}
               >
                 {p.problemName.length > 18
