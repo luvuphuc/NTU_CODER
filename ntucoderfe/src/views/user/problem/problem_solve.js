@@ -18,8 +18,11 @@ import {
   ModalFooter,
   useDisclosure,
   Text,
+  IconButton,
+  HStack,
+  Tooltip,
 } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Split from 'react-split';
 import api from 'utils/api';
 import ProblemTab from '../components/problem_tab';
@@ -27,14 +30,28 @@ import RankingTab from '../components/ranking_tab';
 import HistorySubTab from '../components/historysub_tab';
 import EditorTab from '../components/editor_tab';
 import Cookies from 'js-cookie';
+import { HamburgerIcon, ArrowBackIcon, RepeatIcon } from '@chakra-ui/icons';
+import { IoChevronForwardSharp, IoChevronBackSharp } from 'react-icons/io5';
 const MotionTab = motion(Tab);
 
 const ProblemSolver = () => {
-  const { id } = useParams();
+  const { contestId, id } = useParams();
   const navigate = useNavigate();
   const [problem, setProblemDetail] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
   const token = Cookies.get('token');
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [contestProblems, setContestProblems] = useState([]);
+  const isPrevDisabled = currentIndex <= 0;
+  const isNextDisabled = currentIndex >= contestProblems.length - 1;
+
+  const sidebarVariants = {
+    hidden: { x: '-100%' },
+    visible: { x: '0%' },
+    exit: { x: '-100%' },
+  };
   useEffect(() => {
     // Nếu chưa đăng nhập, hiển thị modal yêu cầu đăng nhập
     if (!token) {
@@ -54,6 +71,51 @@ const ProblemSolver = () => {
       } catch (error) {
         console.error('Đã xảy ra lỗi', error);
       }
+      if (contestId) {
+        const regRes = await api.get(
+          `/Participation/check?contestID=${contestId}`,
+        );
+        setIsRegistered(regRes.data.participationId !== -1);
+        const contestDataRes = await api.get(`/Contest/${contestId}`);
+        const contestData = contestDataRes.data;
+
+        if (contestData.status === 1) {
+          const probRes = await api.get('/HasProblem/all', {
+            params: { contestId: contestId, ascending: true },
+          });
+
+          if (probRes.status === 200) {
+            const hasProblems = probRes.data.data;
+            const orderedProblems = hasProblems
+              .sort((a, b) => a.problemOrder - b.problemOrder)
+              .map((p) => ({
+                problemID: p.problemID,
+                problemName: p.problemName,
+              }));
+            setContestProblems(orderedProblems);
+            const currentIndex = orderedProblems.findIndex(
+              (p) => p.problemID === Number(id),
+            );
+            setCurrentIndex(currentIndex !== -1 ? currentIndex : 0);
+          }
+        }
+      } else {
+        const problemListRes = await api.get('/Problem/all');
+        if (problemListRes.status === 200) {
+          const allProblems = problemListRes.data.data;
+          const orderedProblems = allProblems
+            .sort((a, b) => a.problemOrder - b.problemOrder)
+            .map((p) => ({
+              problemID: p.problemID,
+              problemName: p.problemName,
+            }));
+          setContestProblems(orderedProblems);
+          const currentIndex = orderedProblems.findIndex(
+            (p) => p.problemID === Number(id),
+          );
+          setCurrentIndex(currentIndex !== -1 ? currentIndex : 0);
+        }
+      }
     };
 
     if (id) fetchData();
@@ -61,7 +123,30 @@ const ProblemSolver = () => {
       localStorage.removeItem('takepart');
     };
   }, [id, token, onOpen, navigate]);
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      const newIndex = currentIndex - 1;
+      setCurrentIndex(newIndex);
+      const problemID = contestProblems[newIndex].problemID;
+      handleNavigate(problemID);
+    }
+  };
 
+  const handleNext = () => {
+    if (currentIndex < contestProblems.length - 1) {
+      const newIndex = currentIndex + 1;
+      setCurrentIndex(newIndex);
+      const problemID = contestProblems[newIndex].problemID;
+      handleNavigate(problemID);
+    }
+  };
+  const handleNavigate = (problemID) => {
+    if (contestId) {
+      navigate(`/contest/${contestId}/problem/${problemID}`);
+    } else {
+      navigate(`/problem/${problemID}`);
+    }
+  };
   if (!token) {
     return (
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
@@ -112,66 +197,124 @@ const ProblemSolver = () => {
         >
           {/* Tabs: Bài tập, Xếp hạng, Thảo luận */}
           <Box width="40%" overflowY="auto" sx={customScrollbarStyle}>
+            <Box
+              px={3}
+              py={2}
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              borderTopRadius="lg"
+              borderBottom="1px solid #C0C0C0"
+            >
+              <HStack spacing={2}>
+                <IconButton
+                  aria-label="Menu"
+                  icon={<HamburgerIcon />}
+                  size="sm"
+                  fontSize="20px"
+                  variant="ghost"
+                  onClick={() => setSidebarOpen(true)}
+                />
+                <Text
+                  fontWeight="semibold"
+                  fontSize="xl"
+                  isTruncated
+                  maxW="200px"
+                >
+                  Danh sách bài tập
+                </Text>
+              </HStack>
+
+              <HStack spacing={1}>
+                <IconButton
+                  aria-label="Back"
+                  icon={<IoChevronBackSharp />}
+                  fontSize="20px"
+                  size="sm"
+                  variant="ghost"
+                  borderRadius="md"
+                  _hover={{
+                    bg: 'gray.200',
+                    border: '1px solid #ccc',
+                  }}
+                  onClick={handlePrev}
+                  isDisabled={isPrevDisabled}
+                />
+                <IconButton
+                  aria-label="Forward"
+                  icon={<IoChevronForwardSharp />}
+                  fontSize="20px"
+                  size="sm"
+                  variant="ghost"
+                  borderRadius="md"
+                  _hover={{
+                    bg: 'gray.200',
+                    border: '1px solid #ccc',
+                  }}
+                  onClick={handleNext}
+                  isDisabled={isNextDisabled}
+                />
+                <Tooltip label="Shuffle">
+                  <IconButton
+                    aria-label="Shuffle"
+                    icon={<RepeatIcon />}
+                    fontSize="20px"
+                    size="sm"
+                    variant="ghost"
+                    borderRadius="md"
+                    _hover={{
+                      bg: 'gray.200',
+                      border: '1px solid #ccc',
+                    }}
+                    onClick={handleNext}
+                  />
+                </Tooltip>
+              </HStack>
+            </Box>
             <Tabs variant="unstyled">
               <TabList
-                width="100%"
-                borderBottom="1px solid #C0C0C0"
-                bg="#E3E3E3"
-                display="flex"
+                px={4}
+                pt={2}
+                bg="#f4f4f4"
                 gap={2}
-                padding="8px 10px"
-                zIndex={1}
-                borderTopRadius="lg"
-                boxSizing="border-box"
+                borderBottom="1px solid #ccc"
+                justifyContent="flex-start"
+                position="relative"
+                zIndex={10}
+                overflowX="auto"
+                sx={{
+                  ...customScrollbarStyle,
+                  '&::-webkit-scrollbar': {
+                    height: '6px',
+                  },
+                }}
               >
-                <MotionTab
-                  _selected={{
-                    bg: 'white',
-                    borderBottom: '2px solid #E3E3E3',
-                    fontWeight: 'bold',
-                  }}
-                  _hover={{ background: '#DADADA' }}
-                  borderTopRadius="lg"
-                  px={4}
-                  py={2}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  Bài tập
-                </MotionTab>
-                <MotionTab
-                  _selected={{
-                    bg: 'white',
-                    borderBottom: '2px solid #E3E3E3',
-                    fontWeight: 'bold',
-                  }}
-                  _hover={{ background: '#DADADA' }}
-                  borderTopRadius="lg"
-                  px={4}
-                  py={2}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  Xếp hạng
-                </MotionTab>
-                <MotionTab
-                  _selected={{
-                    bg: 'white',
-                    borderBottom: '2px solid #E3E3E3',
-                    fontWeight: 'bold',
-                  }}
-                  _hover={{ background: '#DADADA' }}
-                  borderTopRadius="lg"
-                  px={4}
-                  py={2}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  Lịch sử làm bài
-                </MotionTab>
+                {['Bài tập', 'Xếp hạng', 'Lịch sử làm bài'].map(
+                  (label, idx) => (
+                    <MotionTab
+                      key={idx}
+                      _selected={{
+                        bg: 'white',
+                        fontWeight: 'bold',
+                        boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
+                        borderTopLeftRadius: '8px',
+                        borderTopRightRadius: '8px',
+                        border: '1px solid #ccc',
+                        borderBottom: 'none',
+                      }}
+                      _hover={{
+                        background: '#e2e2e2',
+                      }}
+                      transition="all 0.2s ease-in-out"
+                      px={6}
+                      py={2}
+                      bg="transparent"
+                      borderRadius="8px 8px 0 0"
+                    >
+                      {label}
+                    </MotionTab>
+                  ),
+                )}
               </TabList>
 
               <Box maxHeight="550px">
@@ -202,6 +345,94 @@ const ProblemSolver = () => {
           </Box>
         </Split>
       </Container>
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={sidebarVariants}
+            transition={{ duration: 0.3 }}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              height: '100vh',
+              width: '40%',
+              backgroundColor: 'white',
+              boxShadow: 'lg',
+              zIndex: 2000,
+              overflowY: 'auto',
+              ...customScrollbarStyle,
+            }}
+          >
+            <Box
+              p={4}
+              borderBottom="1px solid #ccc"
+              fontWeight="bold"
+              fontSize="lg"
+            >
+              Danh sách bài tập
+              <IconButton
+                aria-label="Back"
+                icon={<ArrowBackIcon />}
+                size="sm"
+                fontSize="20px"
+                borderRadius="md"
+                variant="ghost"
+                float="right"
+                onClick={() => setSidebarOpen(false)}
+              />
+            </Box>
+
+            <Box px={0}>
+              {contestProblems.map((item, index) => (
+                <Box
+                  key={index}
+                  py={2}
+                  borderBottom="1px solid #eee"
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  bg={index % 2 === 0 ? 'gray.50' : 'white'}
+                  _hover={{ bg: 'gray.100', cursor: 'pointer' }}
+                  onClick={() => {
+                    setCurrentIndex(index);
+                    handleNavigate(item.problemID);
+                    setSidebarOpen(false);
+                  }}
+                >
+                  <Tooltip label={item.problemName} placement="top" hasArrow>
+                    <Text
+                      fontWeight="medium"
+                      mx={3}
+                      maxW="70%"
+                      isTruncated
+                      _hover={{ color: 'blue.500' }}
+                    >
+                      {item.problemID}. {item.problemName}
+                    </Text>
+                  </Tooltip>
+                  <Text
+                    mx={3}
+                    fontSize="sm"
+                    color={
+                      index === 0
+                        ? 'green.500'
+                        : index === contestProblems.length - 1
+                        ? 'red.500'
+                        : 'gray.600'
+                    }
+                    fontWeight="semibold"
+                  >
+                    #{index + 1}
+                  </Text>
+                </Box>
+              ))}
+            </Box>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Box>
   );
 };
