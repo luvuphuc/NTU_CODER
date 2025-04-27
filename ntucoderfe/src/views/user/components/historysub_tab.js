@@ -1,4 +1,4 @@
-import React from "react";
+import { React, useEffect, useState } from 'react';
 import {
   Table,
   Thead,
@@ -8,80 +8,168 @@ import {
   Td,
   TableContainer,
   VStack,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
+import { useParams } from 'react-router-dom';
+import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
+import api from 'utils/api';
+import moment from 'moment-timezone';
 
-const historyData = [
-  {
-    stt: 1,
-    time: "12:47 09/12/2021",
-    language: "C",
-    tests: "2/2",
-    score: 100,
-    executionTime: "0 ms",
-  },
-  {
-    stt: 2,
-    time: "12:47 09/12/2021",
-    language: "C",
-    tests: "2/2",
-    score: 100,
-    executionTime: "0 ms",
-  },
-];
+const HistorySubTab = ({ takepartId, onSubmissionSelect }) => {
+  const { id } = useParams();
+  const [submissions, setSubmissions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [sortField, setSortField] = useState('submitTime');
+  const [ascending, setAscending] = useState(true);
+  const fetchHistory = async () => {
+    try {
+      setLoading(true);
+      const params = {
+        problemId: id,
+        sortField: sortField,
+        ascending: ascending,
+      };
+      if (takepartId) {
+        params.takePartId = takepartId;
+      }
+      const res = await api.get('/Submission/history', { params });
+      setSubmissions(res.data);
+    } catch (error) {
+      console.error('Lỗi', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-const HistorySubTab = () => {
+  useEffect(() => {
+    if (id) {
+      fetchHistory();
+    }
+  }, [id, takepartId, sortField, ascending]);
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setAscending((prev) => !prev);
+    } else {
+      setSortField(field);
+      setAscending(true);
+    }
+  };
+
+  const renderSortIcon = (field) => {
+    if (sortField !== field) return null;
+    return ascending ? (
+      <TriangleUpIcon fontSize="xs" pb={1} />
+    ) : (
+      <TriangleDownIcon fontSize="xs" pb={1} />
+    );
+  };
   return (
     <VStack spacing={1} w="full" align="stretch">
-      <TableContainer w="full" minW="max-content" overflowX="auto" px={0} pl={0} mx={0} borderRadius="md" boxShadow="md">
-        <Table variant="striped" colorScheme='blue' size="sm" w="full" minW="max-content" showColumnBorder="true">
-          {/* Header */}
+      <TableContainer
+        w="full"
+        minW="max-content"
+        overflowX="auto"
+        px={0}
+        pl={0}
+        mx={0}
+        borderRadius="md"
+        boxShadow="md"
+      >
+        <Table
+          variant="striped"
+          colorScheme="blue"
+          size="sm"
+          w="full"
+          minW="max-content"
+        >
           <Thead bg="gray.300">
             <Tr borderBottom="2px solid gray.600">
-              <Th p={2} fontSize="xs" textAlign="center" whiteSpace="normal" maxW="40px">
+              <Th p={2} fontSize="xs" textAlign="center" maxW="40px">
                 STT
               </Th>
-              <Th p={2} fontSize="xs" textAlign="left" whiteSpace="normal" maxW="80px">
-                Thời gian
+              <Th
+                p={2}
+                fontSize="xs"
+                textAlign="left"
+                maxW="80px"
+                cursor="pointer"
+                onClick={() => handleSort('submitTime')}
+              >
+                Thời gian nộp {renderSortIcon('submitTime')}
               </Th>
-              <Th p={2} fontSize="xs" textAlign="center" whiteSpace="normal" maxW="80px">
+              <Th p={2} fontSize="xs" textAlign="center" maxW="80px">
                 Ngôn ngữ
               </Th>
-              <Th p={2} fontSize="xs" textAlign="center" whiteSpace="normal" maxW="80px">
+              <Th p={2} fontSize="xs" textAlign="center" maxW="80px">
                 Kiểm thử
               </Th>
-              <Th p={2} fontSize="xs" textAlign="center" whiteSpace="normal" maxW="60px">
+              <Th p={2} fontSize="xs" textAlign="center" maxW="60px">
                 Điểm
               </Th>
-              <Th p={2} fontSize="xs" textAlign="center" whiteSpace="normal" maxW="100px">
-                Thời gian (ms)
+              <Th
+                p={2}
+                fontSize="xs"
+                textAlign="center"
+                maxW="100px"
+                cursor="pointer"
+                onClick={() => handleSort('maxTimeDuration')}
+              >
+                Thời gian {renderSortIcon('maxTimeDuration')}
               </Th>
+              <Th p={2} fontSize="xs" textAlign="center" maxW="60px"></Th>
             </Tr>
           </Thead>
 
-          {/* Body */}
           <Tbody>
-            {historyData.map((entry) => (
-              <Tr key={entry.stt} borderBottom="1px solid gray.400">
-                <Td p={2} fontSize="sm" textAlign="center" whiteSpace="nowrap" >
-                  {entry.stt}
-                </Td>
-                <Td p={2} fontSize="sm" textAlign="left" whiteSpace="nowrap" >
-                  {entry.time}
-                </Td>
-                <Td p={2} fontSize="sm" textAlign="center" whiteSpace="nowrap" >
-                  {entry.language}
-                </Td>
-                <Td p={2} fontSize="sm" textAlign="center" whiteSpace="nowrap" >
-                  {entry.tests}
-                </Td>
-                <Td p={2} fontSize="sm" textAlign="center" whiteSpace="nowrap">
-                  {entry.score}
-                </Td>
-                <Td p={2} fontSize="sm" textAlign="center" whiteSpace="nowrap">
-                  {entry.executionTime}
+            {submissions.length === 0 ? (
+              <Tr>
+                <Td colSpan={7} textAlign="center" fontSize="sm">
+                  Chưa có bài làm nào
                 </Td>
               </Tr>
-            ))}
+            ) : (
+              submissions.map((submission, index) => (
+                <Tr
+                  key={submission.submissionID}
+                  borderBottom="1px solid gray.400"
+                >
+                  <Td p={2} fontSize="sm" textAlign="center">
+                    {index + 1}
+                  </Td>
+                  <Td p={2} fontSize="sm" textAlign="left">
+                    {moment
+                      .utc(submission.submitTime)
+                      .tz('Asia/Ho_Chi_Minh')
+                      .format('HH:mm DD/MM/YYYY')}
+                  </Td>
+                  <Td p={2} fontSize="sm" textAlign="center">
+                    {submission.compilerName || '---'}
+                  </Td>
+                  <Td p={2} fontSize="sm" textAlign="center">
+                    {submission.testResult || '--/--'}
+                  </Td>
+                  <Td p={2} fontSize="sm" textAlign="center">
+                    {submission.point}
+                  </Td>
+                  <Td p={2} fontSize="sm" textAlign="center">
+                    {submission.maxTimeDuration != null
+                      ? `${submission.maxTimeDuration} ms`
+                      : '--'}
+                  </Td>
+                  <Td
+                    fontSize="sm"
+                    textAlign="center"
+                    onClick={() =>
+                      onSubmissionSelect(submission.submissionCode)
+                    }
+                    cursor="pointer"
+                    color="blue.500"
+                  >
+                    Chi tiết
+                  </Td>
+                </Tr>
+              ))
+            )}
           </Tbody>
         </Table>
       </TableContainer>

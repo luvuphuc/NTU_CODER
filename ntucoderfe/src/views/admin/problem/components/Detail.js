@@ -240,6 +240,7 @@ const ProblemDetail = () => {
           <Button
             leftIcon={<MdOutlineArrowBack />}
             colorScheme="blue"
+            borderRadius="md"
             onClick={() => navigate(`/admin/problem`)}
           >
             Quay lại
@@ -247,6 +248,7 @@ const ProblemDetail = () => {
           <Button
             colorScheme="teal"
             onClick={handleSave}
+            borderRadius="md"
             disabled={editField === null}
           >
             Lưu thay đổi

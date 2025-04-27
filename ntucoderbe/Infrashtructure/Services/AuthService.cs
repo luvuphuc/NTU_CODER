@@ -59,7 +59,7 @@ namespace ntucoderbe.Infrashtructure.Services
         public int GetUserIdFromToken()
         {
             var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return int.TryParse(userIdClaim, out int userId) ? userId : 1;
+            return int.TryParse(userIdClaim, out int userId) ? userId : -1;
         }
 
 

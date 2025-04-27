@@ -1,9 +1,11 @@
 ﻿using AddressManagementSystem.Infrashtructure.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
 using ntucoderbe.Infrashtructure.Repositories;
 using ntucoderbe.Infrashtructure.Services;
+using ntucoderbe.Models.ERD;
 
 namespace ntucoderbe.Controllers
 {
@@ -147,6 +149,18 @@ namespace ntucoderbe.Controllers
                     Error = ex.Message
                 });
             }
+        }
+        [Authorize]
+        [HttpGet("history")]
+        public async Task<IActionResult> GetHistoryListSubmission(int problemId, int? takePartId = null, string? sortField = null, bool ascending = true)
+        {
+            var coderId = _authService.GetUserIdFromToken();
+            if(coderId == -1)
+            {
+                return Unauthorized();  
+            }
+            List<SubmissionDTO> list = await _submissionRepository.GetListSubmissionFromCoderIdAsync(problemId, coderId,takePartId,sortField,ascending);
+            return Ok(list);
         }
     }
 }

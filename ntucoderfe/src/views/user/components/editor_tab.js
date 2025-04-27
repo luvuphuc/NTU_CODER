@@ -37,7 +37,7 @@ const defaultSampleCode = {
   '.java': `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}`,
 };
 
-const EditorTab = ({ takepart }) => {
+const EditorTab = ({ takepart, submissionCode }) => {
   const [compilers, setCompilers] = useState([]);
   const [selectedCompiler, setSelectedCompiler] = useState(null);
   const [theme, setTheme] = useState('vs-dark');
@@ -59,7 +59,11 @@ const EditorTab = ({ takepart }) => {
   const [modalTitle, setModalTitle] = useState('');
   const [modalMessage, setModalMessage] = useState('');
   const [modalStatus, setModalStatus] = useState('success');
-
+  useEffect(() => {
+    if (submissionCode) {
+      setCode(submissionCode);
+    }
+  }, [submissionCode]);
   useEffect(() => {
     const fetchCompilers = async () => {
       try {
@@ -329,7 +333,7 @@ const EditorTab = ({ takepart }) => {
             selectedCompiler?.compilerExtension.replace('.', '') || 'plaintext'
           }
           theme={theme}
-          value={code}
+          value={submissionCode || code}
           onChange={(newValue) => setCode(newValue)}
           options={{ fontSize: 14, minimap: { enabled: false } }}
         />

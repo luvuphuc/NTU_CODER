@@ -30,7 +30,8 @@ import RankingTab from '../components/ranking_tab';
 import HistorySubTab from '../components/historysub_tab';
 import EditorTab from '../components/editor_tab';
 import Cookies from 'js-cookie';
-import { HamburgerIcon, ArrowBackIcon, RepeatIcon } from '@chakra-ui/icons';
+import { HamburgerIcon, ArrowBackIcon } from '@chakra-ui/icons';
+import { LuShuffle } from 'react-icons/lu';
 import { IoChevronForwardSharp, IoChevronBackSharp } from 'react-icons/io5';
 const MotionTab = motion(Tab);
 
@@ -44,8 +45,10 @@ const ProblemSolver = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [participationId, setParticipationId] = useState(null);
   const [contestProblems, setContestProblems] = useState([]);
+  const [contest, setContest] = useState(null);
   const isPrevDisabled = currentIndex <= 0;
   const isNextDisabled = currentIndex >= contestProblems.length - 1;
+  const [submissionCode, setSubmissionCode] = useState('');
   const [takepart, setTakepart] = useState(null);
   const sidebarVariants = {
     hidden: { x: '-100%' },
@@ -53,7 +56,6 @@ const ProblemSolver = () => {
     exit: { x: '-100%' },
   };
   useEffect(() => {
-    // Nếu chưa đăng nhập, hiển thị modal yêu cầu đăng nhập
     if (!token) {
       onOpen();
       return;
@@ -77,6 +79,7 @@ const ProblemSolver = () => {
             api.get(`/Participation/check?contestID=${contestId}`),
             api.get(`/Contest/${contestId}`),
           ]);
+          setContest(contestDataRes.data);
           if (!regRes.data.onGoing) {
             return;
           }
@@ -159,6 +162,20 @@ const ProblemSolver = () => {
       navigate(`/problem/${problemID}`);
     }
   };
+  const handleShuffle = () => {
+    const shuffled = [...contestProblems];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    setContestProblems(shuffled);
+    setCurrentIndex(0);
+    handleNavigate(shuffled[0].problemID);
+  };
+  const handleSubmissionSelect = (code) => {
+    setSubmissionCode(code);
+  };
+
   if (!token) {
     return (
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
@@ -233,7 +250,7 @@ const ProblemSolver = () => {
                   isTruncated
                   maxW="200px"
                 >
-                  Danh sách bài tập
+                  {contest ? contest.contestName : 'Danh sách bài tập'}
                 </Text>
               </HStack>
 
@@ -269,7 +286,7 @@ const ProblemSolver = () => {
                 <Tooltip label="Shuffle">
                   <IconButton
                     aria-label="Shuffle"
-                    icon={<RepeatIcon />}
+                    icon={<LuShuffle />}
                     fontSize="20px"
                     size="sm"
                     variant="ghost"
@@ -278,7 +295,7 @@ const ProblemSolver = () => {
                       bg: 'gray.200',
                       border: '1px solid #ccc',
                     }}
-                    onClick={handleNext}
+                    onClick={handleShuffle}
                   />
                 </Tooltip>
               </HStack>
@@ -344,7 +361,10 @@ const ProblemSolver = () => {
                     <RankingTab />
                   </TabPanel>
                   <TabPanel>
-                    <HistorySubTab />
+                    <HistorySubTab
+                      takepartId={takepart}
+                      onSubmissionSelect={handleSubmissionSelect}
+                    />
                   </TabPanel>
                 </TabPanels>
               </Box>
@@ -353,7 +373,7 @@ const ProblemSolver = () => {
 
           {/* Editor */}
           <Box width="60%" height="100%" bgColor="gray.200">
-            <EditorTab takepart={takepart} />
+            <EditorTab takepart={takepart} submissionCode={submissionCode} />
           </Box>
         </Split>
       </Container>
@@ -384,7 +404,7 @@ const ProblemSolver = () => {
               fontWeight="bold"
               fontSize="lg"
             >
-              Danh sách bài tập
+              {contest ? contest.contestName : 'Danh sách bài tập'}
               <IconButton
                 aria-label="Back"
                 icon={<ArrowBackIcon />}
@@ -407,22 +427,31 @@ const ProblemSolver = () => {
                   justifyContent="space-between"
                   alignItems="center"
                   bg={index % 2 === 0 ? 'gray.50' : 'white'}
-                  _hover={{ bg: 'gray.100', cursor: 'pointer' }}
+                  _hover={
+                    currentIndex === index
+                      ? {}
+                      : { bg: 'gray.100', cursor: 'pointer' }
+                  }
                   onClick={() => {
-                    setCurrentIndex(index);
-                    handleNavigate(item.problemID);
-                    setSidebarOpen(false);
+                    if (currentIndex !== index) {
+                      setCurrentIndex(index);
+                      handleNavigate(item.problemID);
+                      setSidebarOpen(false);
+                    }
                   }}
                 >
                   <Tooltip label={item.problemName} placement="top" hasArrow>
                     <Text
-                      fontWeight="medium"
+                      fontWeight={currentIndex === index ? 'bold' : 'medium'}
                       mx={3}
                       maxW="70%"
                       isTruncated
-                      _hover={{ color: 'blue.500' }}
+                      color={currentIndex === index ? 'gray.500' : 'inherit'}
+                      _hover={
+                        currentIndex === index ? {} : { color: 'blue.500' }
+                      }
                     >
-                      {item.problemID}. {item.problemName}
+                      {index + 1}. {item.problemName}
                     </Text>
                   </Tooltip>
                   <Text

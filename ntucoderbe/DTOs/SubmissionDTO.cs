@@ -11,11 +11,12 @@
         public int ProblemID { get; set; }
         public string? ProblemName { get; set; }
         public DateTime SubmitTime { get; set; }
-        public string SubmissionCode { get; set; }
+        public string? SubmissionCode { get; set; }
         public int SubmissionStatus { get; set; }
         public int? TestRunCount { get; set; }
         public string? TestResult { get; set; }
         public int? MaxMemorySize { get; set; }
         public int? MaxTimeDuration { get; set; }
+        public int? Point {  get; set; }
     }
 }

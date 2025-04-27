@@ -226,7 +226,7 @@ export default function ProblemPage() {
         <Card
           borderRadius="lg"
           boxShadow="md"
-          minH="150px"
+          minH={{ base: '120px', md: '150px' }}
           overflow="hidden"
           _hover={{ bg: '#ebebf3', cursor: 'pointer' }}
           onClick={handleCardClick}
@@ -234,7 +234,12 @@ export default function ProblemPage() {
           <CardBody _hover={{ bg: '#ebebf3' }}>
             <Flex direction="column" justify="space-between" height="100%">
               <Flex justify="space-between" align="start">
-                <Heading size="lg" color="gray.700" noOfLines={1} maxW="70%">
+                <Heading
+                  size={{ base: 'md', md: 'lg' }}
+                  color="gray.700"
+                  noOfLines={1}
+                  maxW={{ base: '60%', md: '70%' }}
+                >
                   {problem.problemName}
                 </Heading>
                 <Flex align="center" gap={1}>
@@ -248,7 +253,10 @@ export default function ProblemPage() {
               <Wrap mt={2}>
                 {problem.selectedCategoryNames.map((category, index) => (
                   <WrapItem key={index}>
-                    <Badge colorScheme="purple" fontSize="0.8rem">
+                    <Badge
+                      colorScheme="purple"
+                      fontSize={{ base: '0.75rem', md: '0.8rem' }}
+                    >
                       {category}
                     </Badge>
                   </WrapItem>
@@ -258,7 +266,7 @@ export default function ProblemPage() {
               <Text
                 mt={2}
                 color="gray.600"
-                fontSize="md"
+                fontSize={{ base: 'sm', md: 'md' }}
                 noOfLines={2}
                 dangerouslySetInnerHTML={{ __html: problem.problemContent }}
               />
@@ -268,7 +276,7 @@ export default function ProblemPage() {
 
         <Box
           position="absolute"
-          right="16px"
+          right={{ base: '8px', md: '16px' }}
           top="50%"
           transform="translateY(-50%)"
           zIndex={1}
@@ -300,14 +308,18 @@ export default function ProblemPage() {
 
   return (
     <Layout>
-      <Container maxW="7xl" py={{ base: 12, md: 12 }} px={{ base: 4, md: 8 }}>
+      <Container
+        maxW={{ base: 'sm', md: '7xl' }}
+        px={{ base: 4, md: 8 }}
+        py={{ base: 6, md: 12 }}
+      >
         <Heading textAlign="center" mb={10} color="gray.700">
           DANH SÁCH BÀI TẬP
         </Heading>
 
         <Grid
-          templateColumns={{ base: '1fr', md: '7fr 3fr' }}
-          gap={6}
+          templateColumns={{ base: '1fr', lg: '7fr 3fr' }}
+          gap={{ base: 4, md: 6 }}
           alignItems="start"
         >
           {state.loading ? (
@@ -365,7 +377,7 @@ export default function ProblemPage() {
             borderRadius="xl"
             boxShadow="lg"
             bg="white"
-            p={5}
+            p={{ base: 4, md: 5 }}
             border="1px solid"
             borderColor="gray.200"
           >
