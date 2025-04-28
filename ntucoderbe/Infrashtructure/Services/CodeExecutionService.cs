@@ -211,5 +211,54 @@ namespace ntucoderbe.Infrashtructure.Services
                 return (false, string.Empty, "Runtime Error: Time Limit Exceeded");
             }
         }
+
+        public async Task<(string Result, string Output, string Error, int TimeDuration)> TryRunCodeAsync(string sourceCode, string compilerExtension, string input, string expectedOutput = "")
+        {
+            string containerName = $"code_runner_{Guid.NewGuid()}".Replace("-", "");
+
+            string dockerImage = compilerExtension.ToLower() switch
+            {
+                ".cpp" => "gcc:12",
+                ".java" => "openjdk:17-alpine",
+                ".py" => "python:3.9.21-alpine",
+                _ => throw new Exception($"Compiler {compilerExtension} không được hỗ trợ.")
+            };
+
+            string encodedSource = Convert.ToBase64String(Encoding.UTF8.GetBytes(sourceCode));
+
+            string command = compilerExtension.ToLower() switch
+            {
+                ".cpp" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"echo '{encodedSource}' | base64 -d | tee temp.cpp | g++ -x c++ - -o temp.out && echo '{input.Replace("\"", "\\\"")}' | ./temp.out\"",
+                ".java" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"echo '{encodedSource}' | base64 -d > Main.java && javac Main.java && echo '{input.Replace("\"", "\\\"")}' | java Main\"",
+                ".py" => $"docker run --rm --name {containerName} {dockerImage} sh -c \"echo '{encodedSource}' | base64 -d > temp.py && echo '{input.Replace("\"", "\\\"")}' | python3 temp.py\"",
+                _ => throw new Exception($"Compiler {compilerExtension} không được hỗ trợ.")
+            };
+
+            var stopwatch = Stopwatch.StartNew();
+            var result = await RunProcessAsync(command, containerName);
+            stopwatch.Stop();
+
+            string testResult;
+            if (!result.IsSuccess)
+            {
+                bool isRuntimeError = Regex.IsMatch(result.Error, @"Exception in thread|Error:");
+                testResult = isRuntimeError ? "Runtime Error" : "Compilation Error";
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(expectedOutput))
+                {
+                    bool isCorrect = string.Equals(result.Output.Trim(), expectedOutput.Trim(), StringComparison.OrdinalIgnoreCase);
+                    testResult = isCorrect ? "Accepted" : "Wrong Answer";
+                }
+                else
+                {
+                    testResult = "Success";
+                }
+            }
+
+            return (testResult, result.Output, result.Error, (int)stopwatch.ElapsedMilliseconds);
+        }
+
     }
 }

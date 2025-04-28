@@ -37,12 +37,14 @@ const defaultSampleCode = {
   '.java': `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}`,
 };
 
-const EditorTab = ({ takepart, submissionCode }) => {
+const EditorTab = ({ takepart, submissionCode, currentIndex }) => {
   const [compilers, setCompilers] = useState([]);
   const [selectedCompiler, setSelectedCompiler] = useState(null);
   const [theme, setTheme] = useState('vs-dark');
   const [code, setCode] = useState('');
   const { id: problemId } = useParams();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -116,6 +118,7 @@ const EditorTab = ({ takepart, submissionCode }) => {
   };
 
   const handleSubmit = async () => {
+    setIsLoadingSubmit(true);
     if (!validateCodeSyntax())
       return showModal(
         'Lỗi cú pháp!',
@@ -146,6 +149,8 @@ const EditorTab = ({ takepart, submissionCode }) => {
         'Đã xảy ra lỗi, vui lòng thử lại.',
         'error',
       );
+    } finally {
+      setIsLoadingSubmit(false);
     }
   };
 
@@ -252,6 +257,68 @@ const EditorTab = ({ takepart, submissionCode }) => {
     setModalStatus(status);
     onOpen();
   };
+  const handleTryRun = async () => {
+    setIsLoading(true);
+    if (!code.trim()) {
+      toast({
+        render: () => (
+          <CustomToast success={false} messages="Mã nguồn đang trống!" />
+        ),
+        position: 'top',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    if (!selectedCompiler) {
+      toast({
+        render: () => (
+          <CustomToast success={false} messages="Chưa chọn trình biên dịch!" />
+        ),
+        position: 'top',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    try {
+      const response = await api.post(
+        `/CodeExecute/try-run?compilerExtension=${selectedCompiler.compilerExtension}&problemId=${problemId}`,
+        code,
+      );
+
+      if (response.status === 200) {
+        const resultData = response.data;
+        showModal(
+          'Kết quả chạy thử',
+          <>
+            <b>Kết quả:</b> {resultData.result} <br />
+            {resultData.output && (
+              <>
+                <b>Output:</b> {resultData.output} <br />
+              </>
+            )}
+            {resultData.error && (
+              <>
+                <b>Lỗi:</b> {resultData.error} <br />
+              </>
+            )}
+            <b>Thời gian thực thi:</b> {resultData.timeDuration} ms
+          </>,
+          'success',
+        );
+      }
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.Error || 'Đã xảy ra lỗi khi chạy chương trình.';
+      showModal('Lỗi khi chạy thử', errorMessage, 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Box display="flex" flexDirection="column" p={4} height="100vh">
       <HStack justify="space-between" mb={4}>
@@ -355,16 +422,28 @@ const EditorTab = ({ takepart, submissionCode }) => {
           </Text>
         </Button>
         <HStack spacing={4}>
-          <Button colorScheme="blue" borderRadius="md">
+          <Button
+            colorScheme="blue"
+            borderRadius="md"
+            onClick={handleTryRun}
+            isLoading={isLoading}
+            loadingText="Đang chạy ..."
+          >
             Chạy chương trình
           </Button>
-          <Button colorScheme="green" borderRadius="md" onClick={handleSubmit}>
+          <Button
+            colorScheme="green"
+            borderRadius="md"
+            onClick={handleSubmit}
+            isLoading={isLoadingSubmit}
+            loadingText="Đang nộp..."
+          >
             Nộp bài
           </Button>
         </HStack>
       </Flex>
       <Box mt={4} maxHeight="200px" overflowY="auto">
-        <TestCasesComponent />
+        <TestCasesComponent currentIndex={currentIndex} />
       </Box>
 
       <Modal isOpen={isUploadModalOpen} onClose={resetUploadModal} isCentered>
@@ -468,7 +547,7 @@ const EditorTab = ({ takepart, submissionCode }) => {
             )}
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" onClick={onClose}>
+            <Button colorScheme="blue" onClick={onClose} borderRadius="md">
               Đóng
             </Button>
           </ModalFooter>

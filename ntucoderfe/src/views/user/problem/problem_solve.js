@@ -373,7 +373,11 @@ const ProblemSolver = () => {
 
           {/* Editor */}
           <Box width="60%" height="100%" bgColor="gray.200">
-            <EditorTab takepart={takepart} submissionCode={submissionCode} />
+            <EditorTab
+              takepart={takepart}
+              submissionCode={submissionCode}
+              currentIndex={currentIndex}
+            />
           </Box>
         </Split>
       </Container>

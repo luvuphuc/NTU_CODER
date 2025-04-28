@@ -10,9 +10,10 @@ import {
 import { useParams } from 'react-router-dom';
 import api from 'utils/api';
 
-const TestCasesComponent = () => {
+const TestCasesComponent = ({ currentIndex }) => {
+  console.log('Current Index in EditorTab:', currentIndex);
   const { id: problemId } = useParams();
-  const [testCase, setTestCase] = useState(null); // State for a single test case
+  const [testCase, setTestCase] = useState(null);
   const [problem, setProblem] = useState({});
 
   const bgColor = useColorModeValue('gray.800', 'gray.800');
@@ -42,7 +43,7 @@ const TestCasesComponent = () => {
 
     fetchTestCases();
     fetchProblemDetails();
-  }, [problemId]);
+  }, [problemId, currentIndex]);
 
   return (
     <Flex bg={bgColor} borderRadius="md" color={textColor}>
