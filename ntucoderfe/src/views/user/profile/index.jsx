@@ -21,7 +21,7 @@ import { useMotionValue, animate } from 'framer-motion';
 import api from 'utils/api';
 import { useParams } from 'react-router-dom';
 import { useAuth } from 'contexts/AuthContext';
-
+import { motion } from 'framer-motion';
 const ProfileCoder = () => {
   const { id } = useParams();
   const { coder } = useAuth();
@@ -81,9 +81,7 @@ const ProfileCoder = () => {
           <Box w="300px" bg="white" boxShadow="md" rounded="xl" p={5} h="100%">
             <Flex direction="column" align="center" gap={2}>
               <Avatar size="xl" src={coderProfile?.avatar} />
-              <Text fontWeight="bold">
-                {coderProfile?.coderName || 'Undefind'}
-              </Text>
+              <Text fontWeight="bold">{coderProfile?.coderName || ''}</Text>
               <Text
                 fontSize="sm"
                 color="gray.500"
@@ -91,7 +89,7 @@ const ProfileCoder = () => {
                 whiteSpace="pre-wrap"
                 textAlign="center"
               >
-                {coderProfile?.description || 'Undefind'}
+                {coderProfile?.description || ''}
               </Text>
 
               {isOwnProfile && (
@@ -180,38 +178,82 @@ const ProfileCoder = () => {
               bgGradient="linear(to-r, blue.500, cyan.500)"
               borderRadius="lg"
               boxShadow="lg"
+              position="relative"
             >
               <Stack spacing={3} align="center" justify="center">
-                <CircularProgress
-                  value={progress.get()}
-                  size="200px"
-                  thickness="8px"
-                  color="yellow.400"
-                  trackColor="blue.300"
+                <motion.div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    position: 'relative',
+                    width: '200px',
+                    height: '200px',
+                  }}
+                  initial={{ rotateY: 0 }}
+                  whileHover={{ rotateY: 180 }}
+                  transition={{ duration: 0.5 }}
                 >
-                  <CircularProgressLabel>
-                    <Flex direction="column" align="center" justify="center">
-                      <Text fontSize="3xl" fontWeight="bold" color="yellow.400">
-                        {coderProfile?.countProblemSolved || 0}
-                        <Text as="span" fontSize="xl" color="white">
-                          /{totalProblems}
+                  <CircularProgress
+                    value={progress.get()}
+                    size="200px"
+                    thickness="8px"
+                    color="yellow.400"
+                    trackColor="blue.300"
+                  >
+                    <CircularProgressLabel>
+                      <Flex direction="column" align="center" justify="center">
+                        <Text
+                          fontSize="3xl"
+                          fontWeight="bold"
+                          color="yellow.400"
+                        >
+                          {coderProfile?.countProblemSolved || 0}
+                          <Text as="span" fontSize="xl" color="white">
+                            /{totalProblems}
+                          </Text>
                         </Text>
-                      </Text>
-                      <Flex align="center" gap={1}>
-                        <Box
-                          w="10px"
-                          h="10px"
-                          bg="yellow.400"
-                          rounded="full"
-                          display="inline-block"
-                        />
-                        <Text fontSize="sm" color="white" fontWeight="semibold">
-                          Đã giải
-                        </Text>
+                        <Flex align="center" gap={1}>
+                          <Box
+                            w="10px"
+                            h="10px"
+                            bg="yellow.400"
+                            rounded="full"
+                            display="inline-block"
+                          />
+                          <Text
+                            fontSize="sm"
+                            color="white"
+                            fontWeight="semibold"
+                          >
+                            Đã giải
+                          </Text>
+                        </Flex>
                       </Flex>
-                    </Flex>
-                  </CircularProgressLabel>
-                </CircularProgress>
+                    </CircularProgressLabel>
+                  </CircularProgress>
+                  <motion.div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      transform: 'rotateY(180deg)',
+                      background: 'rgba(0, 0, 0, 0.5)',
+                      borderRadius: '50%',
+                      opacity: 0,
+                    }}
+                    whileHover={{ opacity: 1 }}
+                  >
+                    <Text fontSize="3xl" color="white" fontWeight="bold">
+                      {Math.round(percentage)}%
+                    </Text>
+                  </motion.div>
+                </motion.div>
               </Stack>
 
               <Box mt={4} textAlign="center">
