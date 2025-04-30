@@ -1,5 +1,6 @@
 ﻿using AddressManagementSystem.Infrashtructure.Helpers;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
@@ -13,11 +14,14 @@ namespace ntucoderbe.Controllers
     public class CoderController : ControllerBase
     {
         private readonly CoderRepository _coderRepository;
+        private readonly AuthService _authService;
 
-        public CoderController(CoderRepository coderRepository)
+        public CoderController(CoderRepository coderRepository, AuthService authService)
         {
             _coderRepository = coderRepository;
+            _authService = authService;
         }
+
         [HttpGet("all")]
         public async Task<IActionResult> GetAllCoders([FromQuery] QueryObject query, string? sortField = null, bool ascending = true)
         {
@@ -57,7 +61,7 @@ namespace ntucoderbe.Controllers
         {
             try
             {
-                var coder = await _coderRepository.GetCoderByIdAsync(id);
+                CoderDetailDTO coder = await _coderRepository.GetCoderByIdAsync(id);
 
                 if (coder == null)
                 {
@@ -81,7 +85,7 @@ namespace ntucoderbe.Controllers
 
             try
             {
-                var result = await _coderRepository.UpdateCoderAsync(id, dto);
+                CoderDetailDTO result = await _coderRepository.UpdateCoderAsync(id, dto);
                 return Ok(result);
             }
             catch (ValidationException ex)
@@ -131,6 +135,45 @@ namespace ntucoderbe.Controllers
                     Message = "Có lỗi xảy ra khi xóa coder.",
                     Error = ex.Message
                 });
+            }
+        }
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetInformationProfile(int coderID)
+        {
+            if (coderID == -1) 
+                return BadRequest();
+            CoderWithLanguageDTO obj = await _coderRepository.GetInformationForCoderAsync(coderID);
+            if (obj == null)
+                return NotFound(new
+                {
+                    Message = "Không tìm thấy coder với ID được cung cấp."
+                });
+
+            return Ok(obj);
+        }
+        [Authorize]
+        [HttpGet("edit-profile{id}")]
+        public async Task<IActionResult> GetDetailInformationProfile(int coderID)
+        {
+            try
+            {
+                int authenId = _authService.GetUserIdFromToken();
+                if (coderID == authenId)
+                {
+                    CoderDetailDTO coder = await _coderRepository.GetCoderByIdAsync(coderID);
+
+                    if (coder == null)
+                    {
+                        return NotFound(new { Message = "Không tìm thấy coder với ID được cung cấp." });
+                    }
+
+                    return Ok(coder);
+                }
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
     }

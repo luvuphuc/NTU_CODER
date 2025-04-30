@@ -24,6 +24,7 @@ import ContestPage from 'views/user/contest';
 import SubmissionPage from 'views/user/submission';
 import ContestDetailPage from 'views/user/contest/components/Contest_Detail';
 import HasProblemIndex from 'views/admin/hasproblem';
+import ProfileCoder from 'views/user/profile';
 const routes = [
   {
     name: 'Người dùng',
@@ -173,6 +174,14 @@ const routes = [
     path: '/blog',
     secondary: true,
     component: <ProblemPage />,
+  },
+  {
+    name: 'Người dùng',
+    layout: '/user',
+    path: '/user/:id',
+    hidden: true,
+    secondary: true,
+    component: <ProfileCoder />,
   },
 ];
 

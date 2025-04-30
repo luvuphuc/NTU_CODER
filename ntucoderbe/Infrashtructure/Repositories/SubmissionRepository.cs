@@ -258,6 +258,22 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
             return queryDTO.ToList();
         }
+        public async Task<List<SubmissionDTO>> GetListSubmissionByCoderId(int coderId)
+        {
+            return await _context.Submissions
+                .Include(c=> c.Problem)
+                .Where(c => c.CoderID == coderId) 
+                .OrderByDescending(c => c.SubmissionID)
+                .Select(c => new SubmissionDTO
+                {
+                    SubmissionID = c.SubmissionID,
+                    ProblemName = c.Problem.ProblemName,
+                    SubmissionStatus = c.SubmissionStatus,
+                    SubmitTime = c.SubmitTime,
+                    TestResult = c.TestResult,
 
+                })
+        .ToListAsync();
+        }
     }
 }

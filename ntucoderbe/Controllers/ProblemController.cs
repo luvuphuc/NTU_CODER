@@ -168,6 +168,18 @@ namespace ntucoderbe.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
             }
         }
-
+        [HttpGet("count")]
+        public async Task<IActionResult> GetCountAllProblem()
+        {
+            try
+            {
+                int count = await _problemRepository.CountAllProblemAsync();
+                return Ok(count);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Lỗi server: " + ex.Message);
+            }
+        }
     }
 }

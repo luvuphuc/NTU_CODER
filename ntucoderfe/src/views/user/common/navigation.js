@@ -92,7 +92,7 @@ export default function Navigation({ hideHeader }) {
               display={{ base: 'none', md: 'flex' }}
             >
               {routes
-                .filter((route) => route.layout === '/user')
+                .filter((route) => route.layout === '/user' && !route.hidden)
                 .map((route) => {
                   const isActive =
                     route.path === '/'

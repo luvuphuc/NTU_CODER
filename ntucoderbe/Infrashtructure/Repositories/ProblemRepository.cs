@@ -267,5 +267,9 @@ namespace ntucoderbe.Infrashtructure.Repositories
         {
             return await _context.Solved.CountAsync(s=>s.ProblemID == id);
         }
+        public async Task<int> CountAllProblemAsync()
+        {
+            return await _context.Problems.CountAsync();
+        }
     }
 }

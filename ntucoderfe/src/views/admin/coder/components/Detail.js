@@ -272,7 +272,6 @@ const CoderDetail = () => {
                       onChange={(e) =>
                         handleInputChange('gender', e.target.value)
                       }
-                      placeholder="Chọn giới tính"
                       width="50%"
                     >
                       <option value="0">Nam</option>

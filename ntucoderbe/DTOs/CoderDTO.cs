@@ -20,13 +20,26 @@ namespace ntucoderbe.DTOs
     public class CoderDetailDTO: CoderDTO
     {
         public IFormFile? AvatarFile { get; set; }
-        public string? Avatar { get; set; }
-        public string? Description { get; set; }
         public DateTime? CreatedAt { get; set; }
         public string? CreatedBy { get; set; }
         public GenderEnum? Gender { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public string? UpdatedBy { get; set; }
         public int? RoleID {  get; set; }
+        public string? Avatar { get; set; }
+        public string? Description { get; set; }
+
+    }
+    public class CoderWithLanguageDTO : CoderDetailDTO 
+    {
+        public List<LanguageDTO> Languages { get; set; } = new List<LanguageDTO>();
+        public int? CountProblemSolved { get; set; }
+        public int? CountFavourites { get; set; }
+    }
+
+    public class LanguageDTO
+    {
+        public string? CompilerName { get; set; }
+        public int SolvedCount { get; set; }
     }
 }

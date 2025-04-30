@@ -86,6 +86,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 CoderName = dto.CoderName!,
                 CoderEmail = dto.CoderEmail!,
                 PhoneNumber = dto.PhoneNumber,
+                Gender = Enums.GenderEnum.Other,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = "admin",
                 UpdatedAt = DateTime.UtcNow,
@@ -207,5 +208,49 @@ namespace ntucoderbe.Infrashtructure.Repositories
         {
             return await _context.Accounts.AnyAsync(c => c.UserName == username);
         }
+
+        public async Task<CoderWithLanguageDTO> GetInformationForCoderAsync(int coderID)
+        {
+            List<Submission> submissions = await _context.Submissions
+                .Where(s => s.TestResult == "Accepted" && s.CoderID == coderID)
+                .ToListAsync();
+            List<Compiler> compilers = await _context.Compilers.ToListAsync();
+
+            List<LanguageDTO> languageLst = submissions
+                .GroupBy(s => s.CompilerID)
+                .Select(g => new LanguageDTO
+                {
+                    CompilerName = compilers.FirstOrDefault(c => c.CompilerID == g.Key)?.CompilerName ?? "Unknown",
+                    SolvedCount = g.Select(s => s.ProblemID).Distinct().Count()
+                })
+                .ToList();
+
+            int countProblemSolved = submissions
+                .Select(s => s.ProblemID)
+                .Distinct()
+                .Count();
+
+            int countFavourites = submissions
+                .GroupBy(s => s.ProblemID)
+                .Count();
+
+            Coder coder = await _context.Coders.Where(c=>c.CoderID == coderID).FirstOrDefaultAsync();
+
+            if (coder == null) return null;
+
+
+            return new CoderWithLanguageDTO
+            {
+                CoderID = coder.CoderID,
+                CoderName = coder.CoderName,
+                CountProblemSolved = countProblemSolved,
+                CountFavourites = countFavourites,
+                Languages = languageLst,
+                Avatar = coder.Avatar,
+                Description = coder.Description,
+            };
+          
+        }
+
     }
 }

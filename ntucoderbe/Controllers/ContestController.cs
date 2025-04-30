@@ -1,9 +1,11 @@
 ﻿using AddressManagementSystem.Infrashtructure.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
 using ntucoderbe.Infrashtructure.Repositories;
 using ntucoderbe.Infrashtructure.Services;
+using System.Collections.Generic;
 
 namespace ntucoderbe.Controllers
 {
@@ -69,7 +71,7 @@ namespace ntucoderbe.Controllers
 
             try
             {
-                var coderID = _authService.GetUserIdFromToken();
+                int coderID = _authService.GetUserIdFromToken();
                 dto.CoderID = coderID;
                 var result = await _contestRepository.CreateContestAsync(dto);
                 return CreatedAtAction(nameof(GetContestById), new { id = result.ContestID }, result);
@@ -159,6 +161,19 @@ namespace ntucoderbe.Controllers
                     Message = "Có lỗi xảy ra.",
                     Error = ex.Message
                 });
+            }
+        }
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetListContestByCoderId(int coderID)
+        {
+            try
+            {
+                List<ContestDTO> list = await _contestRepository.GetListContestByCoderId(coderID);
+                return Ok(list);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
             }
         }
     }

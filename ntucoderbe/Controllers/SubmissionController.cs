@@ -162,5 +162,18 @@ namespace ntucoderbe.Controllers
             List<SubmissionDTO> list = await _submissionRepository.GetListSubmissionFromCoderIdAsync(problemId, coderId,takePartId,sortField,ascending);
             return Ok(list);
         }
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetListProblemByCoderId(int coderID)
+        {
+            try
+            { 
+                List<SubmissionDTO> list = await _submissionRepository.GetListSubmissionByCoderId(coderID);
+                return Ok(list);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
+            }
+        }
     }
 }
