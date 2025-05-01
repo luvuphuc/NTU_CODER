@@ -11,14 +11,10 @@ namespace ntucoderbe.DTOs
         public string? CoderName { get; set; }
         public string? CoderEmail { get; set; }
         public string? PhoneNumber { get; set; }
-    }
-    public class CreateCoderDTO : CoderDTO
-    {
-        public string Password { get; set; }
-        public int Role {  get; set; }
-    }
-    public class CoderDetailDTO: CoderDTO
-    {
+    
+        public string? Password { get; set; }
+        public string? OldPassword { get; set; }
+        public int? Role {  get; set; }
         public IFormFile? AvatarFile { get; set; }
         public DateTime? CreatedAt { get; set; }
         public string? CreatedBy { get; set; }
@@ -26,16 +22,16 @@ namespace ntucoderbe.DTOs
         public DateTime? DateOfBirth { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public string? UpdatedBy { get; set; }
-        public int? RoleID {  get; set; }
+        public int? RoleID { get; set; }
         public string? Avatar { get; set; }
         public string? Description { get; set; }
-
-    }
-    public class CoderWithLanguageDTO : CoderDetailDTO 
-    {
-        public List<LanguageDTO> Languages { get; set; } = new List<LanguageDTO>();
         public int? CountProblemSolved { get; set; }
         public int? CountFavourites { get; set; }
+    }
+    public class CoderWithLanguageDTO : CoderDTO
+    {
+        public List<LanguageDTO> Languages { get; set; } = new List<LanguageDTO>();
+
     }
 
     public class LanguageDTO

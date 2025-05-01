@@ -56,7 +56,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 return Convert.ToBase64String(hashedBytes);
             }
         }
-        public async Task<CreateCoderDTO> CreateCoderAsync(CreateCoderDTO dto)
+        public async Task<CoderDTO> CreateCoderAsync(CoderDTO dto)
         {
             if (await CheckEmailExist(dto.CoderEmail!))
             {
@@ -74,7 +74,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 UserName = dto.UserName!,
                 Password = hashedPassword,
                 SaltMD5 = salt,
-                RoleID = dto.Role,
+                RoleID = dto.Role ?? 2,
             };
 
             _context.Accounts.Add(account);
@@ -122,7 +122,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             return true;
         }
 
-        public async Task<CoderDetailDTO> GetCoderByIdAsync(int id)
+        public async Task<CoderDTO> GetCoderByIdAsync(int id)
         {
             var coder = await _context.Coders
                         .Include(c => c.Account)
@@ -132,7 +132,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 throw new KeyNotFoundException("Không tìm thấy");
             }
 
-            return new CoderDetailDTO
+            return new CoderDTO
             {
                 CoderID = coder.CoderID,
                 UserName = coder.Account.UserName,
@@ -151,10 +151,10 @@ namespace ntucoderbe.Infrashtructure.Repositories
             };
         }
 
-        public async Task<CoderDetailDTO> UpdateCoderAsync(int id, CoderDetailDTO dto)
+        public async Task<CoderDTO> UpdateCoderAsync(int id, CoderDTO dto)
         {
 
-            var existing = await _context.Coders.FindAsync(id);
+            Coder existing = await _context.Coders.Include(c => c.Account).FirstOrDefaultAsync(c => c.CoderID == id);
             if (existing == null)
             {
                 throw new KeyNotFoundException("Không tìm thấy.");
@@ -162,6 +162,10 @@ namespace ntucoderbe.Infrashtructure.Repositories
             if (dto.CoderName != null)
             {
                 existing.CoderName = dto.CoderName;
+            }
+            if (dto.CoderEmail != null)
+            {
+                existing.CoderEmail = dto.CoderEmail;
             }
             if (dto.AvatarFile != null)
             {
@@ -182,7 +186,27 @@ namespace ntucoderbe.Infrashtructure.Repositories
             {
                 existing.Gender = dto.Gender.Value;
             }
+            if (dto.Role.HasValue && dto.Role.Value != existing.Account.RoleID)
+            {
+                existing.Account.RoleID = dto.Role.Value;
+            }
 
+            if (dto.OldPassword != null && dto.Password != null)
+            {
+                bool isPwdValid = PasswordHelper.VerifyPassword(dto.OldPassword, existing.Account.Password, existing.Account.SaltMD5);
+                if (!isPwdValid)
+                {
+                    throw new UnauthorizedAccessException("Mật khẩu cũ không chính xác.");
+                }
+                else
+                {
+                    string salt = PasswordHelper.GenerateSalt();
+                    string hashedPassword = PasswordHelper.HashPassword(dto.Password, salt);
+                    existing.Account.Password = hashedPassword;
+                    existing.Account.SaltMD5 = salt;
+                }
+                
+            }
             if (dto.PhoneNumber != null)
             {
                 existing.PhoneNumber = dto.PhoneNumber;
@@ -194,7 +218,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             _context.Coders.Update(existing);
             await _context.SaveChangesAsync();
 
-            return new CoderDetailDTO
+            return new CoderDTO
             {
                 CoderID = existing.CoderID,
                 CoderName = existing.CoderName,

@@ -36,7 +36,7 @@ namespace ntucoderbe.Controllers
             }
         }
         [HttpPost("create")]
-        public async Task<IActionResult> CreateCoder([FromBody] CreateCoderDTO dto)
+        public async Task<IActionResult> CreateCoder([FromBody] CoderDTO dto)
         {
             if (dto == null)
             {
@@ -61,7 +61,7 @@ namespace ntucoderbe.Controllers
         {
             try
             {
-                CoderDetailDTO coder = await _coderRepository.GetCoderByIdAsync(id);
+                CoderDTO coder = await _coderRepository.GetCoderByIdAsync(id);
 
                 if (coder == null)
                 {
@@ -76,7 +76,7 @@ namespace ntucoderbe.Controllers
             }
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCoder(int id, [FromForm] CoderDetailDTO dto)
+        public async Task<IActionResult> UpdateCoder(int id, [FromForm] CoderDTO dto)
         {
             if (dto == null)
             {
@@ -85,7 +85,7 @@ namespace ntucoderbe.Controllers
 
             try
             {
-                CoderDetailDTO result = await _coderRepository.UpdateCoderAsync(id, dto);
+                CoderDTO result = await _coderRepository.UpdateCoderAsync(id, dto);
                 return Ok(result);
             }
             catch (ValidationException ex)
@@ -160,7 +160,7 @@ namespace ntucoderbe.Controllers
                 int authenId = _authService.GetUserIdFromToken();
                 if (coderID == authenId)
                 {
-                    CoderDetailDTO coder = await _coderRepository.GetCoderByIdAsync(coderID);
+                    CoderDTO coder = await _coderRepository.GetCoderByIdAsync(coderID);
 
                     if (coder == null)
                     {
