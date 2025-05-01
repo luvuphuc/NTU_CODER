@@ -136,7 +136,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     {
                         ProblemID = problem.ProblemID,
                         CategoryID = categoryId,
-                        Note = dto.Note,
                     };
                     _context.ProblemCategories.Add(problemCategory);
                 }
@@ -206,7 +205,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 SelectedCategoryNames = problem.ProblemCategories
                 .Select(pc => pc.Category.CatName)
                 .ToList(),
-                Note = problem.ProblemCategories.Select(pc => pc.Note).FirstOrDefault()
             };
         }
 
@@ -252,7 +250,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
                         {
                             ProblemID = existing.ProblemID,
                             CategoryID = categoryId,
-                            Note = dto.Note,
                         };
                         _context.ProblemCategories.Add(problemCategory);
                     }

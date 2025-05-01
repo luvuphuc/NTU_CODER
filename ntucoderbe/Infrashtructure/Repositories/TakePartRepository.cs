@@ -188,6 +188,13 @@ namespace ntucoderbe.Infrashtructure.Repositories
             return await _context.Submissions
                 .AnyAsync(s => s.TakePartID == takepartId && s.ProblemID == problemId && s.TestResult == "Accepted");
         }
-
+        //public async Task<bool> GetRankListOfProblemAsync(int problemId)
+        //{
+        //    List<ParticipationDTO> list = _context.TakeParts
+        //        .Include(tp => tp.Participation)
+        //            .ThenInclude(tp=> tp.Coder)
+        //        .Include(tp => tp.Submissions)
+        //        .Where(tp=> tp.ProblemID == problemId)
+        //}
     }
 }

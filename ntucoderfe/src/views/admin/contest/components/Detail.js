@@ -72,7 +72,7 @@ const ContestDetail = () => {
   };
 
   const handleInputChange = (field, value) => {
-    if (['startTime', 'endTime', 'frozenTime'].includes(field)) {
+    if (['startTime', 'endTime'].includes(field)) {
       const utcValue = localDatetimeToUtc(value);
       setEditableValues((prev) => ({ ...prev, [field]: utcValue }));
       setContestDetail((prev) => ({ ...prev, [field]: utcValue }));
@@ -155,57 +155,44 @@ const ContestDetail = () => {
               </Text>
             </CardHeader>
             <CardBody>
-              {['contestName', 'startTime', 'endTime', 'frozenTime'].map(
-                (field) => (
-                  <Flex
-                    key={field}
-                    justify="space-between"
-                    align="center"
-                    mb={3}
-                  >
-                    <Text fontWeight="bold">
-                      {field === 'contestName'
-                        ? 'Tên cuộc thi'
-                        : field === 'startTime'
-                        ? 'Thời gian bắt đầu'
-                        : field === 'endTime'
-                        ? 'Thời gian kết thúc'
-                        : 'Thời gian đóng băng'}
-                      :
-                    </Text>
-                    {editField === field ? (
-                      <Input
-                        type={
-                          field.includes('Time') ? 'datetime-local' : 'text'
-                        }
-                        value={
-                          field === 'contestName'
-                            ? editableValues[field] || ''
-                            : field.includes('Time')
-                            ? utcToLocalDatetime(editableValues[field])
-                            : editableValues[field] || ''
-                        }
-                        onChange={(e) =>
-                          handleInputChange(field, e.target.value)
-                        }
-                        w="60%"
-                      />
-                    ) : (
-                      <Text>
-                        {field.includes('Time')
-                          ? formatDisplayTime(contestDetail[field])
-                          : contestDetail[field] || 'Chưa có'}
-                      </Text>
-                    )}
-                    <IconButton
-                      aria-label="Edit"
-                      icon={<MdEdit />}
-                      size="sm"
-                      onClick={() => handleEdit(field)}
+              {['contestName', 'startTime', 'endTime'].map((field) => (
+                <Flex key={field} justify="space-between" align="center" mb={3}>
+                  <Text fontWeight="bold">
+                    {field === 'contestName'
+                      ? 'Tên cuộc thi'
+                      : field === 'startTime'
+                      ? 'Thời gian bắt đầu'
+                      : 'Thời gian kết thúc'}
+                    :
+                  </Text>
+                  {editField === field ? (
+                    <Input
+                      type={field.includes('Time') ? 'datetime-local' : 'text'}
+                      value={
+                        field === 'contestName'
+                          ? editableValues[field] || ''
+                          : field.includes('Time')
+                          ? utcToLocalDatetime(editableValues[field])
+                          : editableValues[field] || ''
+                      }
+                      onChange={(e) => handleInputChange(field, e.target.value)}
+                      w="60%"
                     />
-                  </Flex>
-                ),
-              )}
+                  ) : (
+                    <Text>
+                      {field.includes('Time')
+                        ? formatDisplayTime(contestDetail[field])
+                        : contestDetail[field] || 'Chưa có'}
+                    </Text>
+                  )}
+                  <IconButton
+                    aria-label="Edit"
+                    icon={<MdEdit />}
+                    size="sm"
+                    onClick={() => handleEdit(field)}
+                  />
+                </Flex>
+              ))}
 
               <Flex justify="space-between" align="center" mb={3}>
                 <Text fontWeight="bold">Quá trình xếp hạng:</Text>

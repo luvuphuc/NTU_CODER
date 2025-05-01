@@ -142,7 +142,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 SubmissionStatus = obj.SubmissionStatus,
                 TestRunCount = obj.TestRunCount,
                 TestResult = obj.TestResult,
-                MaxMemorySize = obj.MaxMemorySize,
                 MaxTimeDuration = obj.MaxTimeDuration
 
             };
@@ -167,12 +166,10 @@ namespace ntucoderbe.Infrashtructure.Repositories
             if (obj.TestRuns.Any())
             {
                 obj.MaxTimeDuration = obj.TestRuns.Max(tr => tr.TimeDuration);
-                obj.MaxMemorySize = obj.TestRuns.Max(tr => tr.MemorySize);
             }
             else
             {
                 obj.MaxTimeDuration = 0;
-                obj.MaxMemorySize = 0;
             }
 
             await _context.SaveChangesAsync();
@@ -186,7 +183,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 SubmissionStatus = obj.SubmissionStatus,
                 TestRunCount = obj.TestRunCount,
                 TestResult = obj.TestResult,
-                MaxMemorySize = obj.MaxMemorySize,
                 MaxTimeDuration = obj.MaxTimeDuration
             };
         }
@@ -213,12 +209,10 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 if (obj.TestRuns.Any())
                 {
                     obj.MaxTimeDuration = obj.TestRuns.Max(tr => tr.TimeDuration);
-                    obj.MaxMemorySize = obj.TestRuns.Max(tr => tr.MemorySize);
                 }
                 else
                 {
                     obj.MaxTimeDuration = 0;
-                    obj.MaxMemorySize = 0;
                 }
                 obj.TestResult = "Accepted";
             }

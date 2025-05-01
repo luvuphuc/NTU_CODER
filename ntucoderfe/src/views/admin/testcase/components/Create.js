@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -16,28 +16,45 @@ import {
   Text,
   VisuallyHiddenInput,
   Textarea,
-  FormControl
+  FormControl,
 } from '@chakra-ui/react';
-import { HiUpload } from "react-icons/hi";
+import { HiUpload } from 'react-icons/hi';
 import api from 'utils/api';
 
-export default function CreateTestCaseModal({ isOpen, onClose, refetchData, problemID, problemName }) {
+export default function CreateTestCaseModal({
+  isOpen,
+  onClose,
+  refetchData,
+  problemID,
+  problemName,
+}) {
   const toast = useToast();
   const [loading, setLoading] = useState(false);
-  const [newTestCase, setNewTestCase] = useState({
+  const initialState = {
     testCaseOrder: '',
     sampleTest: 0,
     preTest: 0,
     input: '',
     output: '',
-  });
+  };
+  const [newTestCase, setNewTestCase] = useState(initialState);
+
+  // Reset form when modal opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setNewTestCase(initialState);
+    }
+  }, [isOpen]);
 
   const handleChange = (e) => {
     setNewTestCase({ ...newTestCase, [e.target.name]: e.target.value });
   };
 
-  const handleToggle = (field) => {
-    setNewTestCase({ ...newTestCase, [field]: newTestCase[field] === 1 ? 0 : 1 });
+  const handleToggleCheckbox = (field, checked) => {
+    setNewTestCase((prev) => ({
+      ...prev,
+      [field]: checked ? 1 : 0,
+    }));
   };
 
   const handleFileUpload = (e, field) => {
@@ -45,15 +62,17 @@ export default function CreateTestCaseModal({ isOpen, onClose, refetchData, prob
     if (file) {
       const reader = new FileReader();
       reader.onload = (event) => {
-        setNewTestCase({ ...newTestCase, [field]: event.target.result });
+        setNewTestCase((prev) => ({
+          ...prev,
+          [field]: event.target.result,
+        }));
       };
       reader.readAsText(file);
     }
   };
 
   const handleCreateTestCase = async () => {
-   
-    if (!newTestCase.testCaseOrder || !newTestCase.input || !newTestCase.output) {
+    if (!newTestCase.testCaseOrder || !newTestCase.output) {
       toast({
         title: 'Lỗi',
         description: 'Không được để trống.',
@@ -64,7 +83,10 @@ export default function CreateTestCaseModal({ isOpen, onClose, refetchData, prob
       });
       return;
     }
-    if (!newTestCase.testCaseOrder || isNaN(newTestCase.testCaseOrder) || parseInt(newTestCase.testCaseOrder) <= 0) {
+    if (
+      isNaN(newTestCase.testCaseOrder) ||
+      parseInt(newTestCase.testCaseOrder) <= 0
+    ) {
       toast({
         title: 'Lỗi',
         description: 'TestCase Order phải là số nguyên lớn hơn 0.',
@@ -75,9 +97,13 @@ export default function CreateTestCaseModal({ isOpen, onClose, refetchData, prob
       });
       return;
     }
+
     try {
       setLoading(true);
-      const response = await api.post('/TestCase/create', { ...newTestCase, problemID });
+      const response = await api.post('/TestCase/create', {
+        ...newTestCase,
+        problemID,
+      });
 
       if (response.status === 200 || response.status === 201) {
         toast({
@@ -112,42 +138,103 @@ export default function CreateTestCaseModal({ isOpen, onClose, refetchData, prob
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
-          Thêm TestCase mới - <Text as="span" color="blue.500">{problemName}</Text>
+          Thêm TestCase mới -{' '}
+          <Text as="span" color="blue.500">
+            {problemName}
+          </Text>
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <FormControl mb={4}>
             <FormLabel fontWeight="bold">TestCase Order</FormLabel>
-            <Input name="testCaseOrder" placeholder="Nhập thứ tự TestCase" value={newTestCase.testCaseOrder} onChange={handleChange} />
+            <Input
+              name="testCaseOrder"
+              placeholder="Nhập thứ tự TestCase"
+              value={newTestCase.testCaseOrder}
+              onChange={handleChange}
+            />
           </FormControl>
           <FormControl mb={4}>
             <FormLabel fontWeight="bold">Input</FormLabel>
-            <Textarea name="input" placeholder="Nhập dữ liệu đầu vào" value={newTestCase.input} onChange={handleChange} h="50px" />
-            <Button mt={2} bg="gray.200" borderRadius={3} leftIcon={<HiUpload />} as="label" cursor="pointer">
+            <Textarea
+              name="input"
+              placeholder="Nhập dữ liệu đầu vào"
+              value={newTestCase.input}
+              onChange={handleChange}
+              h="50px"
+            />
+            <Button
+              mt={2}
+              bg="gray.200"
+              borderRadius={3}
+              leftIcon={<HiUpload />}
+              as="label"
+              cursor="pointer"
+            >
               Import File
-              <VisuallyHiddenInput type="file" accept=".txt" onChange={(e) => handleFileUpload(e, 'input')} />
+              <VisuallyHiddenInput
+                type="file"
+                accept=".txt"
+                onChange={(e) => handleFileUpload(e, 'input')}
+              />
             </Button>
           </FormControl>
-          <FormControl mb={4} fontWeight="bold">
+          <FormControl mb={4}>
             <FormLabel fontWeight="bold">Output</FormLabel>
-            <Textarea name="output" placeholder="Nhập dữ liệu đầu ra" value={newTestCase.output} onChange={handleChange} />
-            <Button mt={2} bg="gray.200" borderRadius={3} leftIcon={<HiUpload />} as="label" cursor="pointer">
+            <Textarea
+              name="output"
+              placeholder="Nhập dữ liệu đầu ra"
+              value={newTestCase.output}
+              onChange={handleChange}
+            />
+            <Button
+              mt={2}
+              bg="gray.200"
+              borderRadius={3}
+              leftIcon={<HiUpload />}
+              as="label"
+              cursor="pointer"
+            >
               Import File
-              <VisuallyHiddenInput type="file" accept=".txt" onChange={(e) => handleFileUpload(e, 'output')} />
+              <VisuallyHiddenInput
+                type="file"
+                accept=".txt"
+                onChange={(e) => handleFileUpload(e, 'output')}
+              />
             </Button>
           </FormControl>
-          <FormControl display="flex" justifyContent="space-between" mb={4} fontWeight="bold">
-            <Checkbox isChecked={newTestCase.sampleTest === 1} onChange={() => handleToggle('sampleTest')}>
+          <FormControl mb={2} fontWeight="bold">
+            <Checkbox
+              isChecked={newTestCase.sampleTest === 1}
+              onChange={(e) =>
+                handleToggleCheckbox('sampleTest', e.target.checked)
+              }
+            >
               Sample Test
             </Checkbox>
-            <Checkbox isChecked={newTestCase.preTest === 1} onChange={() => handleToggle('preTest')}>
+          </FormControl>
+          <FormControl fontWeight="bold">
+            <Checkbox
+              isChecked={newTestCase.preTest === 1}
+              onChange={(e) =>
+                handleToggleCheckbox('preTest', e.target.checked)
+              }
+            >
               Pre Test
             </Checkbox>
           </FormControl>
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="gray" onClick={onClose}>Hủy</Button>
-          <Button colorScheme="blue" isLoading={loading} onClick={handleCreateTestCase}>Thêm mới</Button>
+          <Button colorScheme="gray" onClick={onClose}>
+            Hủy
+          </Button>
+          <Button
+            colorScheme="blue"
+            isLoading={loading}
+            onClick={handleCreateTestCase}
+          >
+            Thêm mới
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

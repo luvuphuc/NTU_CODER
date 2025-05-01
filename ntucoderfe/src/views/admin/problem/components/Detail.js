@@ -99,7 +99,6 @@ const ProblemDetail = () => {
       problemCode,
       problemName,
       timeLimit,
-      memoryLimit,
       problemContent,
       problemExplanation,
       testCode,
@@ -109,7 +108,6 @@ const ProblemDetail = () => {
       problemCode,
       problemName,
       timeLimit,
-      memoryLimit,
       problemContent,
       problemExplanation,
       testCode,
@@ -128,9 +126,6 @@ const ProblemDetail = () => {
     // Kiểm tra timeLimit và memoryLimit
     if (parseFloat(timeLimit) <= 0) {
       newErrors.timeLimit = 'Giới hạn thời gian phải lớn hơn 0.';
-    }
-    if (parseFloat(memoryLimit) <= 0) {
-      newErrors.memoryLimit = 'Giới hạn bộ nhớ phải lớn hơn 0.';
     }
 
     // Kiểm tra không bỏ trống

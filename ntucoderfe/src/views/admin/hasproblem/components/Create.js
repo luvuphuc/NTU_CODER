@@ -91,7 +91,7 @@ export default function CreateHasProblemModal({
       if (res.status === 200 || res.status === 201) {
         toast({
           title: 'Thành công',
-          description: 'Đã thêm bài vào contest.',
+          description: 'Đã thêm bài vào cuộc thi.',
           status: 'success',
           duration: 4000,
           isClosable: true,

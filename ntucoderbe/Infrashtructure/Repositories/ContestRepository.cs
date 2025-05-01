@@ -85,7 +85,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 Status = dto.Status ?? 2,
                 Duration = dto.Duration ?? 0,
                 RankingFinished = dto.RankingFinished,
-                FrozenTime = dto.FrozenTime
             };
 
             _context.Contest.Add(contest);
@@ -130,7 +129,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 Status = contest.Status,
                 Duration = contest.Duration,
                 RankingFinished = contest.RankingFinished,
-                FrozenTime = contest.FrozenTime,
                 CoderName = contest.Coder.CoderName
             };
         }
@@ -152,11 +150,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
             existing.EndTime = dto.EndTime != default(DateTime)
                 ? dto.EndTime.ToUniversalTime()
                 : existing.EndTime;
-
-            existing.FrozenTime = dto.FrozenTime != default(DateTime)
-                ? dto.FrozenTime.ToUniversalTime()
-                : existing.FrozenTime;
-
 
             existing.RuleType = dto.RuleType ?? existing.RuleType;
             existing.FailedPenalty = dto.FailedPenalty ?? existing.FailedPenalty;

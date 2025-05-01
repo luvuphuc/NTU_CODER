@@ -36,7 +36,6 @@ export default function CreateContest() {
   const [failedPenalty, setFailedPenalty] = useState('');
   const [published, setPublished] = useState(0); // Mặc định chưa công khai
   const [duration, setDuration] = useState('');
-  const [frozenTime, setFrozenTime] = useState('');
   const [errors, setErrors] = useState({});
   const toast = useToast();
   const navigate = useNavigate();
@@ -52,7 +51,6 @@ export default function CreateContest() {
       failedPenalty,
       published,
       duration,
-      frozenTime,
     };
     const newErrors = {};
     Object.keys(inputs).forEach((key) => {
@@ -182,23 +180,6 @@ export default function CreateContest() {
               <FormErrorMessage>{errors.endTime}</FormErrorMessage>
             </FormControl>
             <HStack spacing={4} align="start" mt={4}>
-              <FormControl isInvalid={errors.frozenTime} flex="1">
-                <FormLabel fontWeight="bold">
-                  Thời gian đóng băng
-                  <Text as="span" color="red.500">
-                    {' '}
-                    *
-                  </Text>
-                </FormLabel>
-                <Input
-                  type="datetime-local"
-                  min={startTime || minDateTime}
-                  value={frozenTime}
-                  onChange={(e) => setFrozenTime(e.target.value)}
-                />
-                <FormErrorMessage>{errors.frozenTime}</FormErrorMessage>
-              </FormControl>
-
               <FormControl isInvalid={errors.duration} flex="1">
                 <FormLabel fontWeight="bold">
                   Thời lượng (phút)

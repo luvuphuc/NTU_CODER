@@ -25,7 +25,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
                    ProblemID = c.ProblemID,
                    CoderName = c.Coder.CoderName,
                    ProblemName = c.Problem.ProblemName,
-                   Note = c.Note,
                });
             objquery = ApplySorting(objquery, sortField, ascending);
             var cat = await PagedResponse<FavouriteDTO>.CreateAsync(
@@ -51,7 +50,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
             {
                 CoderID = dto.CoderID,
                 ProblemID = dto.ProblemID,
-                Note = dto.Note,
             };
 
             _context.Favourites.Add(obj);
@@ -82,7 +80,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 ProblemID = f.ProblemID,
                 CoderName = f.Coder.CoderName,
                 ProblemName = f.Problem.ProblemName,
-                Note = f.Note,
             }).ToList();
 
             return result;

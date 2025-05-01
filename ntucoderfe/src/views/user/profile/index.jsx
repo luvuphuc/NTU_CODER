@@ -12,6 +12,7 @@ import {
   Container,
   CircularProgress,
   CircularProgressLabel,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { FaEye, FaCheckSquare, FaComments } from 'react-icons/fa';
 import { AiFillHeart } from 'react-icons/ai';
@@ -22,8 +23,10 @@ import api from 'utils/api';
 import { useParams } from 'react-router-dom';
 import { useAuth } from 'contexts/AuthContext';
 import { motion } from 'framer-motion';
+import DetailUserModal from './DetailUserModal';
 const ProfileCoder = () => {
   const { id } = useParams();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const { coder } = useAuth();
   const isOwnProfile = coder?.coderID?.toString() === id;
   console.log(isOwnProfile);
@@ -93,10 +96,21 @@ const ProfileCoder = () => {
               </Text>
 
               {isOwnProfile && (
-                <Button size="sm" borderRadius="md" colorScheme="green" mt={3}>
+                <Button
+                  size="sm"
+                  onClick={onOpen}
+                  borderRadius="md"
+                  colorScheme="green"
+                  mt={3}
+                >
                   Chỉnh sửa hồ sơ
                 </Button>
               )}
+              <DetailUserModal
+                isOpen={isOpen}
+                onClose={onClose}
+                coderProfile={coder}
+              />
             </Flex>
 
             <Divider my={5} />

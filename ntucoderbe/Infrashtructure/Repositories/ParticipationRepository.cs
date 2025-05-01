@@ -64,9 +64,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 RegisterTime = dto.RegisterTime,
                 PointScore = 0,
                 TimeScore = 0,
-                Rank = 0,
-                SolvedCount = 0,
-                RegisterMAC = dto.RegisterMAC,
+                Rank = 0
             };
 
             _context.Participations.Add(par);

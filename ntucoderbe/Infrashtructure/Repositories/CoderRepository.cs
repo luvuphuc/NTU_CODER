@@ -139,6 +139,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 CoderName = coder.CoderName,
                 CoderEmail = coder.CoderEmail,
                 PhoneNumber = coder.PhoneNumber,
+                DateOfBirth = coder.DateOfBirth,
                 Avatar = coder.Avatar,
                 Description = coder.Description,
                 Gender = coder.Gender,
@@ -169,6 +170,10 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 var avatarUrl = await firebaseStorageService.UploadImageAsync(avatarFileName, dto.AvatarFile.OpenReadStream());
                 existing.Avatar = avatarUrl;
             }
+            if (dto.DateOfBirth.HasValue)
+            {
+                existing.DateOfBirth = dto.DateOfBirth.Value;
+            }
             if (dto.Description != null)
             {
                 existing.Description = dto.Description;
@@ -177,6 +182,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             {
                 existing.Gender = dto.Gender.Value;
             }
+
             if (dto.PhoneNumber != null)
             {
                 existing.PhoneNumber = dto.PhoneNumber;
@@ -194,6 +200,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 CoderName = existing.CoderName,
                 Avatar = existing.Avatar,
                 Description = existing.Description,
+                DateOfBirth = existing.DateOfBirth,
                 Gender = existing.Gender,
                 PhoneNumber = existing.PhoneNumber,
                 UpdatedAt = existing.UpdatedAt,

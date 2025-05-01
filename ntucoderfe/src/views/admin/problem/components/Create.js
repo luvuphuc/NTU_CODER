@@ -30,7 +30,6 @@ export default function ProblemCreate() {
   const [problemCode, setProblemCode] = useState('');
   const [problemName, setProblemName] = useState('');
   const [timeLimit, setTimeLimit] = useState('1.00');
-  const [memoryLimit, setMemoryLimit] = useState('128');
   const [testType, setTestType] = useState('Output Matching');
   const [testCompilerID, setTestCompilerID] = useState('');
   const [note, setNote] = useState('');
@@ -71,7 +70,6 @@ export default function ProblemCreate() {
       problemName,
       problemCode,
       timeLimit,
-      memoryLimit,
       problemContent,
       problemExplanation,
       testCode,
@@ -86,9 +84,6 @@ export default function ProblemCreate() {
     }
     if (parseFloat(timeLimit) <= 0) {
       newErrors.timeLimit = 'Giới hạn thời gian phải lớn hơn 0.';
-    }
-    if (parseFloat(memoryLimit) <= 0) {
-      newErrors.memoryLimit = 'Giới hạn bộ nhớ phải lớn hơn 0.';
     }
     Object.keys(inputs).forEach((key) => {
       if (
@@ -108,7 +103,6 @@ export default function ProblemCreate() {
         problemName,
         problemCode,
         timeLimit,
-        memoryLimit,
         problemContent,
         problemExplanation,
         testType,
@@ -227,21 +221,6 @@ export default function ProblemCreate() {
                 onChange={(e) => setTimeLimit(e.target.value)}
               />
               <FormErrorMessage>{errors.timeLimit}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={errors.memoryLimit} mb={4}>
-              <FormLabel fontWeight="bold">
-                Giới hạn bộ nhớ (MB)
-                <Text as="span" color="red.500">
-                  {' '}
-                  *
-                </Text>
-              </FormLabel>
-              <Input
-                placeholder="Nhập giới hạn bộ nhớ"
-                value={memoryLimit}
-                onChange={(e) => setMemoryLimit(e.target.value)}
-              />
-              <FormErrorMessage>{errors.memoryLimit}</FormErrorMessage>
             </FormControl>
             <FormControl isInvalid={errors.problemContent} mb="60px">
               <FormLabel fontWeight="bold">
