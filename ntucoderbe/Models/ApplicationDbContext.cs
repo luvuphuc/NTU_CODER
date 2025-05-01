@@ -122,7 +122,8 @@ namespace ntucoderbe.Models
 
                 entity.Property(c => c.PhoneNumber)
                       .HasMaxLength(10);
-
+                entity.Property(c => c.DateOfBirth)
+                      .HasColumnType("datetime");
                 entity.Property(c => c.Avatar)
                       .HasMaxLength(255);
 
@@ -379,9 +380,6 @@ namespace ntucoderbe.Models
                 entity.Property(c => c.RankingFinished)
                       .HasMaxLength(255);
 
-                entity.Property(c => c.FrozenTime)
-                      .HasColumnType("datetime");
-
                 entity.HasOne(c => c.Coder)
                       .WithMany(c =>c.Contests)
                       .HasForeignKey(c => c.CoderID)
@@ -404,9 +402,6 @@ namespace ntucoderbe.Models
             modelBuilder.Entity<Favourite>(entity =>
             {
                 entity.HasKey(f => new { f.CoderID, f.ProblemID });
-
-                entity.Property(f => f.Note)
-                      .HasMaxLength(50);
 
                 entity.HasOne(f => f.Coder)
                       .WithMany(c=> c.Favourites)

@@ -13,6 +13,5 @@
         public int? PointWon { get; set; }
         public int? MaxPoint { get; set; }
         public int? SubmissionCount { get; set; }
-        public int? FrozenTimeSol { get; set; }
     }
 }

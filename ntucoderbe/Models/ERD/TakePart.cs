@@ -9,7 +9,6 @@
         public int? PointWon { get; set; }
         public int? MaxPoint { get; set; }
         public int? SubmissionCount { get; set; }
-        public int? FrozenTimeSol { get; set; }
 
         public virtual Participation Participation { get; set; }
         public virtual Problem Problem { get; set; }

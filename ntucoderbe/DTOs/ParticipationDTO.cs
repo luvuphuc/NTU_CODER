@@ -12,6 +12,5 @@
         public int? TimeScore { get; set; }
         public int? Rank { get; set; }
         public int? SolvedCount { get; set; }
-        public string? RegisterMAC { get; set; }
     }
 }

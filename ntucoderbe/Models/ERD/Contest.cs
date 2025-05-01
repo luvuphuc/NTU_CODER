@@ -15,7 +15,6 @@
         public int Status { get; set; }
         public int Duration { get; set; }
         public int? RankingFinished { get; set; }
-        public DateTime FrozenTime { get; set; }
         public virtual Coder Coder { get; set; }
         public virtual ICollection<Participation> Participations { get; set; } = new HashSet<Participation>();
         public virtual ICollection<HasProblem> HasProblems { get; set; } =  new HashSet<HasProblem>();
