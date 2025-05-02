@@ -51,7 +51,7 @@ export default function Header({ hideHeader }) {
                     Xin chào,{' '}
                     <ChakraLink
                       as={Link}
-                      to={`/user/${coder.accountID}`}
+                      to={`/user/${coder.coderID}`}
                       fontSize="md"
                       fontWeight="600"
                       color="blue.500"

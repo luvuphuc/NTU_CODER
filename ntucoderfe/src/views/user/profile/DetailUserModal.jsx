@@ -24,7 +24,7 @@ import { EditIcon } from '@chakra-ui/icons';
 import api from 'utils/api';
 import moment from 'moment';
 import { MdAddPhotoAlternate } from 'react-icons/md';
-
+import { useAuth } from '../../../contexts/AuthContext';
 const initialFields = [
   { key: 'username', label: 'Tên đăng nhập' },
   { key: 'coderName', label: 'Họ và tên' },
@@ -36,12 +36,12 @@ const initialFields = [
 ];
 
 export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
+  const { setCoder } = useAuth();
   const genderMap = {
     0: 'Nam',
     1: 'Nữ',
     2: 'Khác',
   };
-
   const [formValues, setFormValues] = useState({});
   const [editingField, setEditingField] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -161,6 +161,9 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
     try {
       const res = await api.put(`/Coder/${coderProfile.coderID}`, updatedData);
       if (res.status === 200) {
+        const coderRes = await api.get('/Auth/me');
+        console.log(coderRes);
+        setCoder(coderRes.data);
         setFormValues((prevValues) => ({
           ...prevValues,
           ...updatedData,
