@@ -1,7 +1,9 @@
 ﻿using AddressManagementSystem.Infrashtructure.Helpers;
 using FluentValidation;
+using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using ntucoderbe.DTOs;
+using ntucoderbe.Infrashtructure.Enums;
 using ntucoderbe.Infrashtructure.Helpers;
 using ntucoderbe.Infrastructure.Services;
 using ntucoderbe.Models;
@@ -74,7 +76,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 UserName = dto.UserName!,
                 Password = hashedPassword,
                 SaltMD5 = salt,
-                RoleID = dto.Role ?? 2,
+                RoleID = dto.RoleID ?? 2,
             };
 
             _context.Accounts.Add(account);
@@ -142,12 +144,12 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 DateOfBirth = coder.DateOfBirth,
                 Avatar = coder.Avatar,
                 Description = coder.Description,
-                Gender = coder.Gender,
+                Gender = coder.Gender.HasValue ? (int)coder.Gender.Value : -1,
                 CreatedAt = coder.CreatedAt,
                 CreatedBy = coder.CreatedBy,
                 UpdatedAt = coder.UpdatedAt,
                 UpdatedBy = coder.UpdatedBy,
-                RoleID = coder.Account.RoleID,
+                RoleID = coder.Account.RoleID
             };
         }
 
@@ -167,13 +169,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
             {
                 existing.CoderEmail = dto.CoderEmail;
             }
-            if (dto.AvatarFile != null)
-            {
-                var firebaseStorageService = new FirebaseStorageService();
-                var avatarFileName = "avatars/" + existing.CoderID + ".jpg";
-                var avatarUrl = await firebaseStorageService.UploadImageAsync(avatarFileName, dto.AvatarFile.OpenReadStream());
-                existing.Avatar = avatarUrl;
-            }
             if (dto.DateOfBirth.HasValue)
             {
                 existing.DateOfBirth = dto.DateOfBirth.Value;
@@ -184,11 +179,11 @@ namespace ntucoderbe.Infrashtructure.Repositories
             }
             if (dto.Gender.HasValue)
             {
-                existing.Gender = dto.Gender.Value;
+                existing.Gender = (GenderEnum?)dto.Gender.Value;
             }
-            if (dto.Role.HasValue && dto.Role.Value != existing.Account.RoleID)
+            if (dto.RoleID.HasValue && existing.Account.RoleID != dto.RoleID)
             {
-                existing.Account.RoleID = dto.Role.Value;
+                existing.Account.RoleID = dto.RoleID.Value;
             }
 
             if (dto.OldPassword != null && dto.Password != null)
@@ -225,10 +220,11 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 Avatar = existing.Avatar,
                 Description = existing.Description,
                 DateOfBirth = existing.DateOfBirth,
-                Gender = existing.Gender,
+                Gender = (int)(existing.Gender),
                 PhoneNumber = existing.PhoneNumber,
                 UpdatedAt = existing.UpdatedAt,
-                UpdatedBy = existing.UpdatedBy
+                UpdatedBy = existing.UpdatedBy,
+                RoleID = existing.Account.RoleID,
             };
         }
         public async Task<bool> CheckEmailExist(string email)
@@ -281,6 +277,20 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 Description = coder.Description,
             };
           
+        }
+        public async Task<string> UpdateAvatarAsync(int coderId, AvatarUploadDTO dto)
+        {
+            Coder coder = await _context.Coders.FirstOrDefaultAsync(c=>c.CoderID == coderId);
+            if(coder == null)
+            {
+                throw new Exception("Không tìm thấy coder");
+            }
+            var firebaseStorageService = new FirebaseStorageService();
+            var avatarFileName = $"avatars/{coderId}.jpg";
+            var avatarUrl = await firebaseStorageService.UploadImageAsync(avatarFileName, dto.AvatarFile.OpenReadStream());
+            coder.Avatar = avatarUrl;
+            await _context.SaveChangesAsync();
+            return avatarUrl;
         }
 
     }

@@ -10,10 +10,12 @@ import {
   Box,
   Text,
   Input,
+  Spinner,
   Textarea,
   VStack,
   HStack,
   Divider,
+  Icon,
   Avatar,
   Flex,
   Select,
@@ -21,9 +23,10 @@ import {
 import { EditIcon } from '@chakra-ui/icons';
 import api from 'utils/api';
 import moment from 'moment';
+import { MdAddPhotoAlternate } from 'react-icons/md';
+
 const initialFields = [
   { key: 'username', label: 'Tên đăng nhập' },
-  { key: 'password', label: 'Mật khẩu' },
   { key: 'coderName', label: 'Họ và tên' },
   { key: 'email', label: 'Email' },
   { key: 'gender', label: 'Giới tính' },
@@ -41,6 +44,10 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
 
   const [formValues, setFormValues] = useState({});
   const [editingField, setEditingField] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [avatarError, setAvatarError] = useState('');
+  const [formErrors, setFormErrors] = useState({});
+
   const [passwordFields, setPasswordFields] = useState({
     current: '',
     new: '',
@@ -53,22 +60,21 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
   });
 
   useEffect(() => {
+    if (!isOpen) return;
     const fetchUser = async () => {
-      if (!isOpen) return;
       try {
         const res = await api.get(`/Coder/${coderProfile.coderID}`);
         const data = res.data;
+        const formattedBirthday = data.dateOfBirth
+          ? moment(data.dateOfBirth).format('DD/MM/YYYY')
+          : '';
         setFormValues({
           username: data.userName || '',
-          password: '',
           coderName: data.coderName || '',
           email: data.coderEmail || '',
           avatar: data.avatar,
-          gender: genderMap[data.gender] || '',
-          birthday:
-            data.dateOfBirth && data.dateOfBirth !== '0001-01-01T00:00:00'
-              ? moment(data.dateOfBirth).format('DD/MM/YYYY')
-              : '',
+          gender: data.gender?.toString() ?? '',
+          birthday: formattedBirthday,
           phonenumber: data.phoneNumber || '',
           description: data.description || '',
         });
@@ -87,7 +93,6 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
         console.error('Lỗi khi lấy thông tin coder:', error);
       }
     };
-
     fetchUser();
   }, [coderProfile?.coderID, isOpen]);
 
@@ -95,32 +100,421 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
     setFormValues((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSave = () => {
-    setEditingField(null);
-  };
-
-  const handlePasswordChange = (field, value) => {
-    setPasswordFields((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handlePasswordSave = () => {
-    setEditingField(null);
-  };
-
   const handleBirthdayChange = (key, value) => {
     setBirthday((prev) => ({ ...prev, [key]: value }));
   };
-  const SaveCancelButtons = ({ onSave, onCancel }) => {
-    return (
-      <HStack spacing={2}>
-        <Button size="sm" colorScheme="blue" onClick={onSave} borderRadius="md">
-          Lưu
-        </Button>
-        <Button size="sm" bg="gray.200" onClick={onCancel} borderRadius="md">
-          Hủy
-        </Button>
-      </HStack>
-    );
+  const handleEdit = (field) => {
+    setEditingField(field);
+    setFormErrors({});
+  };
+  const handleSave = async () => {
+    if (!editingField) return;
+
+    const updatedData = {};
+    let errors = {};
+    Object.keys(formValues).forEach((key) => {
+      if (typeof formValues[key] === 'string' && !formValues[key].trim()) {
+        errors[key] = 'Không được bỏ trống.';
+      } else if (formValues[key] === null || formValues[key] === undefined) {
+        errors[key] = 'Không được bỏ trống.';
+      }
+    });
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const email = formValues.email;
+    if (email && !emailRegex.test(email)) {
+      errors.email = 'Email không hợp lệ.';
+    }
+
+    const nameRegex = /^[^\d]+$/;
+    const coderName = formValues.coderName;
+    if (coderName && !nameRegex.test(coderName)) {
+      errors.coderName = 'Họ và tên không được chứa số.';
+    }
+
+    switch (editingField) {
+      case 'birthday': {
+        const { day, month, year } = birthday;
+        if (!day || !month || !year) {
+          console.error('Thông tin ngày sinh không hợp lệ.');
+          return;
+        }
+        updatedData.dateOfBirth = `${year}-${month}-${day}T00:00:00`;
+        break;
+      }
+
+      case 'gender':
+        updatedData.gender = formValues.gender;
+        break;
+
+      case 'description':
+        updatedData.description = formValues.description;
+        break;
+
+      default:
+        updatedData[editingField] = formValues[editingField];
+    }
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    try {
+      const res = await api.put(`/Coder/${coderProfile.coderID}`, updatedData);
+      if (res.status === 200) {
+        setFormValues((prevValues) => ({
+          ...prevValues,
+          ...updatedData,
+          birthday: moment(updatedData.dateOfBirth).format('DD/MM/YYYY'),
+        }));
+        setEditingField(null);
+      } else {
+        console.error('Đã xảy ra lỗi khi cập nhật thông tin.');
+      }
+    } catch (error) {
+      console.error('Lỗi khi lưu dữ liệu:', error);
+    }
+  };
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setAvatarError('');
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append('AvatarFile', file);
+
+    try {
+      const response = await api.put(
+        `/Coder/avatar/${coderProfile.coderID}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+
+      const newAvatarUrl = response.data?.avatarUrl;
+      if (!newAvatarUrl) {
+        throw new Error('Không nhận được đường dẫn avatar mới từ server.');
+      }
+      setFormValues((prev) => ({ ...prev, avatar: newAvatarUrl }));
+      setEditingField((prev) => ({ ...prev, avatar: newAvatarUrl }));
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Đã xảy ra lỗi khi cập nhật avatar', error);
+      const message = error?.response?.data?.error || 'Lỗi không xác định.';
+      setAvatarError(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const SaveCancelButtons = ({ onSave, onCancel }) => (
+    <HStack spacing={2} mt={2}>
+      <Button size="sm" colorScheme="blue" onClick={onSave} borderRadius="md">
+        Lưu
+      </Button>
+      <Button size="sm" bg="gray.200" onClick={onCancel} borderRadius="md">
+        Hủy
+      </Button>
+    </HStack>
+  );
+
+  const renderEditableField = (field) => {
+    const fieldValue = formValues[field.key] || 'Chưa có';
+    const isEditing = editingField === field.key;
+    const errorMessage = formErrors[field.key];
+
+    if (field.key === 'username') {
+      return (
+        <Box
+          key={field.key}
+          bg="transparent"
+          borderBottom="1px solid"
+          borderColor="gray.200"
+          py={3}
+          px={3}
+        >
+          <Flex align="center">
+            <Text w="150px" fontWeight="medium" color="gray.700">
+              {field.label}
+            </Text>
+            <Text flex="1" color="gray.600">
+              {fieldValue}
+            </Text>
+          </Flex>
+        </Box>
+      );
+    }
+
+    switch (field.key) {
+      case 'gender':
+        return (
+          <Box
+            key={field.key}
+            bg={isEditing ? 'gray.100' : 'transparent'}
+            borderBottom="1px solid"
+            borderColor="gray.200"
+            py={3}
+            px={3}
+          >
+            {isEditing ? (
+              <Flex align="flex-start">
+                <Text w="150px" fontWeight="medium" color="gray.700" pt={2}>
+                  {field.label}
+                </Text>
+                <Box flex="1">
+                  <Select
+                    value={formValues.gender}
+                    onChange={(e) => handleChange('gender', e.target.value)}
+                    size="sm"
+                    bg="white"
+                    borderRadius="md"
+                    mb={2}
+                  >
+                    {Object.entries(genderMap).map(([key, value]) => (
+                      <option key={key} value={key}>
+                        {value}
+                      </option>
+                    ))}
+                  </Select>
+                  {errorMessage && (
+                    <Text color="red.500" fontSize="sm">
+                      {errorMessage}
+                    </Text>
+                  )}
+                  <SaveCancelButtons
+                    onSave={handleSave}
+                    onCancel={() => setEditingField(null)}
+                  />
+                </Box>
+              </Flex>
+            ) : (
+              <Flex align="center">
+                <Text w="150px" fontWeight="medium" color="gray.700">
+                  {field.label}
+                </Text>
+                <Text flex="1" color="gray.600">
+                  {genderMap[formValues.gender] || 'Chưa có'}
+                </Text>
+                <Button
+                  size="sm"
+                  variant="link"
+                  colorScheme="blue"
+                  onClick={() => handleEdit(field.key)}
+                  leftIcon={<EditIcon />}
+                >
+                  Edit
+                </Button>
+              </Flex>
+            )}
+          </Box>
+        );
+
+      case 'birthday':
+        return (
+          <Box
+            key={field.key}
+            bg={isEditing ? 'gray.100' : 'transparent'}
+            borderBottom="1px solid"
+            borderColor="gray.200"
+            py={3}
+            px={3}
+          >
+            {isEditing ? (
+              <Flex align="flex-start">
+                <Text w="150px" fontWeight="medium" color="gray.700" pt={2}>
+                  {field.label}
+                </Text>
+                <Box flex="1">
+                  <HStack spacing={4} mb={2}>
+                    {['day', 'month', 'year'].map((part) => (
+                      <Select
+                        key={part}
+                        value={birthday[part]}
+                        onChange={(e) =>
+                          handleBirthdayChange(part, e.target.value)
+                        }
+                        size="sm"
+                        bg="white"
+                        borderRadius="md"
+                        width="110px"
+                      >
+                        {part === 'day'
+                          ? [...Array(31).keys()].map((i) => (
+                              <option
+                                key={i}
+                                value={String(i + 1).padStart(2, '0')}
+                              >
+                                {String(i + 1).padStart(2, '0')}
+                              </option>
+                            ))
+                          : part === 'month'
+                          ? [...Array(12).keys()].map((i) => (
+                              <option
+                                key={i}
+                                value={String(i + 1).padStart(2, '0')}
+                              >
+                                Tháng {String(i + 1).padStart(1)}
+                              </option>
+                            ))
+                          : [...Array(101).keys()].map((i) => {
+                              const year = new Date().getFullYear() - i;
+                              return (
+                                <option key={year} value={year}>
+                                  {year}
+                                </option>
+                              );
+                            })}
+                      </Select>
+                    ))}
+                  </HStack>
+                  <SaveCancelButtons
+                    onSave={handleSave}
+                    onCancel={() => setEditingField(null)}
+                  />
+                </Box>
+              </Flex>
+            ) : (
+              <Flex align="center">
+                <Text w="150px" fontWeight="medium" color="gray.700">
+                  {field.label}
+                </Text>
+                <Text flex="1" color="gray.600">
+                  {formValues.birthday}
+                </Text>
+                <Button
+                  size="sm"
+                  variant="link"
+                  colorScheme="blue"
+                  onClick={() => handleEdit(field.key)}
+                  leftIcon={<EditIcon />}
+                >
+                  Edit
+                </Button>
+              </Flex>
+            )}
+            {errorMessage && (
+              <Text color="red.500" fontSize="sm">
+                {errorMessage}
+              </Text>
+            )}
+          </Box>
+        );
+
+      case 'description':
+        return (
+          <Box
+            key={field.key}
+            bg={isEditing ? 'gray.100' : 'transparent'}
+            borderBottom="1px solid"
+            borderColor="gray.200"
+            py={3}
+            px={3}
+          >
+            {isEditing ? (
+              <Flex align="flex-start">
+                <Text w="150px" fontWeight="medium" color="gray.700" pt={2}>
+                  {field.label}
+                </Text>
+                <Box flex="1">
+                  <Textarea
+                    value={formValues[field.key]}
+                    onChange={(e) => handleChange(field.key, e.target.value)}
+                    size="sm"
+                    bg="white"
+                    width="100%"
+                    borderRadius="md"
+                  />
+                  {errorMessage && (
+                    <Text color="red.500" fontSize="sm">
+                      {errorMessage}
+                    </Text>
+                  )}
+                  <SaveCancelButtons
+                    onSave={handleSave}
+                    onCancel={() => setEditingField(null)}
+                  />
+                </Box>
+              </Flex>
+            ) : (
+              <Flex align="center">
+                <Text w="150px" fontWeight="medium" color="gray.700">
+                  {field.label}
+                </Text>
+                <Text flex="1" color="gray.600">
+                  {formValues.description}
+                </Text>
+                <Button
+                  size="sm"
+                  variant="link"
+                  colorScheme="blue"
+                  onClick={() => handleEdit(field.key)}
+                  leftIcon={<EditIcon />}
+                >
+                  Edit
+                </Button>
+              </Flex>
+            )}
+          </Box>
+        );
+
+      default:
+        return (
+          <Box
+            key={field.key}
+            bg={isEditing ? 'gray.100' : 'transparent'}
+            borderBottom="1px solid"
+            borderColor="gray.200"
+            py={3}
+            px={3}
+          >
+            {isEditing ? (
+              <Flex align="flex-start">
+                <Text w="150px" fontWeight="medium" color="gray.700" pt={2}>
+                  {field.label}
+                </Text>
+                <Box flex="1">
+                  <Input
+                    value={formValues[field.key]}
+                    onChange={(e) => handleChange(field.key, e.target.value)}
+                    size="sm"
+                    bg="white"
+                    width="35%"
+                    borderRadius="md"
+                  />
+                  {errorMessage && (
+                    <Text color="red.500" fontSize="sm">
+                      {errorMessage}
+                    </Text>
+                  )}
+                  <SaveCancelButtons
+                    onSave={handleSave}
+                    onCancel={() => setEditingField(null)}
+                  />
+                </Box>
+              </Flex>
+            ) : (
+              <Flex align="center">
+                <Text w="150px" fontWeight="medium" color="gray.700">
+                  {field.label}
+                </Text>
+                <Text flex="1" color="gray.600">
+                  {fieldValue}
+                </Text>
+                <Button
+                  size="sm"
+                  variant="link"
+                  colorScheme="blue"
+                  onClick={() => handleEdit(field.key)}
+                  leftIcon={<EditIcon />}
+                >
+                  Edit
+                </Button>
+              </Flex>
+            )}
+          </Box>
+        );
+    }
   };
 
   return (
@@ -138,8 +532,78 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
               justify="center"
               minH="100%"
             >
-              <Avatar size="3xl" src={formValues.avatar} />
+              <Box
+                position="relative"
+                role="group"
+                cursor={isLoading ? 'not-allowed' : 'pointer'}
+                opacity={isLoading ? 0.6 : 1}
+                onClick={() =>
+                  !isLoading && document.getElementById('avatarInput')?.click()
+                }
+              >
+                <Avatar size="3xl" src={formValues.avatar} />
+
+                <Box
+                  position="absolute"
+                  top={0}
+                  left={0}
+                  w="full"
+                  h="full"
+                  bg="blackAlpha.600"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  borderRadius="full"
+                  transition="opacity 0.3s ease"
+                  opacity={isLoading ? 1 : 0}
+                  pointerEvents="none"
+                >
+                  {isLoading ? (
+                    <Spinner
+                      thickness="4px"
+                      speed="0.65s"
+                      emptyColor="gray.200"
+                      color="white"
+                      size="xl"
+                    />
+                  ) : (
+                    <Icon
+                      as={MdAddPhotoAlternate}
+                      w={10}
+                      h={10}
+                      color="white"
+                    />
+                  )}
+                </Box>
+
+                <Input
+                  id="avatarInput"
+                  type="file"
+                  onChange={handleAvatarChange}
+                  display="none"
+                />
+              </Box>
+
+              {avatarError && (
+                <Flex
+                  mt={4}
+                  p={3}
+                  bg="red.50"
+                  border="1px solid"
+                  borderColor="red.300"
+                  borderRadius="md"
+                  color="red.700"
+                  fontSize="sm"
+                  align="center"
+                  justify="center"
+                  boxShadow="sm"
+                  gap={2}
+                >
+                  <Text textAlign="center">{avatarError}</Text>
+                </Flex>
+              )}
             </Flex>
+
             <Divider
               orientation="vertical"
               height="100%"
@@ -147,452 +611,7 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
             />
             <Box w="100%">
               <VStack align="stretch" gap={0}>
-                {initialFields.map((field) => {
-                  const fieldValue = formValues[field.key] || 'Chưa có';
-
-                  if (field.key === 'username') {
-                    return (
-                      <Box
-                        key={field.key}
-                        borderBottom="1px solid"
-                        borderColor="gray.200"
-                        py={3}
-                        px={3}
-                      >
-                        <Flex align="center">
-                          <Text w="150px" fontWeight="medium" color="gray.700">
-                            {field.label}
-                          </Text>
-                          <Text flex="1" color="gray.600">
-                            {fieldValue}
-                          </Text>
-                        </Flex>
-                      </Box>
-                    );
-                  }
-
-                  if (field.key === 'password') {
-                    return (
-                      <Box
-                        key={field.key}
-                        bg={
-                          editingField === field.key
-                            ? 'gray.100'
-                            : 'transparent'
-                        }
-                        borderBottom="1px solid"
-                        borderColor="gray.200"
-                        py={3}
-                        px={3}
-                      >
-                        {editingField === field.key ? (
-                          <Flex align="flex-start">
-                            <Text
-                              w="150px"
-                              fontWeight="medium"
-                              color="gray.700"
-                              pt={2}
-                            >
-                              {field.label}
-                            </Text>
-                            <Box flex="1">
-                              <VStack align="stretch" spacing={2} width="50%">
-                                <Input
-                                  placeholder="Mật khẩu hiện tại"
-                                  type="password"
-                                  value={passwordFields.current}
-                                  onChange={(e) =>
-                                    handlePasswordChange(
-                                      'current',
-                                      e.target.value,
-                                    )
-                                  }
-                                  size="sm"
-                                  bg="white"
-                                  borderRadius="md"
-                                />
-                                <Input
-                                  placeholder="Mật khẩu mới"
-                                  type="password"
-                                  value={passwordFields.new}
-                                  onChange={(e) =>
-                                    handlePasswordChange('new', e.target.value)
-                                  }
-                                  size="sm"
-                                  bg="white"
-                                  borderRadius="md"
-                                />
-                                <Input
-                                  placeholder="Xác nhận mật khẩu mới"
-                                  type="password"
-                                  value={passwordFields.confirm}
-                                  onChange={(e) =>
-                                    handlePasswordChange(
-                                      'confirm',
-                                      e.target.value,
-                                    )
-                                  }
-                                  size="sm"
-                                  bg="white"
-                                  borderRadius="md"
-                                />
-                                <SaveCancelButtons
-                                  onSave={handleSave}
-                                  onCancel={() => setEditingField(null)}
-                                />
-                              </VStack>
-                            </Box>
-                          </Flex>
-                        ) : (
-                          <Flex align="center">
-                            <Text
-                              w="150px"
-                              fontWeight="medium"
-                              color="gray.700"
-                            >
-                              {field.label}
-                            </Text>
-                            <Text flex="1" color="gray.600">
-                              ********
-                            </Text>
-                            <Button
-                              size="sm"
-                              variant="link"
-                              colorScheme="blue"
-                              onClick={() => setEditingField(field.key)}
-                            >
-                              Thay đổi mật khẩu
-                            </Button>
-                          </Flex>
-                        )}
-                      </Box>
-                    );
-                  }
-
-                  if (field.key === 'gender') {
-                    return (
-                      <Box
-                        key={field.key}
-                        bg={
-                          editingField === field.key
-                            ? 'gray.100'
-                            : 'transparent'
-                        }
-                        borderBottom="1px solid"
-                        borderColor="gray.200"
-                        py={3}
-                        px={3}
-                      >
-                        {editingField === field.key ? (
-                          <Flex align="flex-start">
-                            <Text
-                              w="150px"
-                              fontWeight="medium"
-                              color="gray.700"
-                              pt={2}
-                            >
-                              {field.label}
-                            </Text>
-                            <Box flex="1">
-                              <Select
-                                value={genderMap[formValues.gender]}
-                                onChange={(e) =>
-                                  handleChange('gender', e.target.value)
-                                }
-                                size="sm"
-                                bg="white"
-                                borderRadius="md"
-                                mb={2}
-                              >
-                                {Object.entries(genderMap).map(
-                                  ([key, value]) => (
-                                    <option key={key} value={key}>
-                                      {value}
-                                    </option>
-                                  ),
-                                )}
-                              </Select>
-                              <SaveCancelButtons
-                                onSave={handleSave}
-                                onCancel={() => setEditingField(null)}
-                              />
-                            </Box>
-                          </Flex>
-                        ) : (
-                          <Flex align="center">
-                            <Text
-                              w="150px"
-                              fontWeight="medium"
-                              color="gray.700"
-                            >
-                              {field.label}
-                            </Text>
-                            <Text flex="1" color="gray.600">
-                              {formValues.gender}
-                            </Text>
-                            <Button
-                              size="sm"
-                              variant="link"
-                              colorScheme="blue"
-                              onClick={() => setEditingField(field.key)}
-                              leftIcon={<EditIcon />}
-                            >
-                              Edit
-                            </Button>
-                          </Flex>
-                        )}
-                      </Box>
-                    );
-                  }
-
-                  if (field.key === 'birthday') {
-                    return (
-                      <Box
-                        key={field.key}
-                        bg={
-                          editingField === field.key
-                            ? 'gray.100'
-                            : 'transparent'
-                        }
-                        borderBottom="1px solid"
-                        borderColor="gray.200"
-                        py={3}
-                        px={3}
-                      >
-                        {editingField === field.key ? (
-                          <Flex align="flex-start">
-                            <Text
-                              w="150px"
-                              fontWeight="medium"
-                              color="gray.700"
-                              pt={2}
-                            >
-                              {field.label}
-                            </Text>
-                            <Box flex="1">
-                              <HStack spacing={4} mb={2}>
-                                <Select
-                                  value={birthday.day}
-                                  onChange={(e) =>
-                                    handleBirthdayChange('day', e.target.value)
-                                  }
-                                  size="sm"
-                                  bg="white"
-                                  borderRadius="md"
-                                  width="110px"
-                                >
-                                  {[...Array(31).keys()].map((i) => (
-                                    <option
-                                      key={i}
-                                      value={String(i + 1).padStart(2, '0')}
-                                    >
-                                      {String(i + 1).padStart(2, '0')}
-                                    </option>
-                                  ))}
-                                </Select>
-                                <Select
-                                  value={birthday.month}
-                                  onChange={(e) =>
-                                    handleBirthdayChange(
-                                      'month',
-                                      e.target.value,
-                                    )
-                                  }
-                                  size="sm"
-                                  bg="white"
-                                  borderRadius="md"
-                                  width="110px"
-                                >
-                                  {[...Array(12).keys()].map((i) => (
-                                    <option
-                                      key={i}
-                                      value={String(i + 1).padStart(2, '0')}
-                                    >
-                                      Tháng {String(i + 1).padStart(1)}
-                                    </option>
-                                  ))}
-                                </Select>
-                                <Select
-                                  value={birthday.year}
-                                  onChange={(e) =>
-                                    handleBirthdayChange('year', e.target.value)
-                                  }
-                                  size="sm"
-                                  bg="white"
-                                  borderRadius="md"
-                                  width="110px"
-                                >
-                                  {[...Array(100).keys()].map((i) => (
-                                    <option key={i} value={2025 - i}>
-                                      {2025 - i}
-                                    </option>
-                                  ))}
-                                </Select>
-                              </HStack>
-                              <SaveCancelButtons
-                                onSave={handleSave}
-                                onCancel={() => setEditingField(null)}
-                              />
-                            </Box>
-                          </Flex>
-                        ) : (
-                          <Flex align="center">
-                            <Text
-                              w="150px"
-                              fontWeight="medium"
-                              color="gray.700"
-                            >
-                              {field.label}
-                            </Text>
-                            <Text flex="1" color="gray.600">
-                              {formValues.birthday}
-                            </Text>
-                            <Button
-                              size="sm"
-                              variant="link"
-                              colorScheme="blue"
-                              onClick={() => setEditingField(field.key)}
-                              leftIcon={<EditIcon />}
-                            >
-                              Edit
-                            </Button>
-                          </Flex>
-                        )}
-                      </Box>
-                    );
-                  }
-
-                  if (field.key === 'description') {
-                    return (
-                      <Box
-                        key={field.key}
-                        bg={
-                          editingField === field.key
-                            ? 'gray.100'
-                            : 'transparent'
-                        }
-                        borderBottom="1px solid"
-                        borderColor="gray.200"
-                        py={3}
-                        px={3}
-                      >
-                        {editingField === field.key ? (
-                          <Flex align="flex-start">
-                            <Text
-                              w="150px"
-                              fontWeight="medium"
-                              color="gray.700"
-                              pt={2}
-                            >
-                              {field.label}
-                            </Text>
-                            <Box flex="1">
-                              <Textarea
-                                value={formValues[field.key]}
-                                onChange={(e) =>
-                                  handleChange(field.key, e.target.value)
-                                }
-                                size="sm"
-                                bg="white"
-                                width="100%"
-                                borderRadius="md"
-                                mb={2}
-                              />
-                              <SaveCancelButtons
-                                onSave={handleSave}
-                                onCancel={() => setEditingField(null)}
-                              />
-                            </Box>
-                          </Flex>
-                        ) : (
-                          <Flex align="center">
-                            <Text
-                              w="150px"
-                              fontWeight="medium"
-                              color="gray.700"
-                            >
-                              {field.label}
-                            </Text>
-                            <Text flex="1" color="gray.600">
-                              {fieldValue}
-                            </Text>
-                            <Button
-                              size="sm"
-                              variant="link"
-                              colorScheme="blue"
-                              onClick={() => setEditingField(field.key)}
-                              leftIcon={<EditIcon />}
-                            >
-                              Edit
-                            </Button>
-                          </Flex>
-                        )}
-                      </Box>
-                    );
-                  }
-
-                  return (
-                    <Box
-                      key={field.key}
-                      bg={
-                        editingField === field.key ? 'gray.100' : 'transparent'
-                      }
-                      borderBottom="1px solid"
-                      borderColor="gray.200"
-                      py={3}
-                      px={3}
-                    >
-                      {editingField === field.key ? (
-                        <Flex align="flex-start">
-                          <Text
-                            w="150px"
-                            fontWeight="medium"
-                            color="gray.700"
-                            pt={2}
-                          >
-                            {field.label}
-                          </Text>
-                          <Box flex="1">
-                            <VStack align="stretch" spacing={2}>
-                              <Input
-                                value={formValues[field.key]}
-                                onChange={(e) =>
-                                  handleChange(field.key, e.target.value)
-                                }
-                                size="sm"
-                                bg="white"
-                                width="35%"
-                                borderRadius="md"
-                              />
-                              <SaveCancelButtons
-                                onSave={handleSave}
-                                onCancel={() => setEditingField(null)}
-                              />
-                            </VStack>
-                          </Box>
-                        </Flex>
-                      ) : (
-                        <Flex align="center">
-                          <Text w="150px" fontWeight="medium" color="gray.700">
-                            {field.label}
-                          </Text>
-                          <Text flex="1" color="gray.600">
-                            {fieldValue}
-                          </Text>
-                          <Button
-                            size="sm"
-                            variant="link"
-                            colorScheme="blue"
-                            onClick={() => setEditingField(field.key)}
-                            leftIcon={<EditIcon />}
-                          >
-                            Edit
-                          </Button>
-                        </Flex>
-                      )}
-                    </Box>
-                  );
-                })}
+                {initialFields.map(renderEditableField)}
               </VStack>
             </Box>
           </HStack>

@@ -14,11 +14,9 @@ namespace ntucoderbe.DTOs
     
         public string? Password { get; set; }
         public string? OldPassword { get; set; }
-        public int? Role {  get; set; }
-        public IFormFile? AvatarFile { get; set; }
         public DateTime? CreatedAt { get; set; }
         public string? CreatedBy { get; set; }
-        public GenderEnum? Gender { get; set; }
+        public int? Gender { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public string? UpdatedBy { get; set; }
@@ -27,6 +25,10 @@ namespace ntucoderbe.DTOs
         public string? Description { get; set; }
         public int? CountProblemSolved { get; set; }
         public int? CountFavourites { get; set; }
+    }
+    public class AvatarUploadDTO
+    {
+        public IFormFile AvatarFile { get; set; }
     }
     public class CoderWithLanguageDTO : CoderDTO
     {

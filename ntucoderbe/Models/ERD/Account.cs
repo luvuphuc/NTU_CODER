@@ -1,4 +1,6 @@
-﻿namespace ntucoderbe.Models.ERD
+﻿using ntucoderbe.Infrashtructure.Enums;
+
+namespace ntucoderbe.Models.ERD
 {
     public class Account
     {

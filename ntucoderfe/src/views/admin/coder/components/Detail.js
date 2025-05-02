@@ -31,21 +31,15 @@ const genderMapping = {
 };
 const roleMapping = {
   1: 'Admin',
-  2: 'User',
-  3: 'Manager',
+  2: 'Người dùng',
+  3: 'Quản lý',
 };
 
-const roleOptions = [
-  { value: 1, label: 'Admin' },
-  { value: 2, label: 'User' },
-  { value: 3, label: 'Manager' },
-];
 const CoderDetail = () => {
   const { id } = useParams();
   const [coderDetail, setCoderDetail] = useState(null);
   const [editField, setEditField] = useState(null);
   const [editableValues, setEditableValues] = useState({});
-  const [avatarFile, setAvatarFile] = useState(null);
   const navigate = useNavigate();
   const toast = useToast();
   const [errors, setErrors] = useState({});
@@ -67,117 +61,51 @@ const CoderDetail = () => {
   }, [id]);
 
   const handleEdit = (field) => {
+    if (editField && editField !== field) {
+      setCoderDetail((prev) => ({
+        ...prev,
+        [editField]: editableValues[editField],
+      }));
+    }
     setEditField(field);
   };
 
   const handleInputChange = (field, value) => {
-    setEditableValues((prev) => {
-      const updatedValues = { ...prev, [field]: value };
-      setCoderDetail((prevCoderDetail) => ({
-        ...prevCoderDetail,
-        [field]: value,
-      }));
-      return updatedValues;
-    });
+    setEditableValues((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        setEditableValues((prev) => ({ ...prev, avatar: reader.result }));
+    if (!file) return;
 
-        const formData = new FormData();
-        formData.append('CoderID', id);
-        formData.append('AvatarFile', file);
+    const formData = new FormData();
+    formData.append('AvatarFile', file);
 
-        try {
-          await api.put(`/Coder/${id}/`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          });
-
-          toast({
-            title: 'Cập nhật avatar thành công!',
-            status: 'success',
-            duration: 3000,
-            isClosable: true,
-            position: 'top-right',
-          });
-        } catch (error) {
-          console.error('Đã xảy ra lỗi khi cập nhật avatar', error);
-          toast({
-            title: 'Đã xảy ra lỗi khi cập nhật avatar.',
-            status: 'error',
-            duration: 3000,
-            isClosable: true,
-            position: 'top-right',
-          });
-        }
-      };
-      reader.readAsDataURL(file);
-      setAvatarFile(file);
-    }
-  };
-  if (!coderDetail) {
-    return <FullPageSpinner />;
-  }
-  const handleSave = async () => {
-    const newErrors = {};
-    const { coderName, coderEmail, phoneNumber } = editableValues;
-
-    // Bắt buộc không được để trống
-    ['coderName', 'coderEmail', 'phoneNumber'].forEach((key) => {
-      const value = editableValues[key];
-      if (!value || (typeof value === 'string' && !value.trim())) {
-        newErrors[key] = 'Không được bỏ trống.';
-      }
-    });
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (coderEmail && !emailRegex.test(coderEmail)) {
-      newErrors.coderEmail = 'Email không hợp lệ.';
-    }
-    const nameRegex = /^[^\d]+$/;
-    if (coderName && !nameRegex.test(coderName)) {
-      newErrors.coderName = 'Họ và tên không được chứa số.';
-    }
-    const phoneRegex = /^\d{10}$/;
-    if (phoneNumber && !phoneRegex.test(phoneNumber)) {
-      newErrors.phoneNumber = 'Số điện thoại phải có đúng 10 chữ số.';
-    }
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    setErrors({});
     try {
-      const formData = new FormData();
-      Object.keys(editableValues).forEach((key) => {
-        if (key !== 'CountFavourites' && key !== 'CountProblemSolved') {
-          formData.append(key, editableValues[key] || '');
-        }
+      const response = await api.put(`/Coder/avatar/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
-      await api.put(`/Coder/${id}/`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const newAvatarUrl = response.data?.avatarUrl;
+      if (!newAvatarUrl) {
+        throw new Error('Không nhận được đường dẫn avatar mới từ server.');
+      }
+      setEditableValues((prev) => ({ ...prev, avatar: newAvatarUrl }));
+      setCoderDetail((prev) => ({ ...prev, Avatar: newAvatarUrl }));
 
       toast({
-        title: 'Cập nhật thông tin thành công!',
+        title: 'Cập nhật avatar thành công!',
         status: 'success',
         duration: 3000,
         isClosable: true,
         position: 'top-right',
       });
-      setEditField(null);
     } catch (error) {
-      console.error('Đã xảy ra lỗi khi cập nhật thông tin', error);
+      console.error('Đã xảy ra lỗi khi cập nhật avatar', error);
       toast({
-        title: 'Đã xảy ra lỗi khi cập nhật thông tin.',
+        title: 'Đã xảy ra lỗi khi cập nhật avatar.',
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -185,7 +113,45 @@ const CoderDetail = () => {
       });
     }
   };
+  const handleSave = async () => {
+    try {
+      await api.put(`/Coder/${id}`, editableValues, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+      setCoderDetail((prev) => ({
+        ...prev,
+        ...editableValues,
+      }));
 
+      setEditField(null);
+      toast({
+        title: 'Cập nhật thành công!',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    } catch (error) {
+      console.error('Lỗi cập nhật:', error);
+      let errorMessage = 'Đã xảy ra lỗi khi cập nhật.';
+
+      if (error.response && error.response.data && error.response.data.errors) {
+        errorMessage = error.response.data.errors.join('\n');
+      }
+
+      toast({
+        title: 'Lỗi cập nhật',
+        description: errorMessage,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+        position: 'top-right',
+      });
+    }
+  };
+  if (!coderDetail) {
+    return <FullPageSpinner />;
+  }
   return (
     <Box pt={{ base: '130px', md: '80px', xl: '80px' }} px="25px">
       <Box
@@ -245,14 +211,14 @@ const CoderDetail = () => {
             </Text>
           </VStack>
 
-          {/* Thông tin coder */}
           <VStack align="stretch" spacing={5} flex="1">
-            {/* Username */}
-            <Text fontSize="lg">
-              <strong>Tên đăng nhập:</strong> {coderDetail.userName}
-            </Text>
+            <Flex align="center" gap={2}>
+              <Text fontSize="md" w="150px">
+                <strong>Tên đăng nhập:</strong>
+              </Text>
+              <Text flex="1">{coderDetail.userName}</Text>
+            </Flex>
 
-            {/* Các trường có thể chỉnh sửa */}
             {['coderName', 'coderEmail', 'phoneNumber'].map((field) => (
               <FormControl key={field} isInvalid={errors[field]}>
                 <Flex align="center" gap={2}>
@@ -274,7 +240,7 @@ const CoderDetail = () => {
                     />
                   ) : (
                     <Text flex="1">
-                      {coderDetail[field] || 'Chưa có thông tin'}
+                      {editableValues[field] || 'Chưa có thông tin'}
                     </Text>
                   )}
                   <IconButton
@@ -295,8 +261,10 @@ const CoderDetail = () => {
               </Text>
               {editField === 'gender' ? (
                 <Select
-                  value={editableValues.gender || ''}
-                  onChange={(e) => handleInputChange('gender', e.target.value)}
+                  value={editableValues.gender ?? ''}
+                  onChange={(e) => {
+                    handleInputChange('gender', parseInt(e.target.value));
+                  }}
                   maxW="200px"
                 >
                   <option value="0">Nam</option>
@@ -319,19 +287,17 @@ const CoderDetail = () => {
               <Text fontSize="md" w="150px">
                 <strong>Quyền:</strong>
               </Text>
-              {editField === 'role' ? (
+              {editField === 'roleID' ? (
                 <Select
-                  value={editableValues.role || ''}
-                  onChange={(e) =>
-                    handleInputChange('role', parseInt(e.target.value))
-                  }
+                  value={editableValues.roleID || ''}
+                  onChange={(e) => {
+                    handleInputChange('roleID', parseInt(e.target.value));
+                  }}
                   maxW="200px"
                 >
-                  {roleOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
+                  <option value="1">Admin</option>
+                  <option value="2">Người dùng</option>
+                  <option value="3">Quản lý</option>
                 </Select>
               ) : (
                 <Text flex="1">
@@ -342,7 +308,7 @@ const CoderDetail = () => {
                 aria-label="Chỉnh sửa quyền"
                 icon={<MdEdit />}
                 size="sm"
-                onClick={() => handleEdit('role')}
+                onClick={() => handleEdit('roleID')}
               />
             </Flex>
 

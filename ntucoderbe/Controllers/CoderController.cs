@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
 using ntucoderbe.Infrashtructure.Repositories;
 using ntucoderbe.Infrashtructure.Services;
+using System.Linq;
 
 namespace ntucoderbe.Controllers
 {
@@ -76,7 +77,7 @@ namespace ntucoderbe.Controllers
             }
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCoder(int id, [FromForm] CoderDTO dto)
+        public async Task<IActionResult> UpdateCoder(int id, [FromBody] CoderDTO dto)
         {
             if (dto == null)
             {
@@ -103,6 +104,36 @@ namespace ntucoderbe.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+        [HttpPut("avatar/{id}")]
+        public async Task<IActionResult> UpdateAvatar(int id, [FromForm] AvatarUploadDTO avatarFile)
+        {
+            if (avatarFile == null)
+            {
+                return BadRequest(new { Error = "Không tìm thấy file" });
+            }
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+            var fileExtension = Path.GetExtension(avatarFile.AvatarFile.FileName).ToLower();
+
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                return BadRequest(new { Error = "Chỉ nhận các file ảnh với đuôi .jpg, .jpeg, .png, .gif" });
+            }
+
+            try
+            {
+                var avatarUrl = await _coderRepository.UpdateAvatarAsync(id, avatarFile);
+                return Ok(new { AvatarUrl = avatarUrl });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = ex.Message });
             }
         }
 

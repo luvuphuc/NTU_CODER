@@ -39,26 +39,25 @@ const ProfileCoder = () => {
   const percentage = coderProfile
     ? (coderProfile.countProblemSolved / totalProblems) * 100
     : 0;
+  const fetchProfileData = async () => {
+    try {
+      const [submissionRes, contestRes, coderRes, problemRes] =
+        await Promise.all([
+          api.get(`/Submission/profile?coderID=${id}`),
+          api.get(`/Contest/profile?coderID=${id}`),
+          api.get(`/Coder/profile/?coderID=${id}`),
+          api.get('/Problem/count'),
+        ]);
+      setSubmissions(submissionRes.data || []);
+      setContests(contestRes.data || []);
+      setCoderProfile(coderRes.data || null);
+      setTotalProblems(problemRes.data);
+    } catch (error) {
+      console.error('Lỗi khi lấy dữ liệu profile:', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchProfileData = async () => {
-      try {
-        const [submissionRes, contestRes, coderRes, problemRes] =
-          await Promise.all([
-            api.get(`/Submission/profile?coderID=${id}`),
-            api.get(`/Contest/profile?coderID=${id}`),
-            api.get(`/Coder/profile/?coderID=${id}`),
-            api.get('/Problem/count'),
-          ]);
-
-        setSubmissions(submissionRes.data || []);
-        setContests(contestRes.data || []);
-        setCoderProfile(coderRes.data || null);
-        setTotalProblems(problemRes.data);
-      } catch (error) {
-        console.error('Lỗi khi lấy dữ liệu profile:', error);
-      }
-    };
-
     fetchProfileData();
   }, [id]);
   useEffect(() => {
@@ -75,7 +74,10 @@ const ProfileCoder = () => {
     });
     return unsubscribe;
   }, [progress]);
-
+  const handleModalClose = () => {
+    fetchProfileData();
+    onClose();
+  };
   return (
     <Layout>
       <Container maxW={{ base: 'sm', md: '7xl' }}>
@@ -108,7 +110,7 @@ const ProfileCoder = () => {
               )}
               <DetailUserModal
                 isOpen={isOpen}
-                onClose={onClose}
+                onClose={handleModalClose}
                 coderProfile={coder}
               />
             </Flex>
