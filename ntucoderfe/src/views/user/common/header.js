@@ -48,7 +48,17 @@ export default function Header({ hideHeader }) {
               {isLoading ? null : coder ? (
                 <>
                   <Text fontSize="md" fontWeight="600" color="gray.700">
-                    Xin chào, {coder.coderName}
+                    Xin chào,{' '}
+                    <ChakraLink
+                      as={Link}
+                      to={`/user/${coder.accountID}`}
+                      fontSize="md"
+                      fontWeight="600"
+                      color="blue.500"
+                      _hover={{ textDecoration: 'underline' }}
+                    >
+                      {coder.coderName}
+                    </ChakraLink>
                   </Text>
                   {coder.roleID === 1 && (
                     <ChakraLink

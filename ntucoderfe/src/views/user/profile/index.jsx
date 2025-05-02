@@ -28,7 +28,7 @@ const ProfileCoder = () => {
   const { id } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { coder } = useAuth();
-  const isOwnProfile = coder?.coderID?.toString() === id;
+  const isOwnProfile = coder?.accountID?.toString() === id;
   console.log(isOwnProfile);
   const progress = useMotionValue(0);
   const [animatedPercentage, setAnimatedPercentage] = useState(0);
@@ -111,7 +111,7 @@ const ProfileCoder = () => {
               <DetailUserModal
                 isOpen={isOpen}
                 onClose={handleModalClose}
-                coderProfile={coder}
+                coderProfile={coderProfile}
               />
             </Flex>
 
