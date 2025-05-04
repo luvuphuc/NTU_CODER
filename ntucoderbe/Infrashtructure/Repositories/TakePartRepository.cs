@@ -145,7 +145,8 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 if (isAccepted)
                 {
                     int wrongAttempts = takePart.SubmissionCount!.Value - 1;
-                    takePart.TimeSolved += 20 * wrongAttempts;
+                    takePart.PointWon = 1;
+                    takePart.TimeSolved = 20 * wrongAttempts;
                 }
 
             }
@@ -161,11 +162,10 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 takePart.TimeSolved = minutesPassed;
                 if (isAccepted)
                 {
-                    int penaltyAttempts = takePart.SubmissionCount!.Value - 1;
-                    double rawPoint = maxPoint - (4 * minutesPassed) - (50 * penaltyAttempts);
-
-                    double minAllowed =maxPoint * 0.3;
-                    takePart.PointWon = (int)Math.Max(rawPoint, minAllowed);
+                    float rawPoint = (float)(maxPoint - (4 * minutesPassed) - (50 * (takePart.SubmissionCount - 1)));
+                    float minAllowed = maxPoint * 0.3f;
+                    float finalPoint = Math.Max(rawPoint, minAllowed);
+                    takePart.PointWon = (int)Math.Round(finalPoint);
                 }
                 else
                 {
@@ -174,6 +174,15 @@ namespace ntucoderbe.Infrashtructure.Repositories
             }
 
             await _context.SaveChangesAsync();
+            Participation participation = takePart.Participation;
+
+            participation.PointScore = (participation.PointScore ?? 0) + (takePart.PointWon ?? 0);
+            participation.TimeScore = (participation.TimeScore ?? 0) + (takePart.TimeSolved ?? 0);
+
+            if ((takePart.PointWon ?? 0) > 0)
+                participation.SolvedCount = (participation.SolvedCount ?? 0) + 1;
+
+
             return new TakePartDTO
             {
                 TakePartID = takePart.TakePartID,

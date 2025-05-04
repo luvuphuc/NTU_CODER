@@ -93,10 +93,6 @@ namespace ntucoderbe.Controllers
             {
                 return BadRequest(new { Errors = ex.Errors.Select(e => e.ErrorMessage).ToList() });
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { Message = ex.Message });
-            }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { Errors = new List<string> { ex.Message } });
