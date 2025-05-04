@@ -33,6 +33,7 @@ import Cookies from 'js-cookie';
 import { HamburgerIcon, ArrowBackIcon } from '@chakra-ui/icons';
 import { LuShuffle } from 'react-icons/lu';
 import { IoChevronForwardSharp, IoChevronBackSharp } from 'react-icons/io5';
+import ContestEndCheckModal from './components/EndTimeDialog';
 const MotionTab = motion(Tab);
 
 const ProblemSolver = () => {
@@ -478,6 +479,7 @@ const ProblemSolver = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      {contest && <ContestEndCheckModal contest={contest} />}
     </Box>
   );
 };
