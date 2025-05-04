@@ -75,7 +75,10 @@ function SignIn() {
 
       if (response.status === 200) {
         Cookies.set('token', response.data.token);
-        setCoder(response.data);
+        const resUser = await api.get('/Auth/me');
+        if (resUser.status === 200) {
+          setCoder(resUser.data);
+        }
         toast({
           render: () => (
             <CustomToast success={true} messages="Đăng nhập thành công!" />

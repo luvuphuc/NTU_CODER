@@ -19,8 +19,6 @@ import {
 } from '@chakra-ui/react';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { MdOutlineSportsEsports } from 'react-icons/md';
-
-import { BsDot } from 'react-icons/bs';
 import { FaCheck } from 'react-icons/fa';
 import { useNavigate, useParams, Link as RouterLink } from 'react-router-dom';
 import LayoutUser from 'layouts/user';
@@ -97,7 +95,7 @@ export default function ContestDetailPage() {
         const contestRes = await api.get(`/Contest/${id}`);
         const contestData = contestRes.data;
         setContest(contestData);
-        if (contestData.status === 1 || contestData.status === 2) {
+        if (contestData.status === 1 || contestData.status === 0) {
           const probRes = await api.get('/HasProblem/all', {
             params: { contestId: id, ascending: true },
           });
@@ -177,7 +175,10 @@ export default function ContestDetailPage() {
       if (!onGoing) {
         toast({
           render: () => (
-            <CustomToast success={false} messages="Cuộc thi chưa bắt đầu!" />
+            <CustomToast
+              success={false}
+              messages="Cuộc thi chưa bắt đầu hoặc đã kết thúc!"
+            />
           ),
           position: 'top',
           duration: 3000,
@@ -196,7 +197,19 @@ export default function ContestDetailPage() {
       });
     }
   };
-
+  const handleCopyUrl = () => {
+    const currentUrl = window.location.href;
+    navigator.clipboard.writeText(currentUrl).then(() => {
+      toast({
+        render: () => (
+          <CustomToast success={true} messages="Đã sao chép đường dẫn!" />
+        ),
+        position: 'top',
+        duration: 3000,
+        isClosable: true,
+      });
+    });
+  };
   if (!contest || !countdown) return <FullPageSpinner />;
 
   return (
@@ -224,7 +237,6 @@ export default function ContestDetailPage() {
               <Text color="gray.600" fontSize="1.125rem">
                 {formatTime(contest.startTime)}
               </Text>
-              <BsDot color="gray" />
               <Divider
                 orientation="vertical"
                 height="20px"
@@ -260,6 +272,7 @@ export default function ContestDetailPage() {
                 onClick={handleParticipation}
                 isLoading={isLoading}
                 loadingText="Đang đăng ký..."
+                isDisabled={contest?.status === 1 || isRegistered}
               >
                 {isRegistered ? 'Đã đăng ký' : 'Đăng ký ngay'}
               </Button>
@@ -279,6 +292,7 @@ export default function ContestDetailPage() {
                   height="48px"
                   _hover={{ bg: 'gray.200' }}
                   _active={{ bg: 'gray.300' }}
+                  onClick={handleCopyUrl}
                 />
               </Tooltip>
             </HStack>
