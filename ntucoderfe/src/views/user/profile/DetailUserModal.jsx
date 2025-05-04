@@ -30,7 +30,7 @@ const initialFields = [
   { key: 'coderName', label: 'Họ và tên' },
   { key: 'email', label: 'Email' },
   { key: 'gender', label: 'Giới tính' },
-  { key: 'birthday', label: 'Ngày sinh' },
+  { key: 'dateOfBirth', label: 'Ngày sinh' },
   { key: 'phonenumber', label: 'Số điện thoại' },
   { key: 'description', label: 'Giới thiệu' },
 ];
@@ -53,7 +53,7 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
     new: '',
     confirm: '',
   });
-  const [birthday, setBirthday] = useState({
+  const [dateOfBirth, setBirthday] = useState({
     day: '',
     month: '',
     year: '',
@@ -74,7 +74,7 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
           email: data.coderEmail || '',
           avatar: data.avatar,
           gender: data.gender?.toString() ?? '',
-          birthday: formattedBirthday,
+          dateOfBirth: formattedBirthday,
           phonenumber: data.phoneNumber || '',
           description: data.description || '',
         });
@@ -109,17 +109,8 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
   };
   const handleSave = async () => {
     if (!editingField) return;
-
     const updatedData = {};
     let errors = {};
-    Object.keys(formValues).forEach((key) => {
-      if (typeof formValues[key] === 'string' && !formValues[key].trim()) {
-        errors[key] = 'Không được bỏ trống.';
-      } else if (formValues[key] === null || formValues[key] === undefined) {
-        errors[key] = 'Không được bỏ trống.';
-      }
-    });
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const email = formValues.email;
     if (email && !emailRegex.test(email)) {
@@ -133,10 +124,10 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
     }
 
     switch (editingField) {
-      case 'birthday': {
-        const { day, month, year } = birthday;
+      case 'dateOfBirth': {
+        const { day, month, year } = dateOfBirth;
         if (!day || !month || !year) {
-          console.error('Thông tin ngày sinh không hợp lệ.');
+          console.log('Thông tin ngày sinh không hợp lệ.');
           return;
         }
         updatedData.dateOfBirth = `${year}-${month}-${day}T00:00:00`;
@@ -162,12 +153,17 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
       const res = await api.put(`/Coder/${coderProfile.coderID}`, updatedData);
       if (res.status === 200) {
         const coderRes = await api.get('/Auth/me');
-        console.log(coderRes);
         setCoder(coderRes.data);
+        const newFormValues = { ...updatedData };
+        if (updatedData.dateOfBirth) {
+          newFormValues.dateOfBirth = moment(updatedData.dateOfBirth).format(
+            'DD/MM/YYYY',
+          );
+        }
+
         setFormValues((prevValues) => ({
           ...prevValues,
-          ...updatedData,
-          birthday: moment(updatedData.dateOfBirth).format('DD/MM/YYYY'),
+          ...newFormValues,
         }));
         setEditingField(null);
       } else {
@@ -203,6 +199,9 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
       setFormValues((prev) => ({ ...prev, avatar: newAvatarUrl }));
       setEditingField((prev) => ({ ...prev, avatar: newAvatarUrl }));
       setIsLoading(false);
+
+      const coderRes = await api.get('/Auth/me');
+      setCoder(coderRes.data);
     } catch (error) {
       console.error('Đã xảy ra lỗi khi cập nhật avatar', error);
       const message = error?.response?.data?.error || 'Lỗi không xác định.';
@@ -313,7 +312,7 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
           </Box>
         );
 
-      case 'birthday':
+      case 'dateOfBirth':
         return (
           <Box
             key={field.key}
@@ -333,7 +332,7 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
                     {['day', 'month', 'year'].map((part) => (
                       <Select
                         key={part}
-                        value={birthday[part]}
+                        value={dateOfBirth[part]}
                         onChange={(e) =>
                           handleBirthdayChange(part, e.target.value)
                         }
@@ -383,8 +382,9 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
                   {field.label}
                 </Text>
                 <Text flex="1" color="gray.600">
-                  {formValues.birthday}
+                  {formValues.dateOfBirth}
                 </Text>
+
                 <Button
                   size="sm"
                   variant="link"
