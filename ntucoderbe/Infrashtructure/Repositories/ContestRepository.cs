@@ -253,5 +253,28 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 })
         .ToListAsync();
         }
+        public async Task<List<RankingDTO>> GetListRankingByContestIdAsync(int contestID)
+        {
+            List<RankingDTO> rankings = await _context.Participations
+                .Where(p => p.ContestID == contestID)
+                .Include(p => p.Coder)
+                .OrderBy(p => p.Rank)
+                .Select(p => new RankingDTO
+                {
+                    CoderID = p.CoderID,
+                    CoderName = p.Coder.CoderName,
+                    ParticipationID = p.ParticipationID,
+                    PointScore = p.PointScore,
+                    TimeScore = p.TimeScore,
+                    Avatar = p.Coder.Avatar,
+                    Rank = p.Rank ?? 0 
+                })
+                .ToListAsync();
+
+            return rankings;
+        }
+
+
     }
+
 }

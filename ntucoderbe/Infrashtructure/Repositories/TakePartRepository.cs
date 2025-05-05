@@ -155,14 +155,12 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 var hasProblem = await _context.HasProblems
                .FirstOrDefaultAsync(h => h.ProblemID == takePart.ProblemID && h.ContestID == takePart.Participation.Contest.ContestID);
                 int maxPoint = hasProblem!.Point;
-                var contestStart = takePart.Participation.Contest.StartTime;
-                var now = DateTime.UtcNow;
-                int minutesPassed = (int)(now - contestStart).TotalMinutes;
                 takePart.MaxPoint = maxPoint;
-                takePart.TimeSolved = minutesPassed;
                 if (isAccepted)
                 {
-                    float rawPoint = (float)(maxPoint - (4 * minutesPassed) - (50 * (takePart.SubmissionCount - 1)));
+                    int minutesPassed = (int)(DateTime.UtcNow - takePart.Participation.Contest.StartTime).TotalMinutes;
+                    takePart.TimeSolved = minutesPassed;
+                    float rawPoint = (float)(maxPoint - (4 * minutesPassed) - (50 * (takePart.SubmissionCount - 1)))!;
                     float minAllowed = maxPoint * 0.3f;
                     float finalPoint = Math.Max(rawPoint, minAllowed);
                     takePart.PointWon = (int)Math.Round(finalPoint);
@@ -181,8 +179,22 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
             if ((takePart.PointWon ?? 0) > 0)
                 participation.SolvedCount = (participation.SolvedCount ?? 0) + 1;
+            await _context.SaveChangesAsync();
+            List<Participation> allParticipations = await _context.Participations
+                .Where(p => p.ContestID == participation.ContestID)
+                .OrderByDescending(p => p.PointScore ?? 0)
+                .ThenBy(p => p.TimeScore ?? int.MaxValue)
+                .ToListAsync();
 
+            int currentRank = 1;
+            for (int i = 0; i < allParticipations.Count; i++)
+            {
+                Participation p = allParticipations[i];
+                p.Rank = currentRank;
+                currentRank++;
+            }
 
+            await _context.SaveChangesAsync();
             return new TakePartDTO
             {
                 TakePartID = takePart.TakePartID,

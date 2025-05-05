@@ -2,67 +2,75 @@ import React, { useEffect, useState } from 'react';
 import {
   Box,
   Text,
-  VStack,
-  Divider,
   Flex,
+  Button,
   Input,
   IconButton,
+  SimpleGrid,
   useToast,
   Select,
-  FormControl,
-  FormErrorMessage,
-  Button,
-  Image,
+  Card,
+  CardBody,
+  CardHeader,
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
-import moment from 'moment-timezone';
 import api from 'utils/api';
 import { useNavigate } from 'react-router-dom';
 import { MdOutlineArrowBack, MdEdit } from 'react-icons/md';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import Editor from '@monaco-editor/react';
 import FullPageSpinner from 'components/spinner/FullPageSpinner';
-
-const genderMapping = {
-  0: 'Nam',
-  1: 'Nữ',
-  2: 'Khác',
-};
-
-const roleMapping = {
-  1: 'Admin',
-  2: 'User',
-  3: 'Manager',
-};
-
-const roleOptions = [
-  { value: 1, label: 'Admin' },
-  { value: 2, label: 'User' },
-  { value: 3, label: 'Manager' },
-];
-
-const CoderDetail = () => {
+import Multiselect from 'multiselect-react-dropdown';
+const ProblemDetail = () => {
   const { id } = useParams();
-  const [coderDetail, setCoderDetail] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [problemDetail, setProblemDetail] = useState(null);
   const [editField, setEditField] = useState(null);
   const [editableValues, setEditableValues] = useState({});
-  const [avatarFile, setAvatarFile] = useState(null);
   const navigate = useNavigate();
   const toast = useToast();
-  const [errors, setErrors] = useState({});
-
+  const testTypeMapping = {
+    'Output Matching': 'Output Matching',
+    'Validate Output': 'Validate Output',
+  };
+  const [compilers, setCompilers] = useState([]);
+  const [testCompilerID, setTestCompilerID] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategoryIDs, setSelectedCategoryIDs] = useState([]);
   useEffect(() => {
-    const fetchCoderDetail = async () => {
+    const fetchData = async () => {
       try {
-        const response = await api.get(`/Coder/${id}`);
-        setCoderDetail(response.data);
-        setEditableValues(response.data);
+        const [problemRes, compilerRes, categoryRes] = await Promise.all([
+          api.get(`/Problem/${id}`),
+          api.get('/Compiler/all'),
+          api.get('/Category/all'),
+        ]);
+        setProblemDetail(problemRes.data);
+        setEditableValues(problemRes.data);
+        console.log(problemRes.data);
+        setCompilers(
+          Array.isArray(compilerRes.data.data) ? compilerRes.data.data : [],
+        );
+        setSelectedCategoryIDs(
+          (problemRes.data.selectedCategoryIDs || []).map((id) => Number(id)),
+        );
+
+        const sortedCategories = Array.isArray(categoryRes.data.data)
+          ? categoryRes.data.data
+              .map((cat) => ({ ...cat, categoryID: Number(cat.categoryID) }))
+              .sort((a, b) => a.catOrder - b.catOrder)
+          : [];
+        setCategories(sortedCategories);
+        if (compilerRes.data.data.length > 0) {
+          setTestCompilerID(compilerRes.data.data[0].compilerID);
+        }
       } catch (error) {
         console.error('Đã xảy ra lỗi', error);
       }
     };
 
-    if (id) {
-      fetchCoderDetail();
-    }
+    if (id) fetchData();
   }, [id]);
 
   const handleEdit = (field) => {
@@ -70,71 +78,98 @@ const CoderDetail = () => {
   };
 
   const handleInputChange = (field, value) => {
-    setEditableValues((prev) => {
-      const updatedValues = { ...prev, [field]: value };
-      setCoderDetail((prevCoderDetail) => ({
-        ...prevCoderDetail,
-        [field]: value,
-      }));
-      return updatedValues;
-    });
+    setEditableValues((prev) => ({ ...prev, [field]: value }));
   };
+  const handleCategoryChange = (selectedList) => {
+    const updatedSelectedCategoryIDs = selectedList.map(
+      (item) => item.categoryID,
+    );
+    setSelectedCategoryIDs(updatedSelectedCategoryIDs);
 
-  const handleAvatarChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setAvatarFile(file);
-
-    const formData = new FormData();
-    formData.append('AvatarFile', file);
-
-    try {
-      const response = await api.put(`/Coder/avatar/${id}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      const newAvatarUrl = response.data?.avatarUrl;
-      if (!newAvatarUrl) {
-        throw new Error('Không nhận được đường dẫn avatar mới từ server.');
-      }
-
-      setEditableValues((prev) => ({ ...prev, avatar: newAvatarUrl }));
-      setCoderDetail((prev) => ({ ...prev, Avatar: newAvatarUrl }));
-
-      toast({
-        title: 'Cập nhật avatar thành công!',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-        position: 'top-right',
-      });
-    } catch (error) {
-      console.error('Đã xảy ra lỗi khi cập nhật avatar', error);
-      toast({
-        title: 'Đã xảy ra lỗi khi cập nhật avatar.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-        position: 'top-right',
-      });
-    }
+    const updatedCategoryNames = selectedList.map((item) => item.catName);
+    setEditableValues((prevValues) => ({
+      ...prevValues,
+      selectedCategoryNames: updatedCategoryNames,
+    }));
   };
-
-  if (!coderDetail) {
-    return <FullPageSpinner />;
-  }
 
   const handleSave = async () => {
+    setErrors({});
+    const {
+      problemCode,
+      problemName,
+      timeLimit,
+      problemContent,
+      problemExplanation,
+      testCode,
+      testCompilerID,
+    } = editableValues;
+    const inputs = {
+      problemCode,
+      problemName,
+      timeLimit,
+      problemContent,
+      problemExplanation,
+      testCode,
+      testCompilerID,
+      selectedCategoryIDs: selectedCategoryIDs || [],
+    };
+
+    const newErrors = {};
+    const problemCodeRegex = /^[A-Za-z0-9]+$/;
+
+    // Kiểm tra problemCode
+    if (!problemCode.match(problemCodeRegex)) {
+      newErrors.problemCode = 'Mã bài toán chỉ chấp nhận chữ và số.';
+    }
+
+    // Kiểm tra timeLimit và memoryLimit
+    if (parseFloat(timeLimit) <= 0) {
+      newErrors.timeLimit = 'Giới hạn thời gian phải lớn hơn 0.';
+    }
+
+    // Kiểm tra không bỏ trống
+    Object.keys(inputs).forEach((key) => {
+      if (!inputs[key] && key !== 'selectedCategoryIDs') {
+        newErrors[key] = 'Không được bỏ trống.';
+      }
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      Object.values(newErrors).forEach((msg) => {
+        toast({
+          title: 'Lỗi xác thực',
+          description: msg,
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+      });
+      return;
+    }
+
     try {
-      const updatedCoder = {
+      const updatedValues = {
+        ...problemDetail,
         ...editableValues,
+        selectedCategoryIDs,
       };
-      const response = await api.put(`/Coder/${id}`, updatedCoder);
-      setCoderDetail(response.data);
-      setEditableValues(response.data);
+      await api.put(`/Problem/${id}`, updatedValues);
+
+      setProblemDetail((prev) => ({
+        ...prev,
+        ...editableValues,
+        testCompilerName:
+          compilers.find((c) => c.compilerID == testCompilerID)?.compilerName ||
+          prev.testCompilerName,
+        selectedCategoryNames: categories
+          .filter((cat) => selectedCategoryIDs.includes(cat.categoryID))
+          .map((cat) => cat.catName),
+      }));
+
+      setEditField(null);
       toast({
         title: 'Cập nhật thành công!',
         status: 'success',
@@ -142,244 +177,408 @@ const CoderDetail = () => {
         isClosable: true,
         position: 'top-right',
       });
-      setEditField(null);
     } catch (error) {
-      console.error('Lỗi khi lưu dữ liệu', error);
-      toast({
-        title: 'Cập nhật thất bại!',
-        description: 'Đã xảy ra lỗi khi lưu thông tin.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-        position: 'top-right',
-      });
+      console.error('Lỗi cập nhật:', error);
+
+      if (error.response && error.response.data.errors) {
+        const errorMessages = error.response.data.errors;
+        console.log(error.response.data);
+        const newErrors = {};
+
+        if (
+          errorMessages.some((errorMessage) =>
+            errorMessage.includes('Mã bài tập'),
+          )
+        ) {
+          newErrors.problemCode = errorMessages.find((errorMessage) =>
+            errorMessage.includes('Mã bài tập'),
+          );
+        }
+
+        setErrors(newErrors);
+        Object.values(newErrors).forEach((msg) => {
+          toast({
+            title: 'Lỗi khi cập nhật.',
+            description: msg,
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+            position: 'top-right',
+          });
+        });
+      } else {
+        toast({
+          title: 'Đã xảy ra lỗi khi cập nhật.',
+          description: 'Vui lòng kiểm tra lại thông tin.',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-right',
+        });
+      }
+    }
+  };
+
+  if (!problemDetail) {
+    return <FullPageSpinner />;
+  }
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSave();
     }
   };
 
   return (
-    <Box pt={{ base: '130px', md: '80px', xl: '80px' }} px="25px">
-      <Box
-        bg="white"
-        p="8"
-        borderRadius="xl"
-        boxShadow="2xl"
-        maxW="1000px"
-        mx="auto"
-        border="1px solid #e2e8f0"
-      >
-        <Flex mb="6" justify="space-between" align="center">
+    <Box pt="100px" px="25px">
+      <Box maxW="1000px" mx="auto">
+        <Flex justifyContent="space-between" mb={6}>
           <Button
-            variant="ghost"
             leftIcon={<MdOutlineArrowBack />}
-            onClick={() => navigate(`/admin/coder`)}
+            colorScheme="blue"
+            borderRadius="md"
+            onClick={() => navigate(`/admin/problem`)}
           >
             Quay lại
           </Button>
           <Button
             colorScheme="teal"
             onClick={handleSave}
+            borderRadius="md"
             disabled={editField === null}
           >
             Lưu thay đổi
           </Button>
         </Flex>
 
-        <Flex direction={{ base: 'column', md: 'row' }} gap={10}>
-          <VStack spacing={4} align="center">
-            <Box position="relative">
-              <Image
-                src={
-                  editableValues.avatar ||
-                  coderDetail.Avatar ||
-                  'https://firebasestorage.googleapis.com/v0/b/luvuphuc-firebase-790e8.appspot.com/o/ntucoder%2Favatars%2Fdefault.jpg?alt=media'
-                }
-                alt="Avatar"
-                borderRadius="full"
-                boxSize="150px"
-                objectFit="cover"
-                border="4px solid"
-                borderColor="gray.200"
-                cursor="pointer"
-                onClick={() => document.getElementById('avatarInput').click()}
-              />
-              <Input
-                id="avatarInput"
-                type="file"
-                onChange={handleAvatarChange}
-                display="none"
-              />
-            </Box>
-            <Text fontSize="md" color="gray.500">
-              Nhấn để thay đổi ảnh đại diện
-            </Text>
-          </VStack>
-
-          <VStack align="stretch" spacing={5} flex="1">
-            <Text fontSize="lg">
-              <strong>Tên đăng nhập:</strong>
-              <Text ml={2} as="span">
-                {editableValues.userName}
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+          {/* Cột bên trái */}
+          <Card>
+            <CardHeader mb={0} pb={0}>
+              <Text fontSize="xl" fontWeight="bold">
+                Thông tin chung
               </Text>
-            </Text>
-
-            {['coderName', 'coderEmail', 'phoneNumber'].map((field) => (
-              <FormControl key={field} isInvalid={errors[field]}>
-                <Flex align="center" gap={2}>
-                  <Text fontSize="md" w="150px">
-                    <strong>
-                      {field === 'coderName'
-                        ? 'Họ và tên'
-                        : field === 'coderEmail'
-                        ? 'Email'
-                        : 'Số điện thoại'}
-                      :
-                    </strong>
+            </CardHeader>
+            <CardBody>
+              {['problemCode', 'problemName', 'timeLimit'].map((field) => (
+                <Flex key={field} justify="space-between" align="center" mb={3}>
+                  <Text fontWeight="bold">
+                    {field === 'problemCode'
+                      ? 'Mã bài tập'
+                      : field === 'problemName'
+                      ? 'Tên bài tập'
+                      : 'Thời gian giới hạn (s)'}
+                    :
                   </Text>
                   {editField === field ? (
                     <Input
+                      type="text"
                       value={editableValues[field] || ''}
                       onChange={(e) => handleInputChange(field, e.target.value)}
-                      placeholder={`Nhập ${field}`}
+                      w="55%"
+                      onKeyDown={handleKeyDown}
                     />
                   ) : (
-                    <Text flex="1">
-                      {editableValues[field] || 'Chưa có thông tin'}
-                    </Text>
+                    <Text>{editableValues[field] || 'Chưa có'}</Text>
                   )}
                   <IconButton
-                    aria-label="Chỉnh sửa"
+                    aria-label="Edit"
                     icon={<MdEdit />}
                     size="sm"
                     onClick={() => handleEdit(field)}
                   />
                 </Flex>
-                <FormErrorMessage>{errors[field]}</FormErrorMessage>
-              </FormControl>
-            ))}
+              ))}
 
-            <Flex align="center" gap={2}>
-              <Text fontSize="md" w="150px">
-                <strong>Giới tính:</strong>
-              </Text>
-              {editField === 'gender' ? (
-                <Select
-                  value={editableValues.gender || ''}
-                  onChange={(e) => handleInputChange('gender', e.target.value)}
-                  maxW="200px"
-                >
-                  <option value="0">Nam</option>
-                  <option value="1">Nữ</option>
-                  <option value="2">Khác</option>
-                </Select>
-              ) : (
-                <Text flex="1">
-                  {genderMapping[editableValues.gender] || 'Khác'}
-                </Text>
-              )}
-              <IconButton
-                aria-label="Chỉnh sửa"
-                icon={<MdEdit />}
-                size="sm"
-                onClick={() => handleEdit('gender')}
-              />
-            </Flex>
-
-            <Flex align="center" gap={2}>
-              <Text fontSize="md" w="150px">
-                <strong>Quyền:</strong>
-              </Text>
-              {editField === 'roleID' ? (
-                <Select
-                  value={editableValues.roleID || ''}
-                  onChange={(e) =>
-                    handleInputChange('roleID', parseInt(e.target.value))
-                  }
-                  maxW="200px"
-                >
-                  {roleOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </Select>
-              ) : (
-                <Text flex="1">
-                  {roleMapping[editableValues.roleID] || 'Không xác định'}
-                </Text>
-              )}
-              <IconButton
-                aria-label="Chỉnh sửa quyền"
-                icon={<MdEdit />}
-                size="sm"
-                onClick={() => handleEdit('roleID')}
-              />
-            </Flex>
-
-            <Flex align="center" gap={2}>
-              <Text fontSize="md" w="150px">
-                <strong>Mô tả:</strong>
-              </Text>
-              {editField === 'description' ? (
-                <Input
-                  value={editableValues.description || ''}
-                  onChange={(e) =>
-                    handleInputChange('description', e.target.value)
-                  }
-                  placeholder="Nhập mô tả"
+              <Flex justify="space-between" align="center" mb={3}>
+                <Text fontWeight="bold">Trình biên dịch:</Text>
+                {editField === 'testCompilerID' ? (
+                  <Select
+                    value={editableValues.testCompilerID || ''}
+                    onChange={(e) =>
+                      handleInputChange('testCompilerID', e.target.value)
+                    }
+                    w="60%"
+                  >
+                    {compilers.map((compiler) => (
+                      <option
+                        key={compiler.compilerID}
+                        value={compiler.compilerID}
+                      >
+                        {compiler.compilerName}
+                      </option>
+                    ))}
+                  </Select>
+                ) : (
+                  <Text>
+                    {compilers.find(
+                      (c) => c.compilerID == editableValues.testCompilerID,
+                    )?.compilerName || 'Chưa có'}
+                  </Text>
+                )}
+                <IconButton
+                  aria-label="Edit"
+                  icon={<MdEdit />}
+                  size="sm"
+                  onClick={() => handleEdit('testCompilerID')}
                 />
-              ) : (
-                <Text flex="1">
-                  {editableValues.description || 'Chưa có thông tin'}
+              </Flex>
+            </CardBody>
+          </Card>
+
+          {/* Cột bên phải */}
+          <Card>
+            <CardHeader mb={0} pb={0}>
+              <Text fontSize="xl" fontWeight="bold">
+                Chi tiết bài tập
+              </Text>
+            </CardHeader>
+            <CardBody>
+              <Flex justify="space-between" align="center" mb={3}>
+                <Text fontWeight="bold">Hình thức kiểm tra:</Text>
+                {editField === 'testType' ? (
+                  <Select
+                    value={editableValues.testType || ''}
+                    onChange={(e) =>
+                      handleInputChange('testType', e.target.value)
+                    }
+                    onKeyDown={handleKeyDown}
+                    w="60%"
+                  >
+                    {Object.entries(testTypeMapping).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </Select>
+                ) : (
+                  <Text>{editableValues.testType || 'Chưa có'}</Text>
+                )}
+                <IconButton
+                  aria-label="Edit"
+                  icon={<MdEdit />}
+                  size="sm"
+                  onClick={() => handleEdit('testType')}
+                />
+              </Flex>
+
+              <Flex justify="space-between" align="center" mb={3}>
+                <Text fontWeight="bold">Thể loại:</Text>
+                {editField === 'selectedCategoryIDs' ? (
+                  <Multiselect
+                    showCheckbox={true}
+                    options={categories}
+                    displayValue="catName"
+                    selectedValues={categories.filter((cat) =>
+                      selectedCategoryIDs.includes(cat.categoryID),
+                    )}
+                    onSelect={handleCategoryChange}
+                    onRemove={handleCategoryChange}
+                    placeholder="Chọn danh mục"
+                    style={{
+                      multiselectContainer: {
+                        color: 'black',
+                      },
+                      searchBox: {
+                        border: 'none',
+                        fontSize: '14px',
+                        padding: '6px',
+                        borderRadius: '6px',
+                        outline: 'none',
+                      },
+                      inputField: {
+                        margin: '5px',
+                      },
+                      chips: {
+                        background: '#3182ce',
+                        borderRadius: '12px',
+                        padding: '5px 10px',
+                        color: 'white',
+                        fontSize: '13px',
+                      },
+                      optionContainer: {
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        zIndex: 10,
+                        marginTop: '5px',
+                        backgroundColor: 'white',
+                        width: '100%',
+                        border: '1px solid #cbd5e0',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                        maxHeight: '250px',
+                        overflowY: 'auto',
+                      },
+                      option: {
+                        backgroundColor: 'white',
+                        color: 'black',
+                        padding: '8px',
+                        borderBottom: '1px solid #e2e8f0',
+                        cursor: 'pointer',
+                      },
+                      highlightOption: {
+                        background: '#ebf8ff',
+                      },
+                    }}
+                  />
+                ) : (
+                  <Text>
+                    {editableValues.selectedCategoryNames &&
+                    editableValues.selectedCategoryNames.length > 0
+                      ? editableValues.selectedCategoryNames.join(', ')
+                      : 'Chưa có thể loại'}
+                  </Text>
+                )}
+                <IconButton
+                  aria-label="Edit"
+                  icon={<MdEdit />}
+                  size="sm"
+                  onClick={() => handleEdit('selectedCategoryIDs')}
+                />
+              </Flex>
+              <Flex justify="space-between" align="center" mb={3}>
+                <Text fontWeight="bold">Người tạo:</Text>
+                <Text>{editableValues.coderName || 'Chưa có'}</Text>
+              </Flex>
+              <Flex justify="space-between" align="center" mb={3}>
+                <Text fontWeight="bold">Trạng thái:</Text>
+                <Text>
+                  {editableValues.published === 1 ? 'Công khai' : 'Riêng tư'}
                 </Text>
-              )}
+              </Flex>
+            </CardBody>
+          </Card>
+        </SimpleGrid>
+
+        {/* Mô tả bài tập */}
+        <Card mt={6}>
+          <CardHeader mb={0} pb={0}>
+            <Flex align="center">
+              <Text fontSize="xl" fontWeight="bold">
+                Mô tả bài tập
+              </Text>
               <IconButton
-                aria-label="Chỉnh sửa"
+                aria-label="Edit"
                 icon={<MdEdit />}
                 size="sm"
-                onClick={() => handleEdit('description')}
+                ml={2}
+                onClick={() => handleEdit('problemContent')}
               />
             </Flex>
-          </VStack>
-        </Flex>
-
-        <Divider my="8" />
-        <Box
-          p={4}
-          border="1px"
-          borderColor="gray.200"
-          borderRadius="md"
-          bg="gray.50"
-        >
-          <VStack spacing={3} align="stretch">
-            <Text>
-              <strong>Ngày tạo:</strong>{' '}
-              {moment
-                .utc(coderDetail.createdAt)
-                .tz('Asia/Ho_Chi_Minh')
-                .format('DD/MM/YYYY HH:mm:ss')}
-            </Text>
-            <Text>
-              <strong>Người tạo:</strong> {coderDetail.createdBy}
-            </Text>
-            {coderDetail.updatedAt && (
-              <>
-                <Text>
-                  <strong>Ngày cập nhật:</strong>{' '}
-                  {moment
-                    .utc(coderDetail.updatedAt)
-                    .tz('Asia/Ho_Chi_Minh')
-                    .format('DD/MM/YYYY HH:mm:ss')}
-                </Text>
-                <Text>
-                  <strong>Người cập nhật:</strong> {coderDetail.updatedBy}
-                </Text>
-              </>
+          </CardHeader>
+          <CardBody>
+            {editField === 'problemContent' ? (
+              <ReactQuill
+                theme="snow"
+                value={editableValues.problemContent || ''}
+                onChange={(value) => handleInputChange('problemContent', value)}
+                style={{
+                  minHeight: '200px',
+                  maxHeight: '200px',
+                  overflow: 'auto',
+                }}
+              />
+            ) : (
+              <Box
+                p={2}
+                minH={editField === 'problemContent' ? '200px' : 'unset'}
+                maxH="300px"
+                overflowY="auto"
+                dangerouslySetInnerHTML={{
+                  __html: editableValues.problemContent || 'Chưa có',
+                }}
+              />
             )}
-          </VStack>
-        </Box>
+          </CardBody>
+        </Card>
+
+        <Card mt={6}>
+          <CardHeader mb={0} pb={0}>
+            <Flex align="center">
+              <Text fontSize="xl" fontWeight="bold">
+                Giải thích bài tập
+              </Text>
+              <IconButton
+                aria-label="Edit"
+                icon={<MdEdit />}
+                size="sm"
+                ml={2}
+                onClick={() => handleEdit('problemExplanation')}
+              />
+            </Flex>
+          </CardHeader>
+          <CardBody>
+            {editField === 'problemExplanation' ? (
+              <ReactQuill
+                theme="snow"
+                value={editableValues.problemExplanation || ''}
+                onChange={(value) =>
+                  handleInputChange('problemExplanation', value)
+                }
+                style={{
+                  minHeight: '200px',
+                  maxHeight: '200px',
+                  overflow: 'auto',
+                }}
+              />
+            ) : (
+              <Box
+                p={2}
+                minH={editField === 'problemExplanation' ? '200px' : 'unset'}
+                dangerouslySetInnerHTML={{
+                  __html: editableValues.problemExplanation || 'Chưa có',
+                }}
+              />
+            )}
+          </CardBody>
+        </Card>
+
+        {/* Mã kiểm tra (Code format) */}
+        <Card mt={6}>
+          <CardHeader mb={0} pb={0}>
+            <Flex align="center">
+              <Text fontSize="xl" fontWeight="bold">
+                Mã kiểm tra
+              </Text>
+              <IconButton
+                aria-label="Edit"
+                icon={<MdEdit />}
+                size="sm"
+                ml={2}
+                onClick={() => handleEdit('testCode')}
+              />
+            </Flex>
+          </CardHeader>
+          <CardBody>
+            {editField === 'testCode' ? (
+              <Editor
+                height="300px"
+                language="cpp"
+                value={editableValues.testCode || ''}
+                onChange={(value) => handleInputChange('testCode', value)}
+                options={{
+                  minimap: { enabled: false },
+                  wordWrap: 'on',
+                }}
+              />
+            ) : (
+              <Box
+                as="pre"
+                p={2}
+                minH={editField === 'testCode' ? '200px' : 'unset'}
+                bg="gray.100"
+                borderRadius="md"
+                fontFamily="mono"
+                dangerouslySetInnerHTML={{
+                  __html: editableValues.testCode || 'Chưa có',
+                }}
+              />
+            )}
+          </CardBody>
+        </Card>
       </Box>
     </Box>
   );
 };
 
-export default CoderDetail;
+export default ProblemDetail;

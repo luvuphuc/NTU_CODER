@@ -86,7 +86,7 @@ function SignIn() {
           position: 'top',
           duration: 5000,
         });
-        navigate(-1);
+        navigate('/');
       }
     } catch (error) {
       let errorMessage = 'Có lỗi xảy ra, vui lòng thử lại.';
