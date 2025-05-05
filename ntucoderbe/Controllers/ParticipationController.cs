@@ -155,6 +155,19 @@ namespace ntucoderbe.Controllers
                 });
             }
         }
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetParticipationsByCoderId(int coderID)
+        {
+            try
+            {
+                List<ParticipationDTO> list = await _repository.GetParticipationsByCoderIdAsync(coderID);
+                return Ok(list);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
+            }
+        }
 
     }
 }

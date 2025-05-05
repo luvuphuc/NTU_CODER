@@ -163,19 +163,6 @@ namespace ntucoderbe.Controllers
                 });
             }
         }
-        [HttpGet("profile")]
-        public async Task<IActionResult> GetListContestByCoderId(int coderID)
-        {
-            try
-            {
-                List<ContestDTO> list = await _contestRepository.GetListContestByCoderId(coderID);
-                return Ok(list);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
-            }
-        }
         [HttpGet("ranking-contest")]
         public async Task<IActionResult> GetListRankingByContestId(int contestID)
         {

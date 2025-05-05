@@ -33,7 +33,7 @@ const ProfileCoder = () => {
   const progress = useMotionValue(0);
   const [animatedPercentage, setAnimatedPercentage] = useState(0);
   const [submissions, setSubmissions] = useState([]);
-  const [contests, setContests] = useState([]);
+  const [participations, setParticipations] = useState([]);
   const [coderProfile, setCoderProfile] = useState(null);
   const [totalProblems, setTotalProblems] = useState(1);
   const percentage = coderProfile
@@ -44,12 +44,12 @@ const ProfileCoder = () => {
       const [submissionRes, contestRes, coderRes, problemRes] =
         await Promise.all([
           api.get(`/Submission/profile?coderID=${id}`),
-          api.get(`/Contest/profile?coderID=${id}`),
+          api.get(`/Participation/profile?coderID=${id}`),
           api.get(`/Coder/profile/?coderID=${id}`),
           api.get('/Problem/count'),
         ]);
       setSubmissions(submissionRes.data || []);
-      setContests(contestRes.data || []);
+      setParticipations(contestRes.data || []);
       setCoderProfile(coderRes.data || null);
       setTotalProblems(problemRes.data);
     } catch (error) {
@@ -167,6 +167,9 @@ const ProfileCoder = () => {
                     <Text fontSize="sm" color="gray.500">
                       {lang.solvedCount} bài đã giải
                     </Text>
+                    {index < coderProfile.languages.length - 1 && (
+                      <Divider my={2} borderColor="gray.200" />
+                    )}
                   </Box>
                 ))
               ) : (
@@ -290,36 +293,48 @@ const ProfileCoder = () => {
 
             {/* Cuộc thi đã tham gia */}
             <Box mb={5}>
-              <Text fontWeight="bold" fontSize="lg" mb={2}>
+              <Text fontWeight="bold" fontSize="lg" mb={4} color="gray.700">
                 Cuộc thi đã tham gia
               </Text>
-              <Stack spacing={4}>
-                {contests.map((contest, idx) => (
+              <Stack spacing={6}>
+                {participations.map((item, idx) => (
                   <Box
                     key={idx}
-                    p={4}
-                    bg="gray.50"
-                    rounded="md"
-                    shadow="sm"
+                    p={5}
+                    bg="white"
+                    rounded="lg"
+                    shadow="lg"
                     borderLeft="4px solid"
                     borderColor="blue.400"
                   >
-                    <Flex justify="space-between" align="center">
-                      <Text fontWeight="semibold" fontSize="md">
-                        {contest.contestName}
+                    <Flex justify="space-between" align="center" mb={4}>
+                      <Text
+                        fontWeight="semibold"
+                        fontSize="lg"
+                        color="blue.600"
+                      >
+                        {item.contestName}
                       </Text>
-                      <Text fontSize="sm" color="gray.600">
-                        {moment
-                          .utc(contest.startTime)
-                          .tz('Asia/Ho_Chi_Minh')
-                          .format('DD/MM/YYYY')}{' '}
-                        -{' '}
-                        {moment
-                          .utc(contest.endTime)
-                          .tz('Asia/Ho_Chi_Minh')
-                          .format('DD/MM/YYYY')}
+                      <Text fontSize="lg" color="gray.500" fontWeight="bold">
+                        Hạng: {item.rank ?? '-'}
                       </Text>
                     </Flex>
+
+                    <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+                      <Box>
+                        <Text fontSize="sm" color="gray.600">
+                          <strong>Số bài giải:</strong> {item.solvedCount ?? 0}
+                        </Text>
+                        <Text fontSize="sm" color="gray.600">
+                          <strong>Điểm:</strong> {item.pointScore ?? 0}
+                        </Text>
+                      </Box>
+                      <Box>
+                        <Text fontSize="sm" color="gray.600">
+                          <strong>Thời gian:</strong> {item.timeScore ?? 0}
+                        </Text>
+                      </Box>
+                    </Grid>
                   </Box>
                 ))}
               </Stack>

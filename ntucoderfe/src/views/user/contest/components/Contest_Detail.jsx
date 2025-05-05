@@ -253,7 +253,9 @@ export default function ContestDetailPage() {
                   : `Bắt đầu trong ${formatCountdown(countdown)}`}
               </Text>
             </HStack>
-
+            <Text fontSize="md" color="gray.600">
+              Hình thức thi: <b>{contest.ruleType}</b>
+            </Text>
             <HStack spacing={3}>
               <Button
                 colorScheme="orange"
@@ -332,7 +334,7 @@ export default function ContestDetailPage() {
               </Box>
             </GridItem>
             <GridItem>
-              <Leaderboard />
+              <Leaderboard contest={contest} />
               <ContestProblemList
                 problems={hasProblems}
                 handleGoToProblem={handleGoToProblem}

@@ -34,6 +34,7 @@ import { HamburgerIcon, ArrowBackIcon } from '@chakra-ui/icons';
 import { LuShuffle } from 'react-icons/lu';
 import { IoChevronForwardSharp, IoChevronBackSharp } from 'react-icons/io5';
 import ContestEndCheckModal from './components/EndTimeDialog';
+import FullPageSpinner from 'components/spinner/FullPageSpinner';
 const MotionTab = motion(Tab);
 
 const ProblemSolver = () => {
@@ -41,6 +42,7 @@ const ProblemSolver = () => {
   const navigate = useNavigate();
   const [problem, setProblemDetail] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const token = Cookies.get('token');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -57,15 +59,15 @@ const ProblemSolver = () => {
     exit: { x: '-100%' },
   };
   useEffect(() => {
-    if (!token) {
-      onOpen();
-      return;
-    }
-
     const fetchData = async () => {
       try {
         const problemRes = await api.get(`/Problem/${id}`);
         const problemData = problemRes.data;
+        if (!contestId && problemData.published !== 1) {
+          navigate('/');
+          setLoading(false);
+          return;
+        }
         let sampleTest = null;
         setProblemDetail({
           ...problemData,
@@ -81,7 +83,17 @@ const ProblemSolver = () => {
             api.get(`/Contest/${contestId}`),
           ]);
           setContest(contestDataRes.data);
+          if (contestDataRes.data.status !== 1) {
+            navigate('/');
+            setLoading(false);
+            return;
+          }
           if (!regRes.data.onGoing) {
+            return;
+          }
+          if (!token) {
+            onOpen();
+            setLoading(false);
             return;
           }
           const participationId = regRes.data.participationId;
@@ -116,6 +128,11 @@ const ProblemSolver = () => {
           console.error('Lỗi khi lấy thông tin contest:', error);
         }
       } else {
+        if (!token) {
+          onOpen();
+          setLoading(false);
+          return;
+        }
         const problemListRes = await api.get('/Problem/all');
         if (problemListRes.status === 200) {
           const allProblems = problemListRes.data.data;
@@ -176,7 +193,9 @@ const ProblemSolver = () => {
   const handleSubmissionSelect = (code) => {
     setSubmissionCode(code);
   };
-
+  if (loading) {
+    return <FullPageSpinner />;
+  }
   if (!token) {
     return (
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
