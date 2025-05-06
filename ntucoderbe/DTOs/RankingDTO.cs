@@ -11,5 +11,6 @@
         public int? TimeScore { get; set; }
         public string? Avatar {  get; set; }
         public int? SolvedCount { get; set; }
+        public List<TakePartDTO>? TakeParts { get; set; }
     }
 }
