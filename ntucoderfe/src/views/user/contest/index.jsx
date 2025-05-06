@@ -42,10 +42,6 @@ export default function ContestPage() {
     }
   }, [currentPage, pageSize, sortOrder, filterStatus, searchTerm]);
 
-  useEffect(() => {
-    fetchContests();
-  }, [fetchContests]);
-
   const handleRefresh = () => {
     fetchContests();
   };
@@ -61,30 +57,24 @@ export default function ContestPage() {
             gap={8}
             alignItems="stretch"
           >
-            <Grid
-              templateColumns={{ base: '1fr', md: '7fr 3fr' }}
-              gap={8}
-              alignItems="stretch"
-            >
-              <ContestTableUser
-                contests={contests}
-                loading={loading}
-                sortOrder={sortOrder}
-                onSortStatusChange={handleSortStatusChange}
-                onRefresh={handleRefresh}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                filterStatus={filterStatus}
-                setFilterStatus={setFilterStatus}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-                onPageSizeChange={setPageSize}
-              />
-              <Box alignSelf="start" maxWidth="100%">
-                <HighestParticipation />
-              </Box>
-            </Grid>
+            <ContestTableUser
+              contests={contests}
+              loading={loading}
+              sortOrder={sortOrder}
+              onSortStatusChange={handleSortStatusChange}
+              onRefresh={handleRefresh}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              filterStatus={filterStatus}
+              setFilterStatus={setFilterStatus}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+            />
+            <Box alignSelf="start" maxWidth="100%">
+              <HighestParticipation />
+            </Box>
           </Grid>
         </Container>
       </Box>
