@@ -136,7 +136,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             var ruleType = takePart.Participation.Contest.RuleType;
             var penalty = takePart.Participation.Contest.FailedPenalty;
             takePart.SubmissionCount += 1;
-            bool isAccepted = await CheckActualResult(id, takePart.ProblemID);
+            bool isAccepted = await CheckAcceptedSubmissionAsync(id, takePart.ProblemID);
 
             if (ruleType == "ACM Rule")
             {
@@ -204,7 +204,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 TimeSolved = takePart.TimeSolved
             };
         }
-        public async Task<bool> CheckActualResult(int takepartId, int problemId)
+        public async Task<bool> CheckAcceptedSubmissionAsync(int takepartId, int problemId)
         {
             return await _context.Submissions
                 .AnyAsync(s => s.TakePartID == takepartId && s.ProblemID == problemId && s.TestResult == "Accepted");

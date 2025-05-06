@@ -143,12 +143,11 @@ const EditorTab = ({ takepart, submissionCode, currentIndex }) => {
           </>,
           'success',
         );
-    } catch {
-      showModal(
-        'Lỗi khi nộp bài!',
-        'Đã xảy ra lỗi, vui lòng thử lại.',
-        'error',
-      );
+    } catch (error) {
+      const errorMsg =
+        error?.response?.data?.errors?.join('\n') ||
+        'Đã xảy ra lỗi không xác định.';
+      showModal('Lỗi khi nộp bài!', errorMsg, 'error');
     } finally {
       setIsLoadingSubmit(false);
     }

@@ -42,7 +42,7 @@ const ProblemSolver = () => {
   const navigate = useNavigate();
   const [problem, setProblemDetail] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState();
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const token = Cookies.get('token');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -74,6 +74,10 @@ const ProblemSolver = () => {
           ...(sampleTest ? sampleTest : {}),
         });
       } catch (error) {
+        if (error.response && error.response.status === 500) {
+          navigate('/');
+          return;
+        }
         console.error('Đã xảy ra lỗi', error);
       }
       if (contestId) {
@@ -83,12 +87,9 @@ const ProblemSolver = () => {
             api.get(`/Contest/${contestId}`),
           ]);
           setContest(contestDataRes.data);
-          if (contestDataRes.data.status !== 1) {
+          if (contestDataRes.data.status !== 1 || !regRes.data.onGoing) {
             navigate('/');
             setLoading(false);
-            return;
-          }
-          if (!regRes.data.onGoing) {
             return;
           }
           if (!token) {
@@ -96,6 +97,7 @@ const ProblemSolver = () => {
             setLoading(false);
             return;
           }
+          setLoading(false);
           const participationId = regRes.data.participationId;
           setParticipationId(participationId);
 
@@ -126,6 +128,7 @@ const ProblemSolver = () => {
           }
         } catch (error) {
           console.error('Lỗi khi lấy thông tin contest:', error);
+          setLoading(false);
         }
       } else {
         if (!token) {
@@ -152,10 +155,8 @@ const ProblemSolver = () => {
     };
 
     if (id) fetchData();
-    return () => {
-      localStorage.removeItem('takepart');
-    };
   }, [id, token, onOpen, navigate, takepart]);
+
   const handlePrev = () => {
     if (currentIndex > 0) {
       const newIndex = currentIndex - 1;
@@ -224,7 +225,7 @@ const ProblemSolver = () => {
   }
 
   if (!problem) {
-    return <Spinner size="xl" />;
+    return <FullPageSpinner />;
   }
 
   return (

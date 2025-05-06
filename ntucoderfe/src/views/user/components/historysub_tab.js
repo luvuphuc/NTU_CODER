@@ -19,7 +19,7 @@ const HistorySubTab = ({ takepartId, onSubmissionSelect }) => {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortField, setSortField] = useState('submitTime');
-  const [ascending, setAscending] = useState(true);
+  const [ascending, setAscending] = useState(false);
   const fetchHistory = async () => {
     try {
       setLoading(true);
@@ -145,9 +145,22 @@ const HistorySubTab = ({ takepartId, onSubmissionSelect }) => {
                   <Td p={2} fontSize="sm" textAlign="center">
                     {submission.compilerName || '---'}
                   </Td>
-                  <Td p={2} fontSize="sm" textAlign="center">
+                  <Td
+                    p={2}
+                    fontSize="sm"
+                    textAlign="center"
+                    fontWeight="bold"
+                    color={
+                      submission.testResult === 'Accepted'
+                        ? 'green.500'
+                        : /fail|wrong|error/i.test(submission.testResult)
+                        ? 'red.500'
+                        : 'yellow.500'
+                    }
+                  >
                     {submission.testResult || '--/--'}
                   </Td>
+
                   <Td p={2} fontSize="sm" textAlign="center">
                     {submission.point}
                   </Td>
