@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Container, Grid } from '@chakra-ui/react';
 import LayoutUser from 'layouts/user';
 import ContestTableUser from './components/ColumnsTable';
-import RankingTable from './components/RankingsTable';
+import HighestParticipation from './components/HighestParticipation';
 import api from 'utils/api';
 import UpcomingContests from './components/UpcomingContest';
 import OnGoingContests from './components/OnGoingContest';
@@ -61,24 +61,30 @@ export default function ContestPage() {
             gap={8}
             alignItems="stretch"
           >
-            <ContestTableUser
-              contests={contests}
-              loading={loading}
-              sortOrder={sortOrder}
-              onSortStatusChange={handleSortStatusChange}
-              onRefresh={handleRefresh}
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              filterStatus={filterStatus}
-              setFilterStatus={setFilterStatus}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-              onPageSizeChange={setPageSize}
-            />
-            <Box alignSelf="start">
-              <RankingTable />
-            </Box>
+            <Grid
+              templateColumns={{ base: '1fr', md: '7fr 3fr' }}
+              gap={8}
+              alignItems="stretch"
+            >
+              <ContestTableUser
+                contests={contests}
+                loading={loading}
+                sortOrder={sortOrder}
+                onSortStatusChange={handleSortStatusChange}
+                onRefresh={handleRefresh}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                filterStatus={filterStatus}
+                setFilterStatus={setFilterStatus}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={setPageSize}
+              />
+              <Box alignSelf="start" maxWidth="100%">
+                <HighestParticipation />
+              </Box>
+            </Grid>
           </Grid>
         </Container>
       </Box>

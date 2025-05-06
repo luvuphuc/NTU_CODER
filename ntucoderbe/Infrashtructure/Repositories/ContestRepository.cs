@@ -238,12 +238,13 @@ namespace ntucoderbe.Infrashtructure.Repositories
             return await _context.Participations
                 .CountAsync(p => p.ContestID == contestID);
         }
-        
+
         public async Task<List<RankingDTO>> GetListRankingByContestIdAsync(int contestID)
         {
             List<RankingDTO> rankings = await _context.Participations
                 .Where(p => p.ContestID == contestID)
                 .Include(p => p.Coder)
+                .Include(p => p.TakeParts)
                 .OrderBy(p => p.Rank)
                 .Select(p => new RankingDTO
                 {
@@ -253,13 +254,50 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     PointScore = p.PointScore,
                     TimeScore = p.TimeScore,
                     Avatar = p.Coder.Avatar,
-                    Rank = p.Rank ?? 0 
+                    Rank = p.Rank ?? 0,
+                    SolvedCount = p.SolvedCount,
+
+                    TakeParts = p.TakeParts
+                        .Join(_context.HasProblems.Where(hp => hp.ContestID == contestID),
+                              tp => tp.ProblemID,
+                              hp => hp.ProblemID,
+                              (tp, hp) => new { tp, hp.ProblemOrder })
+                        .OrderBy(x => x.ProblemOrder) 
+                        .Select(x => new TakePartDTO
+                        {
+                            ProblemID = x.tp.ProblemID,
+                            PointWon = x.tp.PointWon,
+                            TimeSolved = x.tp.TimeSolved,
+                            SubmissionCount = x.tp.SubmissionCount
+                        })
+                        .ToList()
                 })
                 .ToListAsync();
 
             return rankings;
         }
+        public async Task<List<RankingDTO>> GetHighestRankedCoderInAllContestsAsync()
+        {
+            var highestRanking = await _context.Participations
+                .Include(p => p.Coder)
+                .GroupBy(p => p.CoderID)
+                .Select(group => new RankingDTO
+                {
+                    CoderID = group.Key,
+                    CoderName = group.FirstOrDefault().Coder.CoderName,
+                    Avatar = group.FirstOrDefault().Coder.Avatar,
+                    PointScore = group.Sum(p => p.PointScore), 
+                })
+                .OrderByDescending(p => p.PointScore) 
+                .ToListAsync(); 
+            int rank = 1;
+            foreach (var item in highestRanking)
+            {
+                item.Rank = rank++; 
+            }
 
+            return highestRanking;
+        }
 
     }
 

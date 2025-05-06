@@ -176,5 +176,18 @@ namespace ntucoderbe.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
             }
         }
+        [HttpGet("ranking-highest")]
+        public async Task<IActionResult> GetListRankingHighest()
+        {
+            try
+            {
+                List<RankingDTO> list = await _contestRepository.GetHighestRankedCoderInAllContestsAsync();
+                return Ok(list);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
+            }
+        }
     }
 }

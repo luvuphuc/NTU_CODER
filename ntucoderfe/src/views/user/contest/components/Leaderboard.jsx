@@ -69,7 +69,7 @@ const Leaderboard = ({ contest }) => {
         <Heading size="md" color="orange.500">
           Bảng xếp hạng
         </Heading>
-        {contest.status !== 2 && (
+        {contest.status !== 2 && ranking.length > 0 && (
           <Button variant="link" color="blue.500" onClick={onOpen}>
             Chi tiết
           </Button>
@@ -91,6 +91,10 @@ const Leaderboard = ({ contest }) => {
         </Flex>
       ) : loading ? (
         <Spinner />
+      ) : ranking.length === 0 ? (
+        <Text textAlign="center" color="gray.500" fontStyle="italic">
+          Chưa được xếp hạng
+        </Text>
       ) : (
         <VStack spacing={2} align="stretch">
           {ranking.slice(0, 5).map((user, index) => (

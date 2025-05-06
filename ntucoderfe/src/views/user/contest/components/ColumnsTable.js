@@ -71,7 +71,7 @@ const ContestTableUser = React.memo(
     };
 
     return (
-      <Box w="100%" p={4}>
+      <Box w="100%" p={0}>
         <Card w="100%" p={4} h="600px">
           <Box mb={4}>
             <Text fontSize="2xl" align="center" fontWeight="bold">
@@ -114,6 +114,7 @@ const ContestTableUser = React.memo(
                   setFilterStatus('all');
                   onRefresh();
                 }}
+                type="button"
                 variant="outline"
               />
             </HStack>
