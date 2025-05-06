@@ -11,7 +11,6 @@ import { useParams } from 'react-router-dom';
 import api from 'utils/api';
 
 const TestCasesComponent = ({ currentIndex }) => {
-  console.log('Current Index in EditorTab:', currentIndex);
   const { id: problemId } = useParams();
   const [testCase, setTestCase] = useState(null);
   const [problem, setProblem] = useState({});

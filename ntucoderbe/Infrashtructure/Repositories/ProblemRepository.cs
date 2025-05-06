@@ -268,5 +268,120 @@ namespace ntucoderbe.Infrashtructure.Repositories
         {
             return await _context.Problems.CountAsync();
         }
+        public async Task<List<RankingDTO>> GetRankingListByProblemIdAsync(int problemID, int? contestID = null)
+        {
+            List<RankingDTO> rankings;
+
+            if (contestID.HasValue)
+            {
+                rankings = await _context.TakeParts
+                 .Include(tp => tp.Submissions)
+                    .ThenInclude(s=>s.Compiler)
+                 .Include(tp => tp.Participation)
+                     .ThenInclude(p => p.Coder)
+                 .Where(tp => tp.ProblemID == problemID && tp.Participation.ContestID == contestID && tp.PointWon > 0)
+                 .Select(tp => new RankingDTO
+                 {
+                     CoderName = tp.Participation.Coder.CoderName,
+                     Avatar = tp.Participation.Coder.Avatar,
+                     PointScore = tp.PointWon,
+                     CompilerName = tp.Submissions
+                        .OrderBy(s => s.MaxTimeDuration)
+                        .Select(s => s.Compiler.CompilerName) 
+                        .FirstOrDefault(),
+                     TimeScore = tp.Submissions
+                         .OrderBy(s => s.MaxTimeDuration)
+                         .Select(s => s.MaxTimeDuration)
+                         .FirstOrDefault() ?? int.MaxValue
+                 })
+                 .ToListAsync();
+                rankings = rankings
+                    .OrderByDescending(r => r.PointScore)
+                    .ThenBy(r => r.TimeScore)
+                    .ToList();
+            }
+
+            else
+            {
+                List<Submission> acceptedSubmissions = await _context.Submissions
+                    .Where(s => s.ProblemID == problemID && s.TestResult == "Accepted" && s.TakePartID ==null)
+                    .Include(s => s.Coder)
+                    .Include(s => s.Compiler)
+                    .ToListAsync();
+                rankings = acceptedSubmissions
+                    .GroupBy(s => s.CoderID)
+                    .Select(g => g.OrderBy(s => s.MaxTimeDuration).First())
+                    .Select(s => new RankingDTO
+                    {
+                        CoderName = s.Coder.CoderName,
+                        Avatar = s.Coder.Avatar,
+                        PointScore = 10,
+                        CompilerName = s.Compiler.CompilerName,
+                        TimeScore = s.MaxTimeDuration ?? int.MaxValue
+                    })
+                    .OrderBy(r => r.TimeScore)
+                    .ToList();
+            }
+            int rank = 1;
+            foreach (var r in rankings)
+            {
+                r.Rank = rank++;
+            }
+            return rankings;
+        }
+
+        public async Task<List<RankingDTO>> GetRankingByTotalSolvedAsync()
+        {
+            var solvedCounts = await _context.Solved
+                .GroupBy(s => s.CoderID)
+                .Select(g => new
+                {
+                    CoderID = g.Key,
+                    SolvedCount = g.Count()
+                })
+                .ToListAsync();
+
+            var timeScores = await _context.Submissions
+                .Where(s => s.TestResult == "Accepted" && s.MaxTimeDuration != null)
+                .GroupBy(s => s.CoderID)
+                .Select(g => new
+                {
+                    CoderID = g.Key,
+                    TotalTime = g.Sum(s => s.MaxTimeDuration) ?? 0
+                })
+                .ToListAsync();
+
+            var result = await _context.Coders
+                .Where(c => solvedCounts.Select(sc => sc.CoderID).Contains(c.CoderID))
+                .Select(c => new
+                {
+                    c.CoderID,
+                    c.CoderName,
+                    c.Avatar
+                })
+                .ToListAsync();
+
+            var rankings = result
+                .Select(c => new RankingDTO
+                {
+                    CoderID = c.CoderID,
+                    CoderName = c.CoderName,
+                    Avatar = c.Avatar,
+                    SolvedCount = solvedCounts.FirstOrDefault(sc => sc.CoderID == c.CoderID)?.SolvedCount ?? 0,
+                    TimeScore = timeScores.FirstOrDefault(ts => ts.CoderID == c.CoderID)?.TotalTime ?? int.MaxValue
+                })
+                .OrderByDescending(r => r.SolvedCount)
+                .ThenBy(r => r.TimeScore)
+                .ToList();
+
+            int rank = 1;
+            foreach (var r in rankings)
+            {
+                r.Rank = rank++;
+            }
+
+            return rankings;
+        }
+
     }
 }

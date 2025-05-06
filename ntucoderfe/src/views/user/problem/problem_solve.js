@@ -136,7 +136,11 @@ const ProblemSolver = () => {
           setLoading(false);
           return;
         }
-        const problemListRes = await api.get('/Problem/all');
+        const problemListRes = await api.get('/Problem/all', {
+          params: {
+            published: true,
+          },
+        });
         if (problemListRes.status === 200) {
           const allProblems = problemListRes.data.data;
           const orderedProblems = allProblems
@@ -479,20 +483,6 @@ const ProblemSolver = () => {
                       {index + 1}. {item.problemName}
                     </Text>
                   </Tooltip>
-                  <Text
-                    mx={3}
-                    fontSize="sm"
-                    color={
-                      index === 0
-                        ? 'green.500'
-                        : index === contestProblems.length - 1
-                        ? 'red.500'
-                        : 'gray.600'
-                    }
-                    fontWeight="semibold"
-                  >
-                    #{index + 1}
-                  </Text>
                 </Box>
               ))}
             </Box>

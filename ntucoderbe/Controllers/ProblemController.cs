@@ -181,5 +181,18 @@ namespace ntucoderbe.Controllers
                 return StatusCode(500, "Lỗi server: " + ex.Message);
             }
         }
+        [HttpGet("ranking-problem")]
+        public async Task<IActionResult> GetRankingListByProblemId(int problemId, int? contestId = null)
+        {
+            try
+            {
+                return Ok(await _problemRepository.GetRankingListByProblemIdAsync(problemId, contestId));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
+            }
+
+        }
     }
 }
