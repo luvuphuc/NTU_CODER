@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {
   Table,
   Thead,
@@ -13,17 +13,18 @@ import {
   Select,
   Flex,
   Box,
-  Spinner,
-  Text,
+  Skeleton,
+  SkeletonText,
   HStack,
   IconButton,
+  Text,
   Heading,
 } from '@chakra-ui/react';
 import { ArrowUpIcon, ArrowDownIcon, RepeatIcon } from '@chakra-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
 import Card from 'components/card/Card';
-import moment from 'moment-timezone';
 import Pagination from 'components/pagination/pagination';
+import moment from 'moment-timezone';
 
 const ContestTableUser = React.memo(
   ({
@@ -57,17 +58,28 @@ const ContestTableUser = React.memo(
       return () => clearTimeout(delayDebounce);
     }, [searchTerm, filterStatus]);
 
-    const contestStats = {
-      total: contests.length,
-      ongoing: contests.filter(
-        (c) => getContestStatus(c.startTime, c.endTime) === 'ongoing',
-      ).length,
-      upcoming: contests.filter(
-        (c) => getContestStatus(c.startTime, c.endTime) === 'upcoming',
-      ).length,
-      ended: contests.filter(
-        (c) => getContestStatus(c.startTime, c.endTime) === 'ended',
-      ).length,
+    const renderSkeletonRows = () => {
+      return Array(5)
+        .fill('')
+        .map((_, index) => (
+          <Tr key={index}>
+            <Td>
+              <Skeleton height="16px" />
+            </Td>
+            <Td>
+              <Skeleton height="16px" />
+            </Td>
+            <Td>
+              <Skeleton height="16px" />
+            </Td>
+            <Td>
+              <Skeleton height="16px" />
+            </Td>
+            <Td>
+              <Skeleton height="16px" />
+            </Td>
+          </Tr>
+        ));
     };
 
     return (
@@ -78,16 +90,36 @@ const ContestTableUser = React.memo(
               CÁC CUỘC THI
             </Text>
             <HStack spacing={4} mt={2}>
-              <Badge colorScheme="blue">Tổng: {contestStats.total}</Badge>
+              <Badge colorScheme="blue">Tổng: {contests.length}</Badge>
               <Badge colorScheme="green">
-                Đang diễn ra: {contestStats.ongoing}
+                Đang diễn ra:{' '}
+                {
+                  contests.filter(
+                    (c) =>
+                      getContestStatus(c.startTime, c.endTime) === 'ongoing',
+                  ).length
+                }
               </Badge>
               <Badge colorScheme="yellow">
-                Sắp diễn ra: {contestStats.upcoming}
+                Sắp diễn ra:{' '}
+                {
+                  contests.filter(
+                    (c) =>
+                      getContestStatus(c.startTime, c.endTime) === 'upcoming',
+                  ).length
+                }
               </Badge>
-              <Badge colorScheme="red">Đã kết thúc: {contestStats.ended}</Badge>
+              <Badge colorScheme="red">
+                Đã kết thúc:{' '}
+                {
+                  contests.filter(
+                    (c) => getContestStatus(c.startTime, c.endTime) === 'ended',
+                  ).length
+                }
+              </Badge>
             </HStack>
           </Box>
+
           <Flex mb={4} justify="space-between" align="center">
             <Input
               placeholder="Tìm kiếm contest..."
@@ -120,59 +152,63 @@ const ContestTableUser = React.memo(
             </HStack>
           </Flex>
 
-          {loading ? (
-            <Flex justify="center" align="center" minH="200px">
-              <Spinner size="xl" color="blue.500" />
-            </Flex>
-          ) : contests.length === 0 ? (
-            <Flex
-              direction="column"
-              justify="center"
-              align="center"
-              minH="365px"
-              p={8}
-            >
-              <Box boxSize="120px" mb={4}>
-                <img
-                  src="https://cdn-icons-png.flaticon.com/512/4076/4076507.png"
-                  alt="No data"
-                  style={{ width: '100%', height: 'auto' }}
-                />
-              </Box>
-              <Heading size="md" color="gray.600">
-                Không có dữ liệu
-              </Heading>
-            </Flex>
-          ) : (
-            <Box flex="1" overflowY="auto" sx={customScrollbarStyle}>
-              <TableContainer>
-                <Table variant="striped">
-                  <Thead>
+          {/* Table */}
+          <Box flex="1" overflowY="auto" sx={customScrollbarStyle}>
+            <TableContainer>
+              <Table variant="striped">
+                <Thead>
+                  <Tr>
+                    <Th>Tên Contest</Th>
+                    <Th>Thời gian bắt đầu</Th>
+                    <Th>Thời gian kết thúc</Th>
+                    <Th>Người tham gia</Th>
+                    <Th>
+                      <Flex align="center">
+                        <Text>Trạng thái</Text>
+                        <Box
+                          ml={2}
+                          cursor="pointer"
+                          onClick={onSortStatusChange}
+                        >
+                          {sortOrder === 'asc' ? (
+                            <ArrowUpIcon boxSize={4} />
+                          ) : (
+                            <ArrowDownIcon boxSize={4} />
+                          )}
+                        </Box>
+                      </Flex>
+                    </Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {loading ? (
+                    renderSkeletonRows() // Hiển thị Skeleton nếu đang tải
+                  ) : contests.length === 0 ? (
+                    // Hiển thị khi không có dữ liệu
                     <Tr>
-                      <Th>Tên Contest</Th>
-                      <Th>Thời gian bắt đầu</Th>
-                      <Th>Thời gian kết thúc</Th>
-                      <Th>Người tham gia</Th>
-                      <Th>
-                        <Flex align="center">
-                          <Text>Trạng thái</Text>
-                          <Box
-                            ml={2}
-                            cursor="pointer"
-                            onClick={onSortStatusChange}
-                          >
-                            {sortOrder === 'asc' ? (
-                              <ArrowUpIcon boxSize={4} />
-                            ) : (
-                              <ArrowDownIcon boxSize={4} />
-                            )}
+                      <Td colSpan={5}>
+                        <Flex
+                          direction="column"
+                          justify="center"
+                          align="center"
+                          minH="365px"
+                          p={8}
+                        >
+                          <Box boxSize="120px" mb={4}>
+                            <img
+                              src="https://cdn-icons-png.flaticon.com/512/4076/4076507.png"
+                              alt="No data"
+                              style={{ width: '100%', height: 'auto' }}
+                            />
                           </Box>
+                          <Heading size="md" color="gray.600">
+                            Không có dữ liệu
+                          </Heading>
                         </Flex>
-                      </Th>
+                      </Td>
                     </Tr>
-                  </Thead>
-                  <Tbody>
-                    {contests.map((contest) => (
+                  ) : (
+                    contests.map((contest) => (
                       <Tr key={contest.contestID}>
                         <Td maxWidth="200px" isTruncated>
                           <Link
@@ -204,13 +240,15 @@ const ContestTableUser = React.memo(
                           </Badge>
                         </Td>
                       </Tr>
-                    ))}
-                  </Tbody>
-                </Table>
-              </TableContainer>
-            </Box>
-          )}
+                    ))
+                  )}
+                </Tbody>
+              </Table>
+            </TableContainer>
+          </Box>
         </Card>
+
+        {/* Pagination */}
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

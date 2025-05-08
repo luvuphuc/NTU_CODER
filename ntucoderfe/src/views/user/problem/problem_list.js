@@ -15,6 +15,8 @@ import {
   Badge,
   Wrap,
   WrapItem,
+  Skeleton,
+  SkeletonText,
   Modal,
   ModalBody,
   ModalHeader,
@@ -323,16 +325,21 @@ export default function ProblemPage() {
           alignItems="start"
         >
           {state.loading ? (
-            <Flex
-              justify="center"
-              align="center"
-              minH="365px"
-              bg="white"
-              boxShadow="md"
-              borderRadius="md"
-            >
-              <Spinner size="xl" color="blue.500" />
-            </Flex>
+            <Stack spacing={6} w="full">
+              {[...Array(5)].map((_, i) => (
+                <Box
+                  key={i}
+                  bg="white"
+                  boxShadow="md"
+                  borderRadius="md"
+                  p={6}
+                  minH="120px"
+                >
+                  <Skeleton height="24px" mb={4} />
+                  <SkeletonText noOfLines={3} spacing={3} />
+                </Box>
+              ))}
+            </Stack>
           ) : state.problems.length === 0 ? (
             <Flex
               direction="column"

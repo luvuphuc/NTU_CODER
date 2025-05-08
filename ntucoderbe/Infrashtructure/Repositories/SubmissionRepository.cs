@@ -18,12 +18,17 @@ namespace ntucoderbe.Infrashtructure.Repositories
             _context = context;
         }
 
-        public async Task<PagedResponse<SubmissionDTO>> GetAllSubmissionsAsync(QueryObject query, string? sortField = null, bool ascending = true)
+        public async Task<PagedResponse<SubmissionDTO>> GetAllSubmissionsAsync(
+            QueryObject query,
+            string? sortField = null,
+            bool ascending = true,
+            string? searchString = null,
+            string? compilerFilter = null)
         {
             var objQuery = _context.Submissions
-                .Include(a=> a.Problem)
-                .Include(a=> a.Coder)
-                .Include(a=>a.Compiler)
+                .Include(a => a.Problem)
+                .Include(a => a.Coder)
+                .Include(a => a.Compiler)
                 .Select(a => new SubmissionDTO
                 {
                     SubmissionID = a.SubmissionID,
@@ -37,19 +42,35 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     SubmitTime = a.SubmitTime,
                     SubmissionStatus = a.SubmissionStatus,
                 });
+            if (!string.IsNullOrWhiteSpace(searchString))
+            {
+                var lowerSearch = searchString.ToLower();
+                objQuery = objQuery.Where(c =>
+                    c.CoderName!.ToLower().Contains(lowerSearch) ||
+                    c.ProblemName!.ToLower().Contains(lowerSearch));
+            }
+            if (!string.IsNullOrWhiteSpace(compilerFilter))
+            {
+                var lowerCompiler = compilerFilter.ToLower();
+                objQuery = objQuery.Where(c =>
+                    c.CompilerName!.ToLower().Contains(lowerCompiler));
+            }
+
             objQuery = ApplySorting(objQuery, sortField, ascending);
+
             var obj = await PagedResponse<SubmissionDTO>.CreateAsync(
                 objQuery,
                 query.Page,
                 query.PageSize);
             return obj;
         }
+
         public IQueryable<SubmissionDTO> ApplySorting(IQueryable<SubmissionDTO> query, string? sortField, bool ascending)
         {
             return sortField?.ToLower() switch
             {
-                "coderid" => ascending ? query.OrderBy(a => a.CoderID) : query.OrderByDescending(a => a.CoderID),
-                "problemid" => ascending ? query.OrderBy(a => a.ProblemID) : query.OrderByDescending(a => a.ProblemID),
+                "codername" => ascending ? query.OrderBy(a => a.CoderName) : query.OrderByDescending(a => a.CoderName),
+                "problemname" => ascending ? query.OrderBy(a => a.ProblemName) : query.OrderByDescending(a => a.ProblemName),
                 "submittime" => ascending ? query.OrderBy(a => a.SubmitTime) : query.OrderByDescending(a => a.SubmitTime),
                 "maxtimeduration" => ascending ? query.OrderBy(a => a.MaxTimeDuration) : query.OrderByDescending(a => a.MaxTimeDuration),
                 _ => query.OrderBy(a => a.SubmissionID)
