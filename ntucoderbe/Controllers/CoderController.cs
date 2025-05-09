@@ -185,6 +185,10 @@ namespace ntucoderbe.Controllers
             try
             {
                 int authenId = _authService.GetUserIdFromToken();
+                if (authenId == 1)
+                {
+                    return Unauthorized();
+                }
                 if (coderID == authenId)
                 {
                     CoderDTO coder = await _coderRepository.GetCoderByIdAsync(coderID);

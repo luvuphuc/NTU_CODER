@@ -32,6 +32,10 @@ namespace ntucoderbe.Controllers
                 if (User.Identity?.IsAuthenticated == true)
                 {
                     coderID = _authService.GetUserIdFromToken(); 
+                    if(coderID == -1)
+                    {
+                        return Unauthorized();
+                    }
                 }
                 var result = await _problemRepository.GetAllProblemsAsync(query, sortField, ascending, published, catList,isSolved,coderID);
                 return Ok(result);

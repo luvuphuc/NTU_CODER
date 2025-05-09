@@ -46,8 +46,11 @@ namespace ntucoderbe.Controllers
 
             try
             {
-                var coderID = _authService.GetUserIdFromToken();
-                dto.CoderID = coderID;
+                dto.CoderID = _authService.GetUserIdFromToken();
+                if (dto.CoderID == -1)
+                {
+                    return Unauthorized();
+                }
                 var result = await _repository.CreateParticipationAsync(dto);
                 return CreatedAtAction(nameof(GetParticipationById), new { id = result.ParticipationID }, result);
             }
@@ -135,6 +138,10 @@ namespace ntucoderbe.Controllers
         public async Task<IActionResult> CheckParticipationAndPermission(int contestID)
         {
             var coderID = _authService.GetUserIdFromToken();
+            if(coderID == -1)
+            {
+                return Unauthorized();
+            }
             try
             {
                 var (participationId, onGoing) = await _repository.CheckRegisteredAndPerAsync(coderID, contestID);

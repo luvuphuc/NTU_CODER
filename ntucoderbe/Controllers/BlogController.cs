@@ -38,6 +38,9 @@ namespace ntucoderbe.Controllers
             try
             {
                 dto.CoderID = _authService.GetUserIdFromToken();
+                if (dto.CoderID == -1) {
+                    return Unauthorized();
+                }
                 var created = await _blogRepository.CreateBlogAsync(dto);
                 return CreatedAtAction(nameof(GetBlogById), new { id = created.BlogID }, created);
             }

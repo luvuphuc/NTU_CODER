@@ -1,4 +1,5 @@
 ﻿using Firebase.Auth;
+using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -81,6 +82,10 @@ namespace ntucoderbe.Controllers
             try
             {
                 var coderID = _authService.GetUserIdFromToken();
+                if (coderID == -1)
+                {
+                    return Unauthorized();
+                }
                 var coder = await _coderRepository.GetCoderByIdAsync(coderID);
 
                 if (coder == null)

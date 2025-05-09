@@ -27,12 +27,12 @@ namespace ntucoderbe.Infrashtructure.Repositories
             }
             var blog = new Blog
             {
-                Title = dto.Title,
-                Content = dto.Content,
+                Title = dto.Title!,
+                Content = dto.Content!,
                 BlogDate = DateTime.UtcNow,
                 CoderID = (int)dto.CoderID!,
-                PinHome = dto.PinHome,
-                Published = dto.Published,
+                PinHome = dto.PinHome ?? 0,
+                Published = dto.Published ?? 0,
             };
 
             _context.Blogs.Add(blog);
@@ -85,6 +85,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             return sortField?.ToLower() switch
             {
                 "title" => ascending ? query.OrderBy(p => p.Title) : query.OrderByDescending(p => p.Title),
+                "blogdate" => ascending ? query.OrderBy(p=>p.BlogDate) : query.OrderByDescending(p=>p.BlogDate),
                 _ => query.OrderBy(p => p.BlogID),
             };
         }
@@ -121,8 +122,8 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 throw new KeyNotFoundException("Không tìm thấy.");
             }
             obj.Title = string.IsNullOrEmpty(dto.Title) ? obj.Title : dto.Title;
-            obj.Published = dto.Published != 0 ? dto.Published : obj.Published;
-            obj.PinHome = dto.PinHome != 0 ? dto.PinHome : obj.PinHome;
+            obj.Published = dto.Published ?? obj.Published;
+            obj.PinHome = dto.PinHome ?? obj.PinHome;
             await _context.SaveChangesAsync();
 
             return new BlogDTO

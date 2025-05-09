@@ -73,6 +73,10 @@ namespace ntucoderbe.Controllers
             {
                 int coderID = _authService.GetUserIdFromToken();
                 dto.CoderID = coderID;
+                if (dto.CoderID == -1)
+                {
+                    return Unauthorized();
+                }
                 var result = await _contestRepository.CreateContestAsync(dto);
                 return CreatedAtAction(nameof(GetContestById), new { id = result.ContestID }, result);
             }

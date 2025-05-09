@@ -1,4 +1,5 @@
 ﻿using AddressManagementSystem.Infrashtructure.Helpers;
+using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
@@ -37,7 +38,10 @@ namespace ntucoderbe.Controllers
             try
             {
                 dto.CoderID = _authService.GetUserIdFromToken();
-
+                if (dto.CoderID == -1)
+                {
+                    return Unauthorized();
+                }
                 var existed = await _favouriteRepository.IsFavouriteExistAsync(dto.CoderID, dto.ProblemID);
 
                 if (existed)
@@ -74,7 +78,11 @@ namespace ntucoderbe.Controllers
         {
             try
             {
-                var id = _authService.GetUserIdFromToken();
+                int id = _authService.GetUserIdFromToken();
+                if (id == -1)
+                {
+                    return Unauthorized();
+                }
                 var favourite = await _favouriteRepository.GetFavouriteByCoderIdAsync(id);
                 return Ok(favourite);
             }
