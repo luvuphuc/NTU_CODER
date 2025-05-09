@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Flex } from '@chakra-ui/react';
+import { Box, Button, Flex, useDisclosure } from '@chakra-ui/react';
 import api from '../../../utils/api';
 import ScrollToTop from 'components/scroll/ScrollToTop';
 import { MdAdd } from 'react-icons/md';
 import { Link } from 'react-router-dom';
 import Pagination from 'components/pagination/pagination';
 import BlogTable from './components/ColumnsTable';
-
+import BlogModal from './components/Create';
 export default function BlogIndexAdmin() {
   const [tableData, setTableData] = useState([]);
   const [sortField, setSortField] = useState('');
@@ -15,7 +15,16 @@ export default function BlogIndexAdmin() {
   const [pageSize, setPageSize] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRows, setTotalRows] = useState(0);
-
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedBlogID, setSelectedBlogID] = useState(null);
+  const handleOpenCreateModal = () => {
+    setSelectedBlogID(null);
+    onOpen();
+  };
+  const handleOpenEditModal = (blogID) => {
+    setSelectedBlogID(blogID);
+    onOpen();
+  };
   const fetchData = useCallback(async () => {
     try {
       const response = await api.get('/Blog/all', {
@@ -70,7 +79,7 @@ export default function BlogIndexAdmin() {
     <ScrollToTop>
       <Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
         <Flex mb="20px" justifyContent="end" align="end" px="25px">
-          <Link to="create">
+          <Link to="#" onClick={handleOpenCreateModal}>
             <Button
               variant="solid"
               size="lg"
@@ -80,6 +89,12 @@ export default function BlogIndexAdmin() {
               Thêm <MdAdd size="25" />
             </Button>
           </Link>
+          <BlogModal
+            isOpen={isOpen}
+            onClose={onClose}
+            onBlogCreated={refetchData}
+            blogID={selectedBlogID}
+          />
         </Flex>
         <BlogTable
           tableData={tableData}
@@ -87,6 +102,7 @@ export default function BlogIndexAdmin() {
           sortField={sortField}
           ascending={ascending}
           refetchData={refetchData}
+          onOpenDetailModal={handleOpenEditModal}
         />
         <Pagination
           currentPage={currentPage}

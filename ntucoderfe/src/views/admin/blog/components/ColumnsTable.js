@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Button,
@@ -39,6 +39,7 @@ export default function BlogTable({
   sortField,
   ascending,
   refetchData,
+  onOpenDetailModal,
 }) {
   const { colorMode } = useColorMode();
   const textColor = colorMode === 'light' ? 'black' : 'white';
@@ -48,10 +49,6 @@ export default function BlogTable({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(false);
   const [currentblogID, setCurrentblogID] = useState(null);
-  const [problemCount, setProblemCounts] = useState({});
-  const handleDetailClick = (blogID) => {
-    navigate(`/admin/blog/detail/${blogID}`);
-  };
   const handleToggleStatus = async (blogID, field, currentValue) => {
     try {
       const newValue = currentValue === 0 ? 1 : 0;
@@ -94,17 +91,22 @@ export default function BlogTable({
       });
     }
   };
+  const handleDetailClick = (blogID) => {
+    if (onOpenDetailModal) {
+      onOpenDetailModal(blogID);
+    }
+  };
 
   const handleDeleteClick = async () => {
     try {
       setLoading(true);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const response = await api.delete(`/Contest/${currentblogID}`);
+      const response = await api.delete(`/Blog/${currentblogID}`);
       if (response.status === 200) {
         toast({
           title: 'Xóa thành công!',
-          description: 'Cuộc thi đã bị xóa.',
+          description: 'Bài viết đã bị xóa.',
           status: 'success',
           duration: 5000,
           isClosable: true,
@@ -222,26 +224,6 @@ export default function BlogTable({
       </Box>
     );
   };
-  useEffect(() => {
-    const fetchProblemCounts = async () => {
-      try {
-        const counts = {};
-        for (const contest of tableData) {
-          const response = await api.get(
-            `/HasProblem/count?contestId=${contest.blogID}`,
-          );
-          counts[contest.blogID] = response.data.count || 0;
-        }
-        setProblemCounts(counts);
-      } catch (error) {
-        console.error('Lỗi khi lấy số lượng problem:', error);
-      }
-    };
-
-    if (tableData.length > 0) {
-      fetchProblemCounts();
-    }
-  }, [tableData]);
 
   return (
     <>

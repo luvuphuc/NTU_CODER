@@ -16,6 +16,7 @@ import CompilerIndex from 'views/admin/compiler';
 import ProblemPage from 'views/user/problem/problem_list';
 import ProblemSolver from 'views/user/problem/problem_solve';
 import ContestIndex from 'views/admin/contest';
+import { BsPostcard } from 'react-icons/bs';
 import CreateContest from 'views/admin/contest/components/Create';
 import TestCaseIndex from 'views/admin/testcase';
 import ContestDetail from 'views/admin/contest/components/Detail';
@@ -120,7 +121,7 @@ const routes = [
     name: 'Blog',
     layout: '/admin',
     path: '/blog',
-    icon: <Icon as={GiProcessor} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={BsPostcard} width="20px" height="20px" color="inherit" />,
     secondary: true,
     component: <BlogIndexAdmin />,
   },
