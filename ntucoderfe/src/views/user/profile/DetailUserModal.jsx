@@ -127,7 +127,6 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
       case 'dateOfBirth': {
         const { day, month, year } = dateOfBirth;
         if (!day || !month || !year) {
-          console.log('Thông tin ngày sinh không hợp lệ.');
           return;
         }
         updatedData.dateOfBirth = `${year}-${month}-${day}T00:00:00`;

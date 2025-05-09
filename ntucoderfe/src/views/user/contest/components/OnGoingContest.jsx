@@ -9,7 +9,8 @@ import {
   VStack,
   Tooltip,
   Button,
-  Spinner,
+  Skeleton,
+  SkeletonText,
 } from '@chakra-ui/react';
 import { FaUsers, FaCalendarAlt } from 'react-icons/fa';
 import api from 'utils/api';
@@ -34,7 +35,40 @@ export default function OnGoingContests() {
     fetchOngoingContests();
   }, []);
 
-  if (loading) return <Spinner mt={8} />;
+  if (loading) {
+    return (
+      <Box mt={8} mb={10}>
+        <Heading fontSize="2xl" mb={6} ml={2}>
+          Cuộc thi đang diễn ra
+        </Heading>
+        <VStack spacing={6}>
+          {Array.from({ length: 3 }).map((_, index) => (
+            <Box
+              key={index}
+              bgGradient="linear(to-br, white, gray.50)"
+              borderRadius="2xl"
+              boxShadow="lg"
+              p={6}
+              w="full"
+              border="1px solid"
+              borderColor="gray.100"
+            >
+              <Skeleton height="24px" mb={4} />
+              <SkeletonText noOfLines={3} spacing="4" />
+              <HStack justify="space-between" mt={4}>
+                <Skeleton height="20px" width="120px" />
+                <Skeleton height="20px" width="120px" />
+              </HStack>
+              <Flex justify="flex-end" mt={4}>
+                <Skeleton height="36px" width="100px" borderRadius="md" />
+              </Flex>
+            </Box>
+          ))}
+        </VStack>
+      </Box>
+    );
+  }
+
   if (!contests.length) return null;
 
   return (

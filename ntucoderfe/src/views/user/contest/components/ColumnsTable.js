@@ -182,16 +182,15 @@ const ContestTableUser = React.memo(
                 </Thead>
                 <Tbody>
                   {loading ? (
-                    renderSkeletonRows() // Hiển thị Skeleton nếu đang tải
+                    renderSkeletonRows()
                   ) : contests.length === 0 ? (
-                    // Hiển thị khi không có dữ liệu
                     <Tr>
                       <Td colSpan={5}>
                         <Flex
                           direction="column"
                           justify="center"
                           align="center"
-                          minH="365px"
+                          minH="350px"
                           p={8}
                         >
                           <Box boxSize="120px" mb={4}>

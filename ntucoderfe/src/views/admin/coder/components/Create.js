@@ -84,7 +84,6 @@ export default function CreateCoder() {
     }
 
     try {
-      console.log('Dữ liệu gửi lên API:', inputs);
       await api.post('/Coder/create', inputs);
 
       toast({

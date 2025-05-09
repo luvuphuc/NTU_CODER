@@ -45,7 +45,7 @@ const HighestParticipation = () => {
         </Heading>
 
         {loading ? (
-          <Center py={10}>
+          <Center py={10} minH="300px">
             <Spinner />
           </Center>
         ) : ranking.length === 0 ? (

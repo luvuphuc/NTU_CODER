@@ -25,6 +25,8 @@ import SubmissionPage from 'views/user/submission';
 import ContestDetailPage from 'views/user/contest/components/Contest_Detail';
 import HasProblemIndex from 'views/admin/hasproblem';
 import ProfileCoder from 'views/user/profile';
+import BlogIndex from 'views/user/blog';
+import BlogIndexAdmin from 'views/admin/blog';
 const routes = [
   {
     name: 'Người dùng',
@@ -115,6 +117,14 @@ const routes = [
     component: <CompilerIndex />,
   },
   {
+    name: 'Blog',
+    layout: '/admin',
+    path: '/blog',
+    icon: <Icon as={GiProcessor} width="20px" height="20px" color="inherit" />,
+    secondary: true,
+    component: <BlogIndexAdmin />,
+  },
+  {
     name: 'TRANG CHỦ',
     layout: '/user',
     path: '/',
@@ -155,11 +165,11 @@ const routes = [
     ],
   },
   {
-    name: 'HỎI & ĐÁP',
+    name: 'BÀI VIẾT',
     layout: '/user',
-    path: '/question',
+    path: '/blog',
     secondary: true,
-    component: <ContestDetailPage />,
+    component: <BlogIndex />,
   },
   {
     name: 'BẢNG CHẤM BÀI',
@@ -168,13 +178,7 @@ const routes = [
     secondary: true,
     component: <SubmissionPage />,
   },
-  {
-    name: 'BÀI VIẾT',
-    layout: '/user',
-    path: '/blog',
-    secondary: true,
-    component: <ProblemPage />,
-  },
+
   {
     name: 'Người dùng',
     layout: '/user',

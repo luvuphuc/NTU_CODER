@@ -112,7 +112,6 @@ export default function ProblemCreate() {
         note,
       });
 
-      console.log('Response:', response.data);
       toast({
         title: 'Thêm mới thành công!',
         status: 'success',

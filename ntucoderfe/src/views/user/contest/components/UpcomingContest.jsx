@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
+  Text,
   Heading,
   Flex,
-  Text,
   Stack,
   Button,
   Badge,
   Skeleton,
+  Icon,
 } from '@chakra-ui/react';
 import { CalendarIcon } from '@chakra-ui/icons';
 import api from 'utils/api';
 import { LuClock } from 'react-icons/lu';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { FaSadTear } from 'react-icons/fa';
 import moment from 'moment-timezone';
+
 const MotionBox = motion(Box);
 
 const UpcomingContests = () => {
@@ -27,7 +30,7 @@ const UpcomingContests = () => {
         const response = await api.get('/Contest/upcoming');
         setContests(response.data || []);
       } catch (error) {
-        console.error('Error fetching contests:', error);
+        console.error('Error:', error);
         setContests([]);
       } finally {
         setLoading(false);
@@ -35,21 +38,6 @@ const UpcomingContests = () => {
     };
     fetchContests();
   }, []);
-
-  // Sử dụng Skeleton Loader khi đang load dữ liệu
-  if (loading) {
-    return (
-      <Box p={6} textAlign="center">
-        <Stack spacing={6}>
-          {Array(3)
-            .fill('')
-            .map((_, index) => (
-              <Skeleton key={index} height="250px" borderRadius="xl" />
-            ))}
-        </Stack>
-      </Box>
-    );
-  }
 
   return (
     <Box
@@ -68,11 +56,29 @@ const UpcomingContests = () => {
       >
         Cuộc thi sắp diễn ra
       </Heading>
-      <Flex wrap="wrap" justify="center" gap={6}>
-        {contests.map((contest) => (
-          <ContestCard key={contest.contestID} contest={contest} />
-        ))}
-      </Flex>
+
+      {loading ? (
+        <Stack spacing={6}>
+          {Array(3)
+            .fill('')
+            .map((_, index) => (
+              <Skeleton key={index} height="250px" borderRadius="xl" />
+            ))}
+        </Stack>
+      ) : !contests.length ? (
+        <Flex direction="column" justify="center" align="center" minH="300px">
+          <Icon as={FaSadTear} boxSize={12} color="white" mb={4} />
+          <Text fontSize="lg" fontWeight="bold" color="white">
+            Hiện tại chưa có cuộc thi nào sắp bắt đầu
+          </Text>
+        </Flex>
+      ) : (
+        <Flex wrap="wrap" justify="center" gap={6}>
+          {contests.map((contest) => (
+            <ContestCard key={contest.contestID} contest={contest} />
+          ))}
+        </Flex>
+      )}
     </Box>
   );
 };

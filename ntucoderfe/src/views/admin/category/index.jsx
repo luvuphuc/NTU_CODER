@@ -1,5 +1,12 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { Box, Button, Flex,useToast, useDisclosure,Input,Modal,
+import React, { useEffect, useState, useCallback } from 'react';
+import {
+  Box,
+  Button,
+  Flex,
+  useToast,
+  useDisclosure,
+  Input,
+  Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
@@ -8,17 +15,18 @@ import { Box, Button, Flex,useToast, useDisclosure,Input,Modal,
   ModalFooter,
   FormErrorMessage,
   FormControl,
-  FormLabel } from "@chakra-ui/react";
-import api from "../../../utils/api"; 
-import CategoryTable from "./components/ColumnsTable";
-import ScrollToTop from "components/scroll/ScrollToTop";
-import { MdAdd } from "react-icons/md";
-import { Link } from "react-router-dom";
-import Pagination from "components/pagination/pagination";
+  FormLabel,
+} from '@chakra-ui/react';
+import api from '../../../utils/api';
+import CategoryTable from './components/ColumnsTable';
+import ScrollToTop from 'components/scroll/ScrollToTop';
+import { MdAdd } from 'react-icons/md';
+import { Link } from 'react-router-dom';
+import Pagination from 'components/pagination/pagination';
 
 export default function CategoryIndex() {
   const [tableData, setTableData] = useState([]);
-  const [sortField, setSortField] = useState("");
+  const [sortField, setSortField] = useState('');
   const [ascending, setAscending] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -26,35 +34,39 @@ export default function CategoryIndex() {
   const [totalRows, setTotalRows] = useState(0);
   const toast = useToast();
   const [loading, setLoading] = useState(false);
-  const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
+  const {
+    isOpen: isAddOpen,
+    onOpen: onAddOpen,
+    onClose: onAddClose,
+  } = useDisclosure();
   const [newCategory, setNewCategory] = useState({ catName: '', catOrder: 0 });
   const [errors, setErrors] = useState({});
   const fetchData = useCallback(async () => {
-  try {
-    const response = await api.get('/category/all', {
-      params: {
-        Page: currentPage,
-        PageSize: pageSize,
-        ascending: ascending,
-        sortField: sortField,
-      },
-    });
-    const dataWithStatus = Array.isArray(response.data.data)
-      ? response.data.data.map((item) => ({
-          ...item,
-          status: true,
-        }))
-      : [];
-    setTableData(dataWithStatus);
-    setTotalPages(response.data.totalPages || 0); // Mặc định là 0 nếu không có
-    setTotalRows (response.data.totalCount || 0);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-  }
-}, [sortField, ascending,currentPage, pageSize]);
+    try {
+      const response = await api.get('/category/all', {
+        params: {
+          Page: currentPage,
+          PageSize: pageSize,
+          ascending: ascending,
+          sortField: sortField,
+        },
+      });
+      const dataWithStatus = Array.isArray(response.data.data)
+        ? response.data.data.map((item) => ({
+            ...item,
+            status: true,
+          }))
+        : [];
+      setTableData(dataWithStatus);
+      setTotalPages(response.data.totalPages || 0); // Mặc định là 0 nếu không có
+      setTotalRows(response.data.totalCount || 0);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }, [sortField, ascending, currentPage, pageSize]);
   useEffect(() => {
     fetchData();
-  }, [sortField, ascending, currentPage, pageSize]); 
+  }, [sortField, ascending, currentPage, pageSize]);
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -88,14 +100,13 @@ export default function CategoryIndex() {
     try {
       setLoading(true);
       const response = await api.post('/Category/create', newCategory);
-      console.log(response)
       if (response.status === 201) {
         toast({
-          title: "Thêm mới thành công!",
-          status: "success",
+          title: 'Thêm mới thành công!',
+          status: 'success',
           duration: 3000,
           isClosable: true,
-          position: "top-right",
+          position: 'top-right',
         });
         onAddClose();
         refetchData();
@@ -104,21 +115,20 @@ export default function CategoryIndex() {
         throw new Error('Có lỗi xảy ra khi thêm thể loại');
       }
     } catch (error) {
-      console.log(error);
       if (Array.isArray(error.response.data.errors)) {
         const errorMap = {};
         error.response.data.errors.forEach((err) => {
-          if (err.includes("Tên thể loại")) errorMap.catName = err;
-          if (err.includes("Thứ tự")) errorMap.catOrder = err;
+          if (err.includes('Tên thể loại')) errorMap.catName = err;
+          if (err.includes('Thứ tự')) errorMap.catOrder = err;
         });
         setErrors(errorMap);
       } else {
         toast({
-          title: "Đã xảy ra lỗi.",
-          status: "error",
+          title: 'Đã xảy ra lỗi.',
+          status: 'error',
           duration: 3000,
           isClosable: true,
-          position: "top-right",
+          position: 'top-right',
         });
       }
     } finally {
@@ -126,20 +136,20 @@ export default function CategoryIndex() {
     }
   };
   const handleOpenModel = () => {
-    setNewCategory({ catName: "", catOrder: 0 });
+    setNewCategory({ catName: '', catOrder: 0 });
     setErrors({});
     onAddOpen();
   };
-  
+
   return (
     <ScrollToTop>
-      <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
+      <Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
         <Flex mb="20px" justifyContent="end" align="end" px="25px">
           <Link to="">
-            <Button 
-              variant="solid" 
-              size="lg" 
-              colorScheme="green" 
+            <Button
+              variant="solid"
+              size="lg"
+              colorScheme="green"
               borderRadius="md"
               onClick={handleOpenModel}
             >
@@ -147,10 +157,10 @@ export default function CategoryIndex() {
             </Button>
           </Link>
         </Flex>
-        <CategoryTable 
-          tableData={tableData} 
-          onSort={handleSort} 
-          sortField={sortField} 
+        <CategoryTable
+          tableData={tableData}
+          onSort={handleSort}
+          sortField={sortField}
           ascending={ascending}
           refetchData={refetchData}
         />
@@ -169,21 +179,39 @@ export default function CategoryIndex() {
           <ModalHeader>Thêm thể loại</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-          <FormControl isInvalid={!!errors.catName} mb={3}>
-            <FormLabel>Tên thể loại</FormLabel>
-            <Input name="catName" placeholder="Tên thể loại" onChange={handleAddChange} />
-            <FormErrorMessage>{errors.catName}</FormErrorMessage>
-          </FormControl>
-          {/* Sắp xếp */}
-          <FormControl isInvalid={!!errors.catOrder}>
-            <FormLabel>Sắp xếp</FormLabel>
-            <Input name="catOrder" type="number" placeholder="Sắp xếp" value={newCategory.catOrder} onChange={handleAddChange} />
-            <FormErrorMessage>{errors.catOrder}</FormErrorMessage>
-          </FormControl>
+            <FormControl isInvalid={!!errors.catName} mb={3}>
+              <FormLabel>Tên thể loại</FormLabel>
+              <Input
+                name="catName"
+                placeholder="Tên thể loại"
+                onChange={handleAddChange}
+              />
+              <FormErrorMessage>{errors.catName}</FormErrorMessage>
+            </FormControl>
+            {/* Sắp xếp */}
+            <FormControl isInvalid={!!errors.catOrder}>
+              <FormLabel>Sắp xếp</FormLabel>
+              <Input
+                name="catOrder"
+                type="number"
+                placeholder="Sắp xếp"
+                value={newCategory.catOrder}
+                onChange={handleAddChange}
+              />
+              <FormErrorMessage>{errors.catOrder}</FormErrorMessage>
+            </FormControl>
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="gray" onClick={onAddClose}>Hủy</Button>
-            <Button colorScheme="blue" isLoading={loading} onClick={handleAddCategory}>Thêm</Button>
+            <Button colorScheme="gray" onClick={onAddClose}>
+              Hủy
+            </Button>
+            <Button
+              colorScheme="blue"
+              isLoading={loading}
+              onClick={handleAddCategory}
+            >
+              Thêm
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

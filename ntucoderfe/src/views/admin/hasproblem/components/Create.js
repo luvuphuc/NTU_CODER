@@ -44,7 +44,6 @@ export default function CreateHasProblemModal({
           sortField: 'problemName',
         },
       });
-      console.log(response);
       setProblemList(response.data?.data || []);
     } catch (error) {
       toast({

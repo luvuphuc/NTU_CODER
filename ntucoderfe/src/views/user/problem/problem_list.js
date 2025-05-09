@@ -412,7 +412,7 @@ export default function ProblemPage() {
               </Flex>
 
               {/* Filter dropdown */}
-              <Box>
+              <Box mb={3}>
                 <Multiselect
                   options={state.categories.map((cat) => ({
                     name: cat.catName,

@@ -48,7 +48,6 @@ const ProblemDetail = () => {
         ]);
         setProblemDetail(problemRes.data);
         setEditableValues(problemRes.data);
-        console.log(problemRes.data);
         setCompilers(
           Array.isArray(compilerRes.data.data) ? compilerRes.data.data : [],
         );
@@ -182,7 +181,6 @@ const ProblemDetail = () => {
 
       if (error.response && error.response.data.errors) {
         const errorMessages = error.response.data.errors;
-        console.log(error.response.data);
         const newErrors = {};
 
         if (

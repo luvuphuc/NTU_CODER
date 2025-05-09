@@ -29,7 +29,6 @@ const ProfileCoder = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { coder } = useAuth();
   const isOwnProfile = coder?.coderID?.toString() === id;
-  console.log(isOwnProfile);
   const progress = useMotionValue(0);
   const [animatedPercentage, setAnimatedPercentage] = useState(0);
   const [submissions, setSubmissions] = useState([]);

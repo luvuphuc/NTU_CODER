@@ -22,7 +22,6 @@ export const AuthProvider = ({ children }) => {
           setCoder(res.data);
         }
       } catch (err) {
-        console.log('Lỗi xác thực:', err);
       } finally {
         setIsLoading(false);
       }
@@ -34,9 +33,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await api.post('/Auth/logout');
-    } catch (e) {
-      console.log('Lỗi khi đăng xuất:', e);
-    }
+    } catch (e) {}
     Cookies.remove('token');
     setCoder(null);
     window.location.href = '/';

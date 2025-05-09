@@ -50,7 +50,6 @@ export default function CreateCoder() {
       navigate("/admin/coder");
     } catch (error) {
       if (error.response && error.response.data.errors) {
-        console.log(error.response.data.errors);
         // Chuyển lỗi từ API thành object để hiển thị
         const errorMap = error.response.data.errors.reduce((acc, err) => {
           if (err.includes("Họ và tên")) acc.coderName = err;
