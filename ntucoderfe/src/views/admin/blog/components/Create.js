@@ -22,7 +22,7 @@ import {
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import api from 'utils/api';
-
+import FullPageSpinner from 'components/spinner/FullPageSpinner';
 export default function BlogModal({ isOpen, onClose, onDone, blogID = null }) {
   const isEditMode = Boolean(blogID);
 
@@ -85,11 +85,12 @@ export default function BlogModal({ isOpen, onClose, onDone, blogID = null }) {
     const payload = { title, content, published, pinHome };
     try {
       if (isEditMode) {
-        await api.put(`/Blog/update/${blogID}`, payload);
+        await api.put(`/Blog/${blogID}`, payload);
         toast({
           title: 'Cập nhật bài viết thành công!',
           status: 'success',
           duration: 3000,
+          position: 'top-right',
           isClosable: true,
         });
       } else {
@@ -98,6 +99,7 @@ export default function BlogModal({ isOpen, onClose, onDone, blogID = null }) {
           title: 'Tạo bài viết thành công!',
           status: 'success',
           duration: 3000,
+          position: 'top-right',
           isClosable: true,
         });
       }
@@ -134,7 +136,7 @@ export default function BlogModal({ isOpen, onClose, onDone, blogID = null }) {
         <ModalCloseButton />
         <ModalBody>
           {isFetching ? (
-            <Text>Đang tải dữ liệu...</Text>
+            <FullPageSpinner />
           ) : (
             <>
               <FormControl isInvalid={errors.title} mb={4}>
@@ -165,13 +167,13 @@ export default function BlogModal({ isOpen, onClose, onDone, blogID = null }) {
                     onChange={setBlogContent}
                     placeholder="Nhập nội dung bài viết"
                     style={{
-                      height: '270px',
+                      height: '200px',
                       paddingBottom: '20px',
                       wordWrap: 'break-word',
                     }}
                   />
                 </Box>
-                <FormErrorMessage>{errors.content}</FormErrorMessage>
+                <FormErrorMessage mt={30}>{errors.content}</FormErrorMessage>
               </FormControl>
 
               <Flex mt={6} gap={4}>
@@ -205,6 +207,7 @@ export default function BlogModal({ isOpen, onClose, onDone, blogID = null }) {
           </Button>
           <Button
             colorScheme="green"
+            borderRadius="md"
             onClick={handleSave}
             isLoading={isLoading || isFetching}
             isDisabled={isFetching}

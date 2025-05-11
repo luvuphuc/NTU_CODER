@@ -325,7 +325,8 @@ const ProblemSolver = () => {
                 </Tooltip>
               </HStack>
             </Box>
-            <Tabs variant="unstyled">
+            <Tabs variant="unstyled" position="relative">
+              {/* Tab List */}
               <TabList
                 px={4}
                 pt={2}
@@ -369,30 +370,65 @@ const ProblemSolver = () => {
                     </MotionTab>
                   ),
                 )}
+                {/* Underline */}
+                <motion.div
+                  layoutId="underline"
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    height: '2px',
+                    background: '#3182ce',
+                  }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 500,
+                    damping: 30,
+                  }}
+                />
               </TabList>
 
-              <Box maxHeight="550px">
-                <TabPanels
-                  as={motion.div}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  pl={2}
-                >
-                  <TabPanel>
+              {/* Tab Panels */}
+              <TabPanels
+                as={motion.div}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                pl={2}
+              >
+                <TabPanel>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                  >
                     <ProblemTab problem={problem} />
-                  </TabPanel>
-                  <TabPanel>
+                  </motion.div>
+                </TabPanel>
+                <TabPanel>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                  >
                     <RankingTab />
-                  </TabPanel>
-                  <TabPanel>
+                  </motion.div>
+                </TabPanel>
+                <TabPanel>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                  >
                     <HistorySubTab
                       takepartId={takepart}
                       onSubmissionSelect={handleSubmissionSelect}
                     />
-                  </TabPanel>
-                </TabPanels>
-              </Box>
+                  </motion.div>
+                </TabPanel>
+              </TabPanels>
             </Tabs>
           </Box>
 

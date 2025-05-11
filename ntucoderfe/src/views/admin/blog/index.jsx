@@ -92,7 +92,7 @@ export default function BlogIndexAdmin() {
           <BlogModal
             isOpen={isOpen}
             onClose={onClose}
-            onBlogCreated={refetchData}
+            onDone={refetchData}
             blogID={selectedBlogID}
           />
         </Flex>

@@ -32,7 +32,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 BlogDate = DateTime.UtcNow,
                 CoderID = (int)dto.CoderID!,
                 PinHome = dto.PinHome ?? 0,
-                Published = dto.Published ?? 0,
+                Published = dto.Published ?? 1,
             };
 
             _context.Blogs.Add(blog);
@@ -55,23 +55,31 @@ namespace ntucoderbe.Infrashtructure.Repositories
             return true;
         }
 
-        public async Task<PagedResponse<BlogDTO>> GetAllBlogsAsync(QueryObject query, string? sortField = null, bool ascending = true, bool published = false)
+        public async Task<PagedResponse<BlogDTO>> GetAllBlogsAsync(QueryObject query, string? sortField = null, bool ascending = true, bool published = false,bool pinHome = false)
         {
-            var blogQuery = _context.Blogs
+            IQueryable<BlogDTO> blogQuery = _context.Blogs
                 .Include(p => p.Coder)
+                .Include(p =>p.Comments)
                 .Select(p => new BlogDTO
                 {
                     BlogID = p.BlogID,
-                    Title = p.Title,
+                        Title = p.Title,
                     BlogDate = p.BlogDate,
                     PinHome = p.PinHome,
+                    Content = p.Content,
                     Published = p.Published,
                     CoderID = p.CoderID,
-                    CoderName = p.Coder.CoderName
+                    CoderName = p.Coder.CoderName,
+                    CoderAvatar = p.Coder.Avatar,
+                    CountComment = p.Comments.Count
                 });
             if (published)
             {
                 blogQuery = blogQuery.Where(b => b.Published == 1);
+            }
+            if (pinHome)
+            {
+                blogQuery = blogQuery.Where(b => b.PinHome == 1);
             }
             blogQuery = ApplySorting(blogQuery, sortField, ascending);
             var blogs = await PagedResponse<BlogDTO>.CreateAsync(
@@ -122,6 +130,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 throw new KeyNotFoundException("Không tìm thấy.");
             }
             obj.Title = string.IsNullOrEmpty(dto.Title) ? obj.Title : dto.Title;
+            obj.Content = string.IsNullOrEmpty(dto.Content) ? obj.Content : dto.Content;
             obj.Published = dto.Published ?? obj.Published;
             obj.PinHome = dto.PinHome ?? obj.PinHome;
             await _context.SaveChangesAsync();
