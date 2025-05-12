@@ -50,10 +50,12 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 {
                     CommentID = p.CommentID,
                     CoderID = p.CoderID,
+                    Content = p.Content,
                     BlogID = p.BlogID,
                     CoderName = p.Coder.CoderName,
                     BlogName = p.Blog.Title,
                     CommentTime = p.CommentTime,
+                    CoderAvatar = p.Coder.Avatar,
 
                 });
             if (blogID.HasValue)
@@ -94,6 +96,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 CoderName = obj.Coder.CoderName,
                 BlogName = obj.Blog.Title,
                 CommentTime = obj.CommentTime,
+                CoderAvatar = obj.Coder.Avatar,
             };
         }
         public async Task<CommentDTO> UpdateCommentAsync(int id, CommentDTO dto)
@@ -119,6 +122,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 CoderName = obj.Coder.CoderName,
                 BlogName = obj.Blog.Title,
                 CommentTime = obj.CommentTime,
+                CoderAvatar = obj.Coder.Avatar,
             };
         }
     }

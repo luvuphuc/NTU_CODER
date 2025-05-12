@@ -4,33 +4,32 @@ using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
 using ntucoderbe.Infrashtructure.Repositories;
 using ntucoderbe.Infrashtructure.Services;
-using System.ComponentModel.DataAnnotations;
 
 namespace ntucoderbe.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BlogController : ControllerBase
+    public class CommentController : ControllerBase
     {
-        private readonly BlogRepository _blogRepository;
+        private readonly CommentRepository _repository;
         private readonly AuthService _authService;
 
-        public BlogController(BlogRepository blogRepository, AuthService authService)
+        public CommentController(CommentRepository blogRepository, AuthService authService)
         {
-            _blogRepository = blogRepository;
+            _repository = blogRepository;
             _authService = authService;
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllBlogs([FromQuery] QueryObject query, string? sortField = null, bool ascending = true, bool published = false,bool pinHome = false)
+        public async Task<IActionResult> GetAllComments([FromQuery] QueryObject query, string? sortField = null, bool ascending = true, int? blogID = null)
         {
-            var obj = await _blogRepository.GetAllBlogsAsync(query, sortField, ascending,published,pinHome);
+            var obj = await _repository.GetAllCommentsAsync(query, sortField,ascending, blogID);
             return Ok(obj);
         }
         [HttpPost("create")]
-        public async Task<IActionResult> CreateBlog([FromBody] BlogDTO dto)
+        public async Task<IActionResult> CreateComment([FromBody] CommentDTO dto)
         {
-            
+
             if (dto == null)
             {
                 return BadRequest(new { Errors = new List<string> { "Dữ liệu không hợp lệ." } });
@@ -38,11 +37,12 @@ namespace ntucoderbe.Controllers
             try
             {
                 dto.CoderID = _authService.GetUserIdFromToken();
-                if (dto.CoderID == -1) {
+                if (dto.CoderID == -1)
+                {
                     return Unauthorized();
                 }
-                var created = await _blogRepository.CreateBlogAsync(dto);
-                return CreatedAtAction(nameof(GetBlogById), new { id = created.BlogID }, created);
+                var created = await _repository.CreateCommentAsync(dto);
+                return CreatedAtAction(nameof(GetCommentById), new { id = created.CommentID }, created);
             }
             catch (InvalidOperationException ex)
             {
@@ -50,11 +50,11 @@ namespace ntucoderbe.Controllers
             }
         }
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetBlogById(int id)
+        public async Task<IActionResult> GetCommentById(int id)
         {
             try
             {
-                var obj = await _blogRepository.GetBlogByIdAsync(id);
+                var obj = await _repository.GetCommentByIdAsync(id);
                 return Ok(obj);
             }
             catch (KeyNotFoundException ex)
@@ -63,11 +63,11 @@ namespace ntucoderbe.Controllers
             }
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBlog(int id, [FromBody] BlogDTO dto)
+        public async Task<IActionResult> UpdateComment(int id, [FromBody] CommentDTO dto)
         {
             try
             {
-                var updatedobj = await _blogRepository.UpdateBlogAsync(id, dto);
+                var updatedobj = await _repository.UpdateCommentAsync(id, dto);
                 return Ok(updatedobj);
             }
             catch (KeyNotFoundException ex)
@@ -76,11 +76,11 @@ namespace ntucoderbe.Controllers
             }
         }
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBlog(int id)
+        public async Task<IActionResult> DeleteComment(int id)
         {
             try
             {
-                var isDeleted = await _blogRepository.DeleteBlogAsync(id);
+                var isDeleted = await _repository.DeleteCommentAsync(id);
 
                 if (isDeleted)
                 {

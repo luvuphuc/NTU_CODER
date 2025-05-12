@@ -1,23 +1,23 @@
-import { Box, HStack, Icon, Text, VStack, Link } from '@chakra-ui/react';
+import {
+  Box,
+  HStack,
+  Icon,
+  Text,
+  VStack,
+  Link,
+  Skeleton,
+  Divider,
+} from '@chakra-ui/react';
 import { GoPin } from 'react-icons/go';
 import { motion, useAnimation } from 'framer-motion';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import api from 'utils/api';
 
 const MotionBox = motion(Box);
 
-const PinHomeBlog = () => {
-  const sections = {
-    Compensation: ['Meta System Design Questions', 'Need Advice'],
-    Career: [
-      'SDE-2 Interview Journey – Looking for advice',
-      'How to crack FAANG from tier 3 college',
-    ],
-    Google: [
-      'Screwed up Google phone interview',
-      'Google Onsite – Waiting in Limbo After Interview',
-    ],
-  };
-
+const PinHomeBlog = ({ onPostClick }) => {
+  const [pinnedBlogs, setPinnedBlogs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const controls = useAnimation();
 
   useEffect(() => {
@@ -27,6 +27,26 @@ const PinHomeBlog = () => {
       y: 0,
       transition: { duration: 0.5, ease: 'easeOut' },
     });
+
+    const fetchPinned = async () => {
+      try {
+        const res = await api.get('/Blog/all', {
+          params: {
+            ascending: true,
+            sortfield: 'blogdate',
+            published: true,
+            pinHome: true,
+          },
+        });
+        setPinnedBlogs(res.data.data || []);
+      } catch (err) {
+        console.error('Lỗi:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPinned();
   }, []);
 
   return (
@@ -41,7 +61,7 @@ const PinHomeBlog = () => {
       initial={{ opacity: 0, scale: 0.95, y: 10 }}
       animate={controls}
     >
-      <VStack align="start" spacing={6}>
+      <VStack align="start" spacing={2}>
         <HStack spacing={2}>
           <Icon as={GoPin} color="black" boxSize={4} />
           <Text fontWeight="semibold" fontSize="lg" color="gray.500">
@@ -49,25 +69,34 @@ const PinHomeBlog = () => {
           </Text>
         </HStack>
 
-        {Object.entries(sections).map(([tag, items]) => (
-          <Box key={tag}>
-            <Text fontWeight="semibold" fontSize="sm" color="gray.500">
-              #{tag}
-            </Text>
-            <VStack align="start" spacing={2} mt={2}>
-              {items.map((text, i) => (
+        {loading
+          ? Array.from({ length: 2 }).map((_, idx) => (
+              <Box key={idx}>
+                <Skeleton height="16px" mb={1} width="70%" />
+                <Skeleton height="40px" />
+              </Box>
+            ))
+          : pinnedBlogs.map((post, index) => (
+              <Box key={post.blogID} w="100%">
                 <Link
-                  key={i}
+                  onClick={() => onPostClick(post)}
+                  fontWeight="semibold"
                   fontSize="sm"
                   color="gray.700"
                   _hover={{ textDecoration: 'underline', color: 'blue.500' }}
                 >
-                  {text}
+                  {post.title}
                 </Link>
-              ))}
-            </VStack>
-          </Box>
-        ))}
+                <Text
+                  mt={1}
+                  fontSize="sm"
+                  color="gray.600"
+                  noOfLines={3}
+                  dangerouslySetInnerHTML={{ __html: post.content }}
+                />
+                {index < pinnedBlogs.length - 1 && <Divider my={2} />}
+              </Box>
+            ))}
       </VStack>
     </MotionBox>
   );

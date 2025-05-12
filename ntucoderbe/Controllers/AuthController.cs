@@ -96,7 +96,8 @@ namespace ntucoderbe.Controllers
                 {
                     CoderID = coderID,
                     CoderName = coder.CoderName,
-                    RoleID = coder.RoleID
+                    RoleID = coder.RoleID,
+                    Avatar = coder.Avatar,
                 });
             }
             catch (Exception ex)

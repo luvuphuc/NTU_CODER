@@ -7,6 +7,7 @@ import {
   Text,
   FormControl,
   FormLabel,
+  Skeleton,
   useToast,
 } from '@chakra-ui/react';
 import { useState } from 'react';
@@ -21,7 +22,7 @@ import Cookies from 'js-cookie';
 import AuthToast from 'views/auth/auth_toast';
 const MotionBox = motion(Box);
 
-const PostInput = ({ onPostSuccess }) => {
+const PostInput = ({ onPostSuccess, isLoading }) => {
   const { coder } = useAuth();
   const [title, setTitle] = useState('');
   const [value, setValue] = useState('');
@@ -43,21 +44,6 @@ const PostInput = ({ onPostSuccess }) => {
       });
       return;
     }
-    if (!title.trim() || !value.trim()) {
-      toast({
-        position: 'top',
-        duration: 3000,
-        isClosable: true,
-        render: () => (
-          <CustomToast
-            success={false}
-            messages="Vui lòng nhập tiêu đề và nội dung!"
-          />
-        ),
-      });
-      return;
-    }
-
     const payload = {
       title,
       content: value,
@@ -98,110 +84,121 @@ const PostInput = ({ onPostSuccess }) => {
   return (
     <>
       <Global styles={customScrollbarStyle} />
-      <Box
-        w="100%"
-        bg="white"
-        rounded="2xl"
-        shadow="sm"
-        p={4}
-        mb={6}
-        border="1px solid"
-        borderColor="gray.200"
-      >
-        <Flex align="start" mb={isExpanded ? 3 : 0}>
-          {!isExpanded && (
-            <Avatar
-              width="40px"
-              height="40px"
-              mr={3}
-              name={coder?.coderName}
-              src={coder?.avatar || undefined}
-            />
-          )}
-
-          <Box flex="1">
-            {isExpanded && (
-              <Text
-                fontSize="sm"
-                color="gray.500"
-                mb={1}
-                ml={2}
-                transition="all 0.2s"
-              >
-                Tiêu đề bài viết
-              </Text>
+      {isLoading ? (
+        <Box w="100%" p={4} bg="white" rounded="2xl" shadow="sm">
+          <Skeleton height="40px" mb={4} />
+          <Skeleton height="200px" mb={3} />
+          <Flex justify="flex-end" gap={2}>
+            <Skeleton height="32px" width="80px" />
+            <Skeleton height="32px" width="80px" />
+          </Flex>
+        </Box>
+      ) : (
+        <Box
+          w="100%"
+          bg="white"
+          rounded="2xl"
+          shadow="sm"
+          p={4}
+          mb={6}
+          border="1px solid"
+          borderColor="gray.200"
+        >
+          <Flex align="start" mb={isExpanded ? 3 : 0}>
+            {!isExpanded && (
+              <Avatar
+                width="40px"
+                height="40px"
+                mr={3}
+                name={coder?.coderName}
+                src={coder?.avatar || undefined}
+              />
             )}
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder={
-                coder?.coderName
-                  ? `${coder.coderName} ơi, bạn đang nghĩ gì thế?`
-                  : 'Bạn đang nghĩ gì thế?'
-              }
-              bg="gray.100"
-              rounded="full"
-              px={4}
-              onFocus={() => setIsExpanded(true)}
-            />
-          </Box>
-        </Flex>
 
-        <AnimatePresence>
-          {isExpanded && (
-            <MotionBox
-              key="editor"
-              initial={{ opacity: 0, height: 0, scale: 0.95, y: -10 }}
-              animate={{ opacity: 1, height: 'auto', scale: 1, y: 0 }}
-              exit={{ opacity: 0, height: 0, scale: 0.95, y: -10 }}
-              transition={{ duration: 0.3, ease: [0.25, 0.8, 0.25, 1] }}
-              overflow="hidden"
-            >
-              {/* Nội dung */}
-              <Box
-                border="1px solid"
-                borderColor="gray.200"
-                rounded="md"
-                overflow="hidden"
-                mb={3}
-                className="quill-editor-wrapper"
-              >
-                <Text fontWeight="semibold" fontSize="sm" px={3} py={2}>
-                  Nội dung
+            <Box flex="1">
+              {isExpanded && (
+                <Text
+                  fontSize="sm"
+                  color="gray.500"
+                  mb={1}
+                  ml={2}
+                  transition="all 0.2s"
+                >
+                  Tiêu đề bài viết
                 </Text>
-                <ReactQuill
-                  theme="snow"
-                  value={value}
-                  onChange={setValue}
-                  placeholder="Chia sẻ điều gì đó..."
-                  style={{ height: '200px', border: 'none' }}
-                />
-              </Box>
+              )}
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder={
+                  coder?.coderName
+                    ? `${coder.coderName} ơi, bạn đang nghĩ gì thế?`
+                    : 'Bạn đang nghĩ gì thế?'
+                }
+                bg="gray.100"
+                rounded="full"
+                px={4}
+                onFocus={() => setIsExpanded(true)}
+              />
+            </Box>
+          </Flex>
 
-              {/* Buttons */}
-              <Flex justify="flex-end" gap={2}>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  borderRadius="md"
-                  onClick={handleCancel}
+          <AnimatePresence>
+            {isExpanded && (
+              <MotionBox
+                key="editor"
+                initial={{ opacity: 0, height: 0, scale: 0.95, y: -10 }}
+                animate={{ opacity: 1, height: 'auto', scale: 1, y: 0 }}
+                exit={{ opacity: 0, height: 0, scale: 0.95, y: -10 }}
+                transition={{ duration: 0.3, ease: [0.25, 0.8, 0.25, 1] }}
+                overflow="hidden"
+              >
+                {/* Nội dung */}
+                <Box
+                  border="1px solid"
+                  borderColor="gray.200"
+                  rounded="md"
+                  overflow="hidden"
+                  mb={3}
+                  className="quill-editor-wrapper"
                 >
-                  Hủy
-                </Button>
-                <Button
-                  colorScheme="blue"
-                  borderRadius="md"
-                  size="sm"
-                  onClick={handlePost}
-                  isDisabled={!stripHtml(value).trim() || !title.trim()}
-                >
-                  Đăng bài
-                </Button>
-              </Flex>
-            </MotionBox>
-          )}
-        </AnimatePresence>
-      </Box>
+                  <Text fontWeight="semibold" fontSize="sm" px={3} py={2}>
+                    Nội dung
+                  </Text>
+                  <ReactQuill
+                    theme="snow"
+                    value={value}
+                    onChange={setValue}
+                    placeholder="Chia sẻ điều gì đó..."
+                    style={{ height: '200px', border: 'none' }}
+                  />
+                </Box>
+
+                {/* Buttons */}
+                <Flex justify="flex-end" gap={2}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    borderRadius="md"
+                    onClick={handleCancel}
+                  >
+                    Hủy
+                  </Button>
+                  <Button
+                    colorScheme="blue"
+                    borderRadius="md"
+                    size="sm"
+                    onClick={handlePost}
+                    isDisabled={!stripHtml(value).trim() || !title.trim()}
+                  >
+                    Đăng bài
+                  </Button>
+                </Flex>
+              </MotionBox>
+            )}
+          </AnimatePresence>
+        </Box>
+      )}
     </>
   );
 };

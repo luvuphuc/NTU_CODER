@@ -7,6 +7,7 @@
         public DateTime? CommentTime { get; set; }
         public int? CoderID { get; set; }
         public string? CoderName { get; set; }
+        public string? CoderAvatar {  get; set; }
         public int? BlogID { get; set; }
         public string? BlogName { get; set; }
     }
