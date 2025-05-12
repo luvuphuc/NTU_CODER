@@ -97,6 +97,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 BlogName = obj.Blog.Title,
                 CommentTime = obj.CommentTime,
                 CoderAvatar = obj.Coder.Avatar,
+                Content = obj.Content
             };
         }
         public async Task<CommentDTO> UpdateCommentAsync(int id, CommentDTO dto)
@@ -123,6 +124,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 BlogName = obj.Blog.Title,
                 CommentTime = obj.CommentTime,
                 CoderAvatar = obj.Coder.Avatar,
+                Content = obj.Content
             };
         }
     }

@@ -285,7 +285,7 @@ const PostModal = ({
               />
             )}
 
-            <Divider />
+            <Divider borderWidth="1.5px" color="black" />
             <Text fontWeight="bold">Tất cả bình luận</Text>
 
             <CommentSection blogID={post.blogID} refreshKey={refreshKey} />
@@ -334,14 +334,18 @@ const PostModal = ({
                     '.ql-editor': {
                       outline: 'none !important',
                       padding: 0,
-                      minHeight: '40px',
+                      minHeight: '15px',
                     },
                   }}
                 >
                   <ReactQuill
                     value={newComment}
                     onChange={setNewComment}
-                    placeholder="Bình luận dưới tên Lữ Vũ Phúc..."
+                    placeholder={
+                      coder
+                        ? `Bình luận dưới tên ${coder.coderName || 'bạn'}...`
+                        : 'Hãy đăng nhập để bình luận'
+                    }
                     theme="snow"
                     modules={{ toolbar: false }}
                   />
@@ -391,22 +395,22 @@ const PostModal = ({
 
               <AlertDialogFooter>
                 <Button
-                  ref={cancelRef}
-                  onClick={() => setIsDeleteConfirmOpen(false)}
-                  borderRadius="md"
-                >
-                  Hủy
-                </Button>
-                <Button
-                  colorScheme="blue"
+                  colorScheme="red"
                   onClick={() => {
                     setIsDeleteConfirmOpen(false);
                     handleDeleteClick();
                   }}
                   borderRadius="md"
-                  ml={3}
+                  mr={3}
                 >
                   Xóa
+                </Button>
+                <Button
+                  ref={cancelRef}
+                  onClick={() => setIsDeleteConfirmOpen(false)}
+                  borderRadius="md"
+                >
+                  Hủy
                 </Button>
               </AlertDialogFooter>
             </AlertDialogContent>

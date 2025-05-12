@@ -12,6 +12,7 @@ import {
   Menu,
   MenuButton,
   Button,
+  Spinner,
   MenuList,
   MenuItem,
   AlertDialog,
@@ -23,8 +24,8 @@ import {
   useToast,
   Skeleton,
   SkeletonText,
+  Tooltip,
 } from '@chakra-ui/react';
-import { BiUpvote } from 'react-icons/bi';
 import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import { BsThreeDots } from 'react-icons/bs';
 import { useEffect, useState, useRef } from 'react';
@@ -33,13 +34,15 @@ import { AiOutlineComment } from 'react-icons/ai';
 import LayoutUser from 'layouts/user';
 import PostInput from './components/PostInput';
 import { motion, AnimatePresence } from 'framer-motion';
-import moment from 'moment-timezone';
+import { FiChevronsUp } from 'react-icons/fi';
 import PostModal from './components/PostModal';
 import PinHomeBlog from './components/PinHomeBlog';
 import { formatTimeFromNow } from 'utils/formatTime';
 import CustomToast from 'components/toast/CustomToast';
 import { useAuth } from 'contexts/AuthContext';
+
 const MotionBox = motion(Box);
+
 const PostCard = ({ post, onEdit }) => {
   const { coder } = useAuth();
   const [showFullContent, setShowFullContent] = useState(false);
@@ -61,6 +64,7 @@ const PostCard = ({ post, onEdit }) => {
   } = post;
 
   const formattedTime = formatTimeFromNow(blogDate);
+
   const handleDeleteClick = async () => {
     try {
       const response = await api.delete(`/Blog/${post.blogID}`);
@@ -122,9 +126,7 @@ const PostCard = ({ post, onEdit }) => {
                 fontSize="15px"
                 fontWeight="bold"
                 color="gray.800"
-                _hover={{
-                  textDecoration: 'underline',
-                }}
+                _hover={{ textDecoration: 'underline' }}
               >
                 {author || 'Anonymous'}
               </Link>
@@ -139,33 +141,20 @@ const PostCard = ({ post, onEdit }) => {
             coder?.roleID === 1 ||
             coder?.roleID === 3) && (
             <Menu placement="bottom-end" autoSelect={false}>
-              <MenuButton
-                as={Button}
-                variant="ghost"
-                size="sm"
-                _hover={{ bg: 'gray.100' }}
-                _active={{ bg: 'gray.200' }}
-                p={1.5}
-                borderRadius="full"
-              >
-                <BsThreeDots size="18px" />
-              </MenuButton>
-
-              <MenuList
-                minW="200px"
-                py={2}
-                px={1}
-                borderRadius="lg"
-                boxShadow="0px 8px 24px rgba(0, 0, 0, 0.1)"
-                bg="white"
-              >
+              <Tooltip label="Tùy chọn" hasArrow placement="top">
+                <MenuButton
+                  as={Button}
+                  variant="ghost"
+                  size="sm"
+                  p={1.5}
+                  borderRadius="full"
+                >
+                  <BsThreeDots size="18px" />
+                </MenuButton>
+              </Tooltip>
+              <MenuList minW="200px" py={2} px={1} borderRadius="lg">
                 <MenuItem
                   icon={<EditIcon boxSize={4} color="blue.500" />}
-                  fontSize="15px"
-                  py={2}
-                  px={3}
-                  borderRadius="md"
-                  _hover={{ bg: 'gray.200' }}
                   onClick={() => {
                     setIsModalOpen(true);
                     setIsEditing(true);
@@ -173,14 +162,8 @@ const PostCard = ({ post, onEdit }) => {
                 >
                   Chỉnh sửa bài viết
                 </MenuItem>
-
                 <MenuItem
                   icon={<DeleteIcon boxSize={4} color="red.500" />}
-                  fontSize="15px"
-                  py={2}
-                  px={3}
-                  borderRadius="md"
-                  _hover={{ bg: 'red.50' }}
                   color="red.500"
                   onClick={() => setIsDeleteConfirmOpen(true)}
                 >
@@ -191,7 +174,7 @@ const PostCard = ({ post, onEdit }) => {
           )}
         </Flex>
 
-        <Heading size="md" mb={2} color="gray.800">
+        <Heading size="md" mb={2}>
           {title}
         </Heading>
 
@@ -219,13 +202,13 @@ const PostCard = ({ post, onEdit }) => {
             cursor="pointer"
             onClick={() => setIsModalOpen(true)}
             _hover={{ color: 'blue.500' }}
-            transition="color 0.2s"
           >
             <Icon as={AiOutlineComment} />
             <Text>{comments} người bình luận</Text>
           </HStack>
         </HStack>
       </Box>
+
       {isModalOpen && (
         <PostModal
           isOpen={isModalOpen}
@@ -238,7 +221,8 @@ const PostCard = ({ post, onEdit }) => {
           setIsEditing={setIsEditing}
           onUpdateSuccess={onEdit}
         />
-      )}{' '}
+      )}
+
       <AlertDialog
         isOpen={isDeleteConfirmOpen}
         leastDestructiveRef={cancelRef}
@@ -246,33 +230,27 @@ const PostCard = ({ post, onEdit }) => {
       >
         <AlertDialogOverlay>
           <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Xác nhận xóa
-            </AlertDialogHeader>
-
+            <AlertDialogHeader>Xác nhận xóa</AlertDialogHeader>
             <AlertDialogBody>
               Bạn có chắc chắn muốn xóa bài viết này không? Hành động này không
               thể hoàn tác.
             </AlertDialogBody>
-
             <AlertDialogFooter>
               <Button
-                ref={cancelRef}
-                onClick={() => setIsDeleteConfirmOpen(false)}
-                borderRadius="md"
-              >
-                Hủy
-              </Button>
-              <Button
-                colorScheme="blue"
+                colorScheme="red"
                 onClick={() => {
                   setIsDeleteConfirmOpen(false);
                   handleDeleteClick();
                 }}
-                borderRadius="md"
-                ml={3}
+                mr={3}
               >
                 Xóa
+              </Button>
+              <Button
+                ref={cancelRef}
+                onClick={() => setIsDeleteConfirmOpen(false)}
+              >
+                Hủy
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -287,6 +265,9 @@ const BlogIndex = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPost, setSelectedPost] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const pageSize = 5;
 
   const openPostModal = (post) => {
     setSelectedPost(post);
@@ -294,46 +275,74 @@ const BlogIndex = () => {
   };
 
   const closePostModal = () => {
-    setIsModalOpen(false);
     setSelectedPost(null);
+    setIsModalOpen(false);
   };
 
-  const fetchBlogs = async () => {
-    setIsLoading(true);
+  const fetchBlogs = async (currentPage = 1) => {
     try {
       const res = await api.get('/Blog/all', {
         params: {
           sortField: 'blogDate',
           ascending: false,
           published: true,
+          page: currentPage,
+          pageSize,
         },
       });
-      setPosts(res.data.data);
-    } catch (error) {
-      console.error('Error:', error);
+
+      const newPosts = res.data.data;
+      if (newPosts.length < pageSize) setHasMore(false);
+
+      setPosts((prev) =>
+        currentPage === 1 ? newPosts : [...prev, ...newPosts],
+      );
+    } catch (err) {
+      console.error('Fetch blogs failed:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchBlogs();
+    fetchBlogs(1);
   }, []);
+
+  useEffect(() => {
+    if (page === 1) return;
+    fetchBlogs(page);
+  }, [page]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const nearBottom =
+        window.innerHeight + window.scrollY >= document.body.offsetHeight - 300;
+      if (nearBottom && !isLoading && hasMore) {
+        setIsLoading(true);
+        setPage((prevPage) => prevPage + 1);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isLoading, hasMore]);
 
   return (
     <LayoutUser>
       <Box bg="gray.50" minH="100vh" py={10}>
         <Flex maxW="1200px" mx="auto" gap={8}>
-          {/* Posts Section */}
           <Box flex="7">
-            <VStack spacing={6} w="100%">
-              <PostInput onPostSuccess={fetchBlogs} isLoading={isLoading} />
-              <Divider borderWidth="1.5px" />
+            <VStack spacing={6}>
+              <PostInput
+                onPostSuccess={() => fetchBlogs(1)}
+                isLoading={isLoading}
+              />
+              <Divider />
               <Heading size="lg" mb={2} color="gray.700">
                 Bài đăng mới nhất
               </Heading>
               <AnimatePresence initial={false}>
-                {isLoading
+                {isLoading && posts.length === 0
                   ? Array.from({ length: 3 }).map((_, idx) => (
                       <Box
                         key={idx}
@@ -342,7 +351,6 @@ const BlogIndex = () => {
                         bg="white"
                         rounded="2xl"
                         shadow="sm"
-                        transition="all 0.2s"
                       >
                         <Flex align="center" mb={4}>
                           <Skeleton circle height="40px" width="40px" mr={3} />
@@ -365,14 +373,20 @@ const BlogIndex = () => {
                         transition={{ duration: 0.4 }}
                         w="100%"
                       >
-                        <PostCard post={post} onEdit={fetchBlogs} />
+                        <PostCard post={post} onEdit={() => fetchBlogs(1)} />
                       </MotionBox>
                     ))}
               </AnimatePresence>
+              {!isLoading && posts.length === 0 && (
+                <Text color="gray.500">Không có bài viết nào.</Text>
+              )}
+              {isLoading && page > 1 && (
+                <Flex justify="center" mt={4}>
+                  <Spinner size="lg" color="blue.500" />
+                </Flex>
+              )}
             </VStack>
           </Box>
-
-          {/* Sidebar Section */}
           <Box flex="3">
             <PinHomeBlog onPostClick={openPostModal} />
             {selectedPost && (
@@ -382,12 +396,28 @@ const BlogIndex = () => {
                 post={selectedPost}
                 isEditing={false}
                 setIsEditing={() => {}}
-                onUpdateSuccess={fetchBlogs}
+                onUpdateSuccess={() => fetchBlogs(1)}
               />
             )}
           </Box>
         </Flex>
       </Box>
+      <Button
+        position="fixed"
+        bottom="30px"
+        right="30px"
+        bg="blue.500"
+        color="white"
+        _hover={{ bg: 'blue.600', transform: 'scale(1.05)' }}
+        _active={{ bg: 'blue.700' }}
+        borderRadius="full"
+        w="60px"
+        h="60px"
+        boxShadow="lg"
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      >
+        <Icon as={FiChevronsUp} boxSize={7} />
+      </Button>
     </LayoutUser>
   );
 };
