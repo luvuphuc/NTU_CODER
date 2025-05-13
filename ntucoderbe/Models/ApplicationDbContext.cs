@@ -63,16 +63,22 @@ namespace ntucoderbe.Models
                     .OnDelete(DeleteBehavior.Cascade);
             });
             //announcement
-            modelBuilder.Entity<Announcement>()
-                .HasKey(a => a.AnnouncementID);
-            modelBuilder.Entity<Announcement>()
-                .HasOne(a => a.Contest)
-                .WithMany(c => c.Announcements)
-                .HasForeignKey(a => a.ContestID)
-                .IsRequired();
-            modelBuilder.Entity<Announcement>()
-                .Property(a => a.AnnounceContent)
-                .IsRequired();
+            modelBuilder.Entity<Announcement>(entity =>
+            {
+                entity.HasKey(a => a.AnnouncementID);
+
+                entity.HasOne(a => a.Contest)
+                      .WithMany(c => c.Announcements)
+                      .HasForeignKey(a => a.ContestID)
+                      .IsRequired();
+
+                entity.Property(a => a.AnnounceContent)
+                      .IsRequired();
+
+                entity.Property(a => a.IsSent)
+                      .HasDefaultValue(0);
+            });
+
 
             //Blog
             modelBuilder.Entity<Blog>()
@@ -429,7 +435,7 @@ namespace ntucoderbe.Models
                 .WithMany(p => p.HasProblems)
                 .HasForeignKey(hp => hp.ProblemID)
                 .IsRequired();
-
+      
             modelBuilder.Entity<HasProblem>()
                 .Property(hp => hp.ProblemOrder)
                 .IsRequired();
@@ -440,7 +446,11 @@ namespace ntucoderbe.Models
             //participation
             modelBuilder.Entity<Participation>()
                 .HasKey(p => p.ParticipationID);
-
+            modelBuilder.Entity<Participation>(entity =>
+            {
+                entity.Property(a => a.IsReceive)
+                      .HasDefaultValue(0);
+            });
             modelBuilder.Entity<Participation>()
                 .HasOne(p => p.Coder)
                 .WithMany(c => c.Participations)

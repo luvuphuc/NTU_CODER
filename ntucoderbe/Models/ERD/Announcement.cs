@@ -7,6 +7,7 @@
         public int ContestID { get; set; }
         public DateTime AnnounceTime { get; set; }
         public string AnnounceContent { get; set; }
+        public int IsSent {  get; set; }
         public virtual Contest Contest { get; set; }
     }
 }

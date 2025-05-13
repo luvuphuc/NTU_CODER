@@ -49,12 +49,17 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CodeExecutionService>();
 builder.Services.AddScoped<TestRunRepository>();
 builder.Services.AddScoped<BlogRepository>();
+builder.Services.AddScoped<CommentRepository>();
 builder.Services.AddScoped<ContestRepository>();
 builder.Services.AddScoped<FavouriteRepository>();
 builder.Services.AddScoped<ParticipationRepository>();
 builder.Services.AddScoped<HasProblemRepository>();
 builder.Services.AddScoped<SearchRepository>();
 builder.Services.AddScoped<TakePartsRepository>();
+builder.Services.AddScoped<EmailServices>();
+builder.Services.AddScoped<AnnouncementRepository>();
+builder.Services.AddHostedService<ContestNotificationService>();
+
 var allowedOrigins = builder.Configuration["CorsSettings:AllowedOrigins"]?.Split(",") ?? new[] { "http://localhost:3000" };
 
 builder.Services.AddCors(options =>

@@ -15,7 +15,7 @@
         public int? TimeScore { get; set; }
         public int? Rank { get; set; }
         public int? SolvedCount { get; set; }
-
+        public int IsReceive { get; set; }
         public virtual Coder Coder { get; set; }
         public virtual Contest Contest { get; set; }
         public virtual ICollection<TakePart> TakeParts { get; set; }
