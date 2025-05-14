@@ -167,6 +167,10 @@ namespace ntucoderbe.Infrashtructure.Repositories
             }
             if (dto.CoderEmail != null)
             {
+                if (await CheckEmailExist(dto.CoderEmail!))
+                {
+                    throw new InvalidOperationException("Email đã tồn tại.");
+                }
                 existing.CoderEmail = dto.CoderEmail;
             }
             if (dto.DateOfBirth.HasValue)
@@ -191,7 +195,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 bool isPwdValid = PasswordHelper.VerifyPassword(dto.OldPassword, existing.Account.Password, existing.Account.SaltMD5);
                 if (!isPwdValid)
                 {
-                    throw new UnauthorizedAccessException("Mật khẩu cũ không chính xác.");
+                    throw new ValidationException("Mật khẩu cũ không chính xác.");
                 }
                 else
                 {

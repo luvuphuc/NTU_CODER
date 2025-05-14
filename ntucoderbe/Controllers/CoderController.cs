@@ -91,7 +91,7 @@ namespace ntucoderbe.Controllers
             }
             catch (ValidationException ex)
             {
-                return BadRequest(new { Errors = ex.Errors.Select(e => e.ErrorMessage).ToList() });
+                return BadRequest(new { Errors = new List<string> { ex.Message } });
             }
             catch (InvalidOperationException ex)
             {

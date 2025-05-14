@@ -19,14 +19,17 @@ import {
   Avatar,
   Flex,
   Select,
+  useToast,
 } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
 import api from 'utils/api';
 import moment from 'moment';
 import { MdAddPhotoAlternate } from 'react-icons/md';
 import { useAuth } from '../../../contexts/AuthContext';
+import CustomToast from 'components/toast/CustomToast';
 const initialFields = [
   { key: 'username', label: 'Tên đăng nhập' },
+  { key: 'password', label: 'Mật khẩu' },
   { key: 'coderName', label: 'Họ và tên' },
   { key: 'email', label: 'Email' },
   { key: 'gender', label: 'Giới tính' },
@@ -43,16 +46,11 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
     2: 'Khác',
   };
   const [formValues, setFormValues] = useState({});
+  const toast = useToast();
   const [editingField, setEditingField] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [avatarError, setAvatarError] = useState('');
   const [formErrors, setFormErrors] = useState({});
-
-  const [passwordFields, setPasswordFields] = useState({
-    current: '',
-    new: '',
-    confirm: '',
-  });
   const [dateOfBirth, setBirthday] = useState({
     day: '',
     month: '',
@@ -111,6 +109,27 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
     if (!editingField) return;
     const updatedData = {};
     let errors = {};
+    if (editingField === 'password') {
+      const { currentPassword, newPassword, confirmPassword } = formValues;
+
+      if (!currentPassword) {
+        errors.currentPassword = 'Mật khẩu hiện tại là bắt buộc.';
+      }
+      if (!newPassword) {
+        errors.newPassword = 'Mật khẩu mới là bắt buộc.';
+      }
+      if (newPassword !== confirmPassword) {
+        errors.confirmPassword = 'Mật khẩu xác nhận không khớp.';
+      }
+
+      if (Object.keys(errors).length > 0) {
+        setFormErrors(errors);
+        return;
+      }
+
+      updatedData.oldPassword = currentPassword;
+      updatedData.Password = newPassword;
+    }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const email = formValues.email;
     if (email && !emailRegex.test(email)) {
@@ -168,8 +187,19 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
       } else {
         console.error('Đã xảy ra lỗi khi cập nhật thông tin.');
       }
-    } catch (error) {
-      console.error('Lỗi khi lưu dữ liệu:', error);
+    } catch (err) {
+      let errorMessage = 'Đã xảy ra lỗi không xác định.';
+      if (err.response && err.response.data.errors) {
+        errorMessage = err.response.data.errors.join(' ');
+      }
+
+      toast({
+        render: () => <CustomToast success={false} messages={errorMessage} />,
+        position: 'top',
+        duration: 5000,
+      });
+
+      console.error('Lỗi khi lưu dữ liệu:', err);
     }
   };
   const handleAvatarChange = async (e) => {
@@ -304,7 +334,7 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
                   onClick={() => handleEdit(field.key)}
                   leftIcon={<EditIcon />}
                 >
-                  Edit
+                  Sửa
                 </Button>
               </Flex>
             )}
@@ -391,7 +421,7 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
                   onClick={() => handleEdit(field.key)}
                   leftIcon={<EditIcon />}
                 >
-                  Edit
+                  Sửa
                 </Button>
               </Flex>
             )}
@@ -453,7 +483,114 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
                   onClick={() => handleEdit(field.key)}
                   leftIcon={<EditIcon />}
                 >
-                  Edit
+                  Sửa
+                </Button>
+              </Flex>
+            )}
+          </Box>
+        );
+      case 'password':
+        return (
+          <Box
+            key={field.key}
+            bg={isEditing ? 'gray.100' : 'transparent'}
+            borderBottom="1px solid"
+            borderColor="gray.200"
+            py={3}
+            px={3}
+          >
+            {isEditing ? (
+              <Flex align="flex-start">
+                <Text w="150px" fontWeight="medium" color="gray.700" pt={2}>
+                  {field.label}
+                </Text>
+                <Box flex="1">
+                  {field.key === 'password' ? (
+                    <VStack align="stretch" spacing={2}>
+                      <Input
+                        placeholder="Mật khẩu hiện tại"
+                        type="password"
+                        value={formValues.currentPassword || ''}
+                        onChange={(e) =>
+                          handleChange('currentPassword', e.target.value)
+                        }
+                        size="sm"
+                        bg="white"
+                        width="50%"
+                      />
+                      {formErrors.currentPassword && (
+                        <Text color="red.500" fontSize="sm">
+                          {formErrors.currentPassword}
+                        </Text>
+                      )}
+
+                      <Input
+                        placeholder="Mật khẩu mới"
+                        type="password"
+                        value={formValues.newPassword || ''}
+                        onChange={(e) =>
+                          handleChange('newPassword', e.target.value)
+                        }
+                        size="sm"
+                        bg="white"
+                        width="50%"
+                      />
+                      {formErrors.newPassword && (
+                        <Text color="red.500" fontSize="sm">
+                          {formErrors.newPassword}
+                        </Text>
+                      )}
+
+                      <Input
+                        placeholder="Xác nhận mật khẩu"
+                        type="password"
+                        value={formValues.confirmPassword || ''}
+                        onChange={(e) =>
+                          handleChange('confirmPassword', e.target.value)
+                        }
+                        size="sm"
+                        bg="white"
+                        width="50%"
+                      />
+                      {formErrors.confirmPassword && (
+                        <Text color="red.500" fontSize="sm">
+                          {formErrors.confirmPassword}
+                        </Text>
+                      )}
+                    </VStack>
+                  ) : (
+                    <Input
+                      value={formValues[field.key]}
+                      onChange={(e) => handleChange(field.key, e.target.value)}
+                      size="sm"
+                      bg="white"
+                      width="35%"
+                      borderRadius="md"
+                    />
+                  )}
+
+                  <SaveCancelButtons
+                    onSave={handleSave}
+                    onCancel={() => setEditingField(null)}
+                  />
+                </Box>
+              </Flex>
+            ) : (
+              <Flex align="center">
+                <Text w="150px" fontWeight="medium" color="gray.700">
+                  {field.label}
+                </Text>
+                <Text flex="1" color="gray.600">
+                  {field.key === 'password' ? '••••••••' : fieldValue}
+                </Text>
+                <Button
+                  size="sm"
+                  variant="link"
+                  colorScheme="blue"
+                  onClick={() => handleEdit(field.key)}
+                  leftIcon={<EditIcon />}
+                >
+                  Sửa
                 </Button>
               </Flex>
             )}
@@ -510,7 +647,7 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
                   onClick={() => handleEdit(field.key)}
                   leftIcon={<EditIcon />}
                 >
-                  Edit
+                  Sửa
                 </Button>
               </Flex>
             )}
