@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using ntucoderbe.Infrashtructure.Middlewares;
+using ntucoderbe.Infrashtructure.Helpers;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -56,7 +57,7 @@ builder.Services.AddScoped<ParticipationRepository>();
 builder.Services.AddScoped<HasProblemRepository>();
 builder.Services.AddScoped<SearchRepository>();
 builder.Services.AddScoped<TakePartsRepository>();
-builder.Services.AddScoped<EmailServices>();
+builder.Services.AddTransient<EmailHelper>();
 builder.Services.AddScoped<AnnouncementRepository>();
 builder.Services.AddHostedService<ContestNotificationService>();
 

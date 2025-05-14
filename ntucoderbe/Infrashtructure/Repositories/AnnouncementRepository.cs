@@ -1,6 +1,7 @@
 ﻿using AddressManagementSystem.Infrashtructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 using ntucoderbe.DTOs;
+using ntucoderbe.Infrashtructure.Helpers;
 using ntucoderbe.Infrashtructure.Services;
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
@@ -10,11 +11,14 @@ namespace ntucoderbe.Infrashtructure.Repositories
     public class AnnouncementRepository
     {
         private readonly ApplicationDbContext _context;
+        private readonly EmailHelper _emailHelper;
 
-        public AnnouncementRepository(ApplicationDbContext context)
+        public AnnouncementRepository(ApplicationDbContext context, EmailHelper emailHelper)
         {
             _context = context;
+            _emailHelper = emailHelper;
         }
+
         public async Task<PagedResponse<AnnouncementDTO>> GetAllAnnouncementsAsync(
            QueryObject query,
            string? sortField = null,
@@ -134,8 +138,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
                         .ThenInclude(p => p.Coder)
                 .ToListAsync();
 
-            EmailServices emailService = new EmailServices();
-
             foreach (var announcement in pendingAnnouncements)
             {
                 foreach (var participation in announcement.Contest.Participations)
@@ -150,7 +152,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     <br />
                     <p><i>NTUCoder Team</i></p>";
 
-                        await emailService.SendEmailAsync(coder.CoderEmail, subject, body);
+                        await _emailHelper.SendEmailAsync(coder.CoderEmail, subject, body);
                     }
                 }
 
@@ -172,27 +174,23 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 return false;
             }
 
-            EmailServices emailService = new EmailServices();
-
             foreach (var participation in announcement.Contest.Participations)
             {
-                Coder coder = participation.Coder;
-                if (!string.IsNullOrEmpty(coder.CoderEmail))
-                {
-                    string subject = $"[NTUCoder] Thông báo từ cuộc thi \"{announcement.Contest.ContestName}\"";
-                    string body = $@"
-                <h3>Chào {coder.CoderName},</h3>
-                <p>{announcement.AnnounceContent}</p>
-                <br />
-                <p><i>NTUCoder Team</i></p>";
+                var coder = participation.Coder;
+                if (string.IsNullOrEmpty(coder.CoderEmail))
+                    continue;
 
-                    await emailService.SendEmailAsync(coder.CoderEmail, subject, body);
-                }
+                var subject = $"[NTUCoder] Thông báo từ cuộc thi \"{announcement.Contest.ContestName}\"";
+                var body = $@"
+            <h3>Chào {coder.CoderName},</h3>
+            <p>{announcement.AnnounceContent}</p>
+            <br />
+            <p><i>NTUCoder Team</i></p>";
+                await _emailHelper.SendEmailAsync(coder.CoderEmail, subject, body);
             }
 
             announcement.IsSent = 1;
             await _context.SaveChangesAsync();
-
             return true;
         }
 

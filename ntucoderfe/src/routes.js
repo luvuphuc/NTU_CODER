@@ -29,6 +29,7 @@ import ProfileCoder from 'views/user/profile';
 import BlogIndex from 'views/user/blog';
 import BlogIndexAdmin from 'views/admin/blog';
 import AnnouncementIndexAdmin from 'views/admin/announcement';
+import { GrAnnounce } from 'react-icons/gr';
 const routes = [
   {
     name: 'Người dùng',
@@ -130,7 +131,7 @@ const routes = [
     name: 'Thông báo',
     layout: '/admin',
     path: '/announcement',
-    icon: <Icon as={BsPostcard} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={GrAnnounce} width="20px" height="20px" color="inherit" />,
     secondary: true,
     component: <AnnouncementIndexAdmin />,
   },

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ntucoderbe.Infrashtructure.Helpers;
 using ntucoderbe.Infrashtructure.Repositories;
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
@@ -10,9 +11,11 @@ namespace ntucoderbe.Infrashtructure.Services
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(1);
-        public ContestNotificationService(IServiceProvider serviceProvider)
+        private readonly EmailHelper _emailService;
+       public ContestNotificationService(IServiceProvider serviceProvider, EmailHelper emailService)
         {
             _serviceProvider = serviceProvider;
+            _emailService = emailService;
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -21,7 +24,6 @@ namespace ntucoderbe.Infrashtructure.Services
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     ApplicationDbContext _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    EmailServices emailService = new EmailServices();
                     AnnouncementRepository repository = scope.ServiceProvider.GetRequiredService<AnnouncementRepository>();
 
                     DateTime now = DateTime.UtcNow;
@@ -54,7 +56,7 @@ namespace ntucoderbe.Infrashtructure.Services
                                 <br />
                                 <p><i>NTUCoder Team</i></p>";
 
-                                await emailService.SendEmailAsync(coder.CoderEmail, subject, body);
+                                await _emailService.SendEmailAsync(coder.CoderEmail, subject, body);
                                 participation.IsReceive = 1;
                             }
                         }
