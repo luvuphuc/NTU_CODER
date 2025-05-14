@@ -22,7 +22,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
-import api from 'utils/api';
+import api from 'config/api';
 import moment from 'moment';
 import { MdAddPhotoAlternate } from 'react-icons/md';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -63,9 +63,15 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
       try {
         const res = await api.get(`/Coder/${coderProfile.coderID}`);
         const data = res.data;
-        const formattedBirthday = data.dateOfBirth
-          ? moment(data.dateOfBirth).format('DD/MM/YYYY')
-          : '';
+        const isDefaultDate = (date) => {
+          return moment(date).isSame('0001-01-01', 'day');
+        };
+
+        const formattedBirthday =
+          data.dateOfBirth && !isDefaultDate(data.dateOfBirth)
+            ? moment(data.dateOfBirth).format('DD/MM/YYYY')
+            : 'DD/MM/YYYY';
+
         setFormValues({
           username: data.userName || '',
           coderName: data.coderName || '',
@@ -177,6 +183,12 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
           newFormValues.dateOfBirth = moment(updatedData.dateOfBirth).format(
             'DD/MM/YYYY',
           );
+        } else {
+          newFormValues.dateOfBirth = 'DD/MM/YYYY';
+        }
+
+        if (!updatedData.gender) {
+          newFormValues.gender = 'Chưa có';
         }
 
         setFormValues((prevValues) => ({

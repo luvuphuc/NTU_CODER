@@ -17,7 +17,7 @@ import 'react-quill/dist/quill.snow.css';
 import { Global } from '@emotion/react';
 import { useAuth } from 'contexts/AuthContext';
 import CustomToast from 'components/toast/CustomToast';
-import api from 'utils/api';
+import api from 'config/api';
 import Cookies from 'js-cookie';
 import AuthToast from 'views/auth/auth_toast';
 const MotionBox = motion(Box);

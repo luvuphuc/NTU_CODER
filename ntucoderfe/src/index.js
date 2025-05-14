@@ -6,6 +6,7 @@ import { Spinner } from '@chakra-ui/react';
 import App from './App';
 import { AuthProvider, useAuth } from 'contexts/AuthContext';
 import FullPageSpinner from 'components/spinner/FullPageSpinner';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 function AuthGate() {
   const { isLoading } = useAuth();
@@ -17,9 +18,12 @@ function AuthGate() {
   return <App />;
 }
 root.render(
-  <BrowserRouter>
-    <AuthProvider>
-      <AuthGate />
-    </AuthProvider>
-  </BrowserRouter>,
+  <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ''}>
+    <BrowserRouter>
+      <AuthProvider>
+        <AuthGate />
+      </AuthProvider>
+    </BrowserRouter>
+    ,
+  </GoogleOAuthProvider>,
 );

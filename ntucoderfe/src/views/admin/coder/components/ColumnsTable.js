@@ -20,17 +20,26 @@ import {
   ModalCloseButton,
   ModalBody,
   ModalFooter,
-  useDisclosure
+  useDisclosure,
 } from '@chakra-ui/react';
 import { BiSort, BiSortUp, BiSortDown, BiSolidDetail } from 'react-icons/bi';
 import { MdDelete } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import Card from 'components/card/Card';
 import SwitchField from 'components/fields/SwitchField';
-import api from 'utils/api';
-import { AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai";
+import api from 'config/api';
+import {
+  AiOutlineSortAscending,
+  AiOutlineSortDescending,
+} from 'react-icons/ai';
 
-export default function CoderTable({ tableData, onSort, sortField, ascending, refetchData }) {
+export default function CoderTable({
+  tableData,
+  onSort,
+  sortField,
+  ascending,
+  refetchData,
+}) {
   const { colorMode } = useColorMode();
   const textColor = colorMode === 'light' ? 'black' : 'white';
   const borderColor = colorMode === 'light' ? 'gray.200' : 'whiteAlpha.300';
@@ -52,26 +61,26 @@ export default function CoderTable({ tableData, onSort, sortField, ascending, re
       const response = await api.delete(`/Coder/${currentCoderID}`);
       if (response.status === 200) {
         toast({
-          title: "Xóa thành công!",
-          description: "Người dùng đã bị xóa.",
-          status: "success",
+          title: 'Xóa thành công!',
+          description: 'Người dùng đã bị xóa.',
+          status: 'success',
           duration: 5000,
           isClosable: true,
-          position: "top-right",
+          position: 'top-right',
         });
         onClose();
         refetchData();
       } else {
-        throw new Error("Có lỗi xảy ra khi xóa");
+        throw new Error('Có lỗi xảy ra khi xóa');
       }
     } catch (error) {
       toast({
-        title: "Lỗi",
-        description: error.message || "Có lỗi xảy ra khi xóa.",
-        status: "error",
+        title: 'Lỗi',
+        description: error.message || 'Có lỗi xảy ra khi xóa.',
+        status: 'error',
         duration: 5000,
         isClosable: true,
-        position: "top-right",
+        position: 'top-right',
       });
     } finally {
       setLoading(false);
@@ -149,24 +158,46 @@ export default function CoderTable({ tableData, onSort, sortField, ascending, re
 
   return (
     <>
-      <Card flexDirection="column" w="100%" px="0px" overflowX={{ sm: 'scroll', lg: 'hidden' }}>
+      <Card
+        flexDirection="column"
+        w="100%"
+        px="0px"
+        overflowX={{ sm: 'scroll', lg: 'hidden' }}
+      >
         <Box>
           {tableData.length === 0 ? (
             <Text fontSize="lg" color="gray.500" textAlign="center">
               Không có dữ liệu nào
             </Text>
           ) : (
-            <Table variant="simple" color="gray.500" mb="24px" mt="12px" tableLayout="fixed">
+            <Table
+              variant="simple"
+              color="gray.500"
+              mb="24px"
+              mt="12px"
+              tableLayout="fixed"
+            >
               <Thead>
                 <Tr>
                   {columnsData.map((column) => (
-                    <Th key={column.Header} borderColor={borderColor} width={column.width || 'auto'}>
+                    <Th
+                      key={column.Header}
+                      borderColor={borderColor}
+                      width={column.width || 'auto'}
+                    >
                       <Flex align="center" gap={2}>
-                        <Text fontSize={{ sm: '10px', lg: '12px' }} fontWeight="bold" color={textColor}>
+                        <Text
+                          fontSize={{ sm: '10px', lg: '12px' }}
+                          fontWeight="bold"
+                          color={textColor}
+                        >
                           {column.Header}
                         </Text>
                         {column.accessor === 'coderName' && onSort && (
-                          <Box onClick={() => onSort(column.accessor)} cursor="pointer">
+                          <Box
+                            onClick={() => onSort(column.accessor)}
+                            cursor="pointer"
+                          >
                             {renderSortIcon(column.accessor)}
                           </Box>
                         )}
@@ -180,11 +211,22 @@ export default function CoderTable({ tableData, onSort, sortField, ascending, re
                 {tableData.map((row, index) => (
                   <Tr key={index}>
                     {columnsData.map((column) => (
-                      <Td key={column.Header} fontSize={{ sm: '16px' }} width={column.width || 'auto'} borderColor="transparent">
+                      <Td
+                        key={column.Header}
+                        fontSize={{ sm: '16px' }}
+                        width={column.width || 'auto'}
+                        borderColor="transparent"
+                      >
                         {column.Cell ? (
-                          column.Cell({ value: row[column.accessor], rowIndex: index, row })
+                          column.Cell({
+                            value: row[column.accessor],
+                            rowIndex: index,
+                            row,
+                          })
                         ) : (
-                          <Text color={textColor}>{row[column.accessor] || 'N/A'}</Text>
+                          <Text color={textColor}>
+                            {row[column.accessor] || 'N/A'}
+                          </Text>
                         )}
                       </Td>
                     ))}
@@ -208,7 +250,12 @@ export default function CoderTable({ tableData, onSort, sortField, ascending, re
             <Button colorScheme="gray" mr={3} onClick={onClose}>
               Hủy
             </Button>
-            <Button colorScheme="red" isLoading={loading} loadingText="Đang xóa..." onClick={handleDeleteClick}>
+            <Button
+              colorScheme="red"
+              isLoading={loading}
+              loadingText="Đang xóa..."
+              onClick={handleDeleteClick}
+            >
               Xóa
             </Button>
           </ModalFooter>

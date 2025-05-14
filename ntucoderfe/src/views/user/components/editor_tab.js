@@ -27,7 +27,7 @@ import { CheckIcon, ChevronDownIcon, ChevronLeftIcon } from '@chakra-ui/icons';
 
 import Editor from '@monaco-editor/react';
 import { FiUpload } from 'react-icons/fi';
-import api from 'utils/api';
+import api from 'config/api';
 import { useParams, useNavigate } from 'react-router-dom';
 import TestCasesComponent from './testcase_tab';
 import CustomToast from 'components/toast/CustomToast';

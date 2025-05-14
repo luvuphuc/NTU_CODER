@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Container, Flex, Spinner, Stack } from '@chakra-ui/react';
 import LayoutUser from 'layouts/user';
 import ContestSection from './components/contest_section';
-import api from 'utils/api';
+import api from 'config/api';
 
 export default function HeroContestSection() {
   const [contests, setContests] = useState([]);
@@ -22,21 +22,22 @@ export default function HeroContestSection() {
     fetchContests();
   }, []);
 
-  const filterContests = (status) => contests.filter((contest) => contest.status === status);
+  const filterContests = (status) =>
+    contests.filter((contest) => contest.status === status);
 
   return (
-      <Box>
-        <Container maxW="7xl" py={8} px={0}>
-          {loading ? (
-            <Flex justify="center" align="center" minH="300px">
-              <Spinner size="xl" color="blue.500" />
-            </Flex>
-          ) : (
-            <Stack spacing={8}>
-              <ContestSection title="Sắp diễn ra" contests={filterContests(2)} />
-            </Stack>
-          )}
-        </Container>
-      </Box>
+    <Box>
+      <Container maxW="7xl" py={8} px={0}>
+        {loading ? (
+          <Flex justify="center" align="center" minH="300px">
+            <Spinner size="xl" color="blue.500" />
+          </Flex>
+        ) : (
+          <Stack spacing={8}>
+            <ContestSection title="Sắp diễn ra" contests={filterContests(2)} />
+          </Stack>
+        )}
+      </Container>
+    </Box>
   );
 }

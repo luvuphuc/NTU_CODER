@@ -26,7 +26,7 @@ import { BiSort, BiEdit } from 'react-icons/bi';
 import { MdDelete } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import Card from 'components/card/Card';
-import api from 'utils/api';
+import api from 'config/api';
 import {
   AiOutlineSortAscending,
   AiOutlineSortDescending,
@@ -224,7 +224,6 @@ export default function CategoryTable({
                       >
                         {column.Header}
                       </Text>
-                      {/* Sorting icon is enabled only for the "CatOrder" column */}
                       {column.accessor === 'CatOrder' && onSort && (
                         <Box
                           onClick={() => onSort(column.accessor)}

@@ -16,7 +16,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import Card from 'components/card/Card';
-import api from 'utils/api';
+import api from 'config/api';
 
 const HighestParticipation = () => {
   const [ranking, setRanking] = useState([]);

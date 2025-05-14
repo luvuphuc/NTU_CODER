@@ -18,10 +18,15 @@ import {
   VisuallyHiddenInput,
   Spinner,
 } from '@chakra-ui/react';
-import { HiUpload } from "react-icons/hi";
-import api from 'utils/api';
+import { HiUpload } from 'react-icons/hi';
+import api from 'config/api';
 
-export default function EditTestCaseModal({ isOpen, onClose, refetchData, testCaseID }) {
+export default function EditTestCaseModal({
+  isOpen,
+  onClose,
+  refetchData,
+  testCaseID,
+}) {
   const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -82,7 +87,11 @@ export default function EditTestCaseModal({ isOpen, onClose, refetchData, testCa
   };
 
   const handleUpdateTestCase = async () => {
-    if (!testCase.testCaseOrder || isNaN(testCase.testCaseOrder) || parseInt(testCase.testCaseOrder) <= 0) {
+    if (
+      !testCase.testCaseOrder ||
+      isNaN(testCase.testCaseOrder) ||
+      parseInt(testCase.testCaseOrder) <= 0
+    ) {
       toast({
         title: 'Lỗi',
         description: 'TestCase Order phải là số nguyên lớn hơn 0.',
@@ -151,29 +160,73 @@ export default function EditTestCaseModal({ isOpen, onClose, refetchData, testCa
             <>
               <FormControl mb={4}>
                 <FormLabel fontWeight="bold">TestCase Order</FormLabel>
-                <Input name="testCaseOrder" placeholder="Nhập thứ tự TestCase" value={testCase.testCaseOrder} onChange={handleChange} />
+                <Input
+                  name="testCaseOrder"
+                  placeholder="Nhập thứ tự TestCase"
+                  value={testCase.testCaseOrder}
+                  onChange={handleChange}
+                />
               </FormControl>
               <FormControl mb={4}>
                 <FormLabel fontWeight="bold">Input</FormLabel>
-                <Textarea name="input" placeholder="Nhập dữ liệu đầu vào" value={testCase.input} onChange={handleChange} h="50px" />
-                <Button mt={2} bg="gray.200" borderRadius={3} leftIcon={<HiUpload />} as="label" cursor="pointer">
+                <Textarea
+                  name="input"
+                  placeholder="Nhập dữ liệu đầu vào"
+                  value={testCase.input}
+                  onChange={handleChange}
+                  h="50px"
+                />
+                <Button
+                  mt={2}
+                  bg="gray.200"
+                  borderRadius={3}
+                  leftIcon={<HiUpload />}
+                  as="label"
+                  cursor="pointer"
+                >
                   Import File
-                  <VisuallyHiddenInput type="file" accept=".txt" onChange={(e) => handleFileUpload(e, 'input')} />
+                  <VisuallyHiddenInput
+                    type="file"
+                    accept=".txt"
+                    onChange={(e) => handleFileUpload(e, 'input')}
+                  />
                 </Button>
               </FormControl>
               <FormControl mb={4}>
                 <FormLabel fontWeight="bold">Output</FormLabel>
-                <Textarea name="output" placeholder="Nhập dữ liệu đầu ra" value={testCase.output} onChange={handleChange} />
-                <Button mt={2} bg="gray.200" borderRadius={3} leftIcon={<HiUpload />} as="label" cursor="pointer">
+                <Textarea
+                  name="output"
+                  placeholder="Nhập dữ liệu đầu ra"
+                  value={testCase.output}
+                  onChange={handleChange}
+                />
+                <Button
+                  mt={2}
+                  bg="gray.200"
+                  borderRadius={3}
+                  leftIcon={<HiUpload />}
+                  as="label"
+                  cursor="pointer"
+                >
                   Import File
-                  <VisuallyHiddenInput type="file" accept=".txt" onChange={(e) => handleFileUpload(e, 'output')} />
+                  <VisuallyHiddenInput
+                    type="file"
+                    accept=".txt"
+                    onChange={(e) => handleFileUpload(e, 'output')}
+                  />
                 </Button>
               </FormControl>
               <FormControl display="flex" justifyContent="space-between" mb={4}>
-                <Checkbox isChecked={testCase.sampleTest === 1} onChange={() => handleToggle('sampleTest')}>
+                <Checkbox
+                  isChecked={testCase.sampleTest === 1}
+                  onChange={() => handleToggle('sampleTest')}
+                >
                   Sample Test
                 </Checkbox>
-                <Checkbox isChecked={testCase.preTest === 1} onChange={() => handleToggle('preTest')}>
+                <Checkbox
+                  isChecked={testCase.preTest === 1}
+                  onChange={() => handleToggle('preTest')}
+                >
                   Pre Test
                 </Checkbox>
               </FormControl>
@@ -181,8 +234,16 @@ export default function EditTestCaseModal({ isOpen, onClose, refetchData, testCa
           )}
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="gray" onClick={onClose}>Hủy</Button>
-          <Button colorScheme="blue" isLoading={loading} onClick={handleUpdateTestCase}>Cập nhật</Button>
+          <Button colorScheme="gray" onClick={onClose}>
+            Hủy
+          </Button>
+          <Button
+            colorScheme="blue"
+            isLoading={loading}
+            onClick={handleUpdateTestCase}
+          >
+            Cập nhật
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

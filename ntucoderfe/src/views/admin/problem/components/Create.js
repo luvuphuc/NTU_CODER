@@ -21,7 +21,7 @@ import {
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useNavigate } from 'react-router-dom';
-import api from 'utils/api';
+import api from 'config/api';
 import { MdOutlineArrowBack } from 'react-icons/md';
 import Editor from '@monaco-editor/react';
 import Multiselect from 'multiselect-react-dropdown';

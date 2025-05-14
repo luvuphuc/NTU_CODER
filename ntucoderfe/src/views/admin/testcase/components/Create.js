@@ -19,7 +19,7 @@ import {
   FormControl,
 } from '@chakra-ui/react';
 import { HiUpload } from 'react-icons/hi';
-import api from 'utils/api';
+import api from 'config/api';
 
 export default function CreateTestCaseModal({
   isOpen,

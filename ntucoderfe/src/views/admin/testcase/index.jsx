@@ -1,29 +1,29 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { Box, Button, Flex, useToast } from "@chakra-ui/react";
-import api from "../../../utils/api";
-import CoderTable from "./components/ColumnsTable";
-import ScrollToTop from "components/scroll/ScrollToTop";
-import { MdAdd } from "react-icons/md";
-import Pagination from "components/pagination/pagination";
-import { useParams } from "react-router-dom";
-import CreateTestCaseModal from "./components/Create";
+import React, { useEffect, useState, useCallback } from 'react';
+import { Box, Button, Flex, useToast } from '@chakra-ui/react';
+import api from '../../../config/api';
+import CoderTable from './components/ColumnsTable';
+import ScrollToTop from 'components/scroll/ScrollToTop';
+import { MdAdd } from 'react-icons/md';
+import Pagination from 'components/pagination/pagination';
+import { useParams } from 'react-router-dom';
+import CreateTestCaseModal from './components/Create';
 
 export default function TestCaseIndex() {
   const { problemID } = useParams();
   const [tableData, setTableData] = useState([]);
-  const [problemName, setProblemName] = useState(""); // Thêm state để lưu problemName
-  const [sortField, setSortField] = useState("");
+  const [problemName, setProblemName] = useState(''); // Thêm state để lưu problemName
+  const [sortField, setSortField] = useState('');
   const [ascending, setAscending] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRows, setTotalRows] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const toast = useToast()
+  const toast = useToast();
   const fetchData = useCallback(async () => {
     if (!problemID) return;
     try {
-      const response = await api.get("/TestCase/all", {
+      const response = await api.get('/TestCase/all', {
         params: {
           problemID,
           ascending,
@@ -34,7 +34,7 @@ export default function TestCaseIndex() {
       });
 
       if (response.data.data.length > 0) {
-        setProblemName(response.data.data[0].problemName || "");
+        setProblemName(response.data.data[0].problemName || '');
       }
 
       const dataWithStatus = response.data.data.map((item) => ({
@@ -46,14 +46,14 @@ export default function TestCaseIndex() {
       setTotalPages(response.data.totalPages || 0);
       setTotalRows(response.data.totalCount || 0);
     } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu:", error);
+      console.error('Lỗi khi lấy dữ liệu:', error);
       toast({
-        title: "Lỗi",
-        description: "Không thể tải dữ liệu TestCase",
-        status: "error",
+        title: 'Lỗi',
+        description: 'Không thể tải dữ liệu TestCase',
+        status: 'error',
         duration: 5000,
         isClosable: true,
-        position: "top-right",
+        position: 'top-right',
       });
     }
   }, [problemID, sortField, ascending, currentPage, pageSize, toast]);
@@ -91,7 +91,7 @@ export default function TestCaseIndex() {
 
   return (
     <ScrollToTop>
-      <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
+      <Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
         <Flex mb="20px" justifyContent="end" align="end" px="25px">
           <Button
             variant="solid"

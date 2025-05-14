@@ -24,7 +24,7 @@ import {
   Td,
   Tfoot,
 } from '@chakra-ui/react';
-import api from 'utils/api';
+import api from 'config/api';
 
 const Leaderboard = ({ contest }) => {
   const [ranking, setRanking] = useState([]);

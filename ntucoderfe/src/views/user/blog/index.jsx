@@ -29,7 +29,7 @@ import {
 import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import { BsThreeDots } from 'react-icons/bs';
 import { useEffect, useState, useRef } from 'react';
-import api from 'utils/api';
+import api from 'config/api';
 import { AiOutlineComment } from 'react-icons/ai';
 import LayoutUser from 'layouts/user';
 import PostInput from './components/PostInput';

@@ -24,7 +24,7 @@ import {
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Split from 'react-split';
-import api from 'utils/api';
+import api from 'config/api';
 import ProblemTab from '../components/problem_tab';
 import RankingTab from '../components/ranking_tab';
 import HistorySubTab from '../components/historysub_tab';

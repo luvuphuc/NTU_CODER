@@ -11,7 +11,7 @@ import {
 import { GoPin } from 'react-icons/go';
 import { motion, useAnimation } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import api from 'utils/api';
+import api from 'config/api';
 
 const MotionBox = motion(Box);
 

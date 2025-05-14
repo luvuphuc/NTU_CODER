@@ -3,7 +3,7 @@ import { Box, Container } from '@chakra-ui/react';
 import LayoutUser from 'layouts/user';
 import SubmissionTableUser from './components/submission_table';
 import Pagination from 'components/pagination/pagination';
-import api from 'utils/api';
+import api from 'config/api';
 import { useDebounce } from 'use-debounce';
 
 export default function SubmissionPage() {

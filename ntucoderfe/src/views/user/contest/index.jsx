@@ -3,7 +3,7 @@ import { Box, Container, Grid } from '@chakra-ui/react';
 import LayoutUser from 'layouts/user';
 import ContestTableUser from './components/ColumnsTable';
 import HighestParticipation from './components/HighestParticipation';
-import api from 'utils/api';
+import api from 'config/api';
 import UpcomingContests from './components/UpcomingContest';
 import OnGoingContests from './components/OnGoingContest';
 export default function ContestPage() {

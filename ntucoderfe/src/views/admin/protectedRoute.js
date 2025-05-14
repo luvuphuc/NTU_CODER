@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import api from 'utils/api';
+import api from 'config/api';
 import FullPageSpinner from 'components/spinner/FullPageSpinner';
 
 const ProtectedRoute = ({ children }) => {

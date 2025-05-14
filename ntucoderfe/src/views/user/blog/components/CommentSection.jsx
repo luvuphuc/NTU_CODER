@@ -21,7 +21,7 @@ import {
   AlertDialogHeader,
   Tooltip,
 } from '@chakra-ui/react';
-import api from 'utils/api';
+import api from 'config/api';
 import ReactQuill from 'react-quill';
 import { BsThreeDots } from 'react-icons/bs';
 import { motion, AnimatePresence } from 'framer-motion';

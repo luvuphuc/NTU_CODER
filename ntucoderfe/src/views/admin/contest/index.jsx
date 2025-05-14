@@ -1,15 +1,15 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { Box, Button, Flex } from "@chakra-ui/react";
-import api from "../../../utils/api"; 
-import ScrollToTop from "components/scroll/ScrollToTop";
-import { MdAdd } from "react-icons/md";
-import { Link } from "react-router-dom";
-import Pagination from "components/pagination/pagination";
-import ContestTable from "./components/ColumnsTable";
+import React, { useEffect, useState, useCallback } from 'react';
+import { Box, Button, Flex } from '@chakra-ui/react';
+import api from '../../../config/api';
+import ScrollToTop from 'components/scroll/ScrollToTop';
+import { MdAdd } from 'react-icons/md';
+import { Link } from 'react-router-dom';
+import Pagination from 'components/pagination/pagination';
+import ContestTable from './components/ColumnsTable';
 
 export default function ContestIndex() {
   const [tableData, setTableData] = useState([]);
-  const [sortField, setSortField] = useState("");
+  const [sortField, setSortField] = useState('');
   const [ascending, setAscending] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -28,14 +28,14 @@ export default function ContestIndex() {
       });
       const dataWithStatus = Array.isArray(response.data.data)
         ? response.data.data.map((item) => ({
-            ...item
+            ...item,
           }))
         : [];
       setTableData(dataWithStatus);
       setTotalPages(response.data.totalPages || 0);
       setTotalRows(response.data.totalCount || 0);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error('Error fetching data:', error);
     }
   }, [sortField, ascending, currentPage, pageSize]);
 
@@ -45,7 +45,7 @@ export default function ContestIndex() {
 
   const handleSort = (field) => {
     setSortField(field);
-    setAscending((prev) => (prev && sortField === field ? !ascending : true));  // Toggle the sorting order
+    setAscending((prev) => (prev && sortField === field ? !ascending : true)); // Toggle the sorting order
   };
 
   const refetchData = () => {
@@ -68,10 +68,15 @@ export default function ContestIndex() {
 
   return (
     <ScrollToTop>
-      <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
+      <Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
         <Flex mb="20px" justifyContent="end" align="end" px="25px">
           <Link to="create">
-            <Button variant="solid" size="lg" colorScheme="green" borderRadius="md">
+            <Button
+              variant="solid"
+              size="lg"
+              colorScheme="green"
+              borderRadius="md"
+            >
               Thêm <MdAdd size="25" />
             </Button>
           </Link>

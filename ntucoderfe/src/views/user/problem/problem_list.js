@@ -31,7 +31,7 @@ import {
 import { IoMdHeartEmpty } from 'react-icons/io';
 import { AiFillHeart } from 'react-icons/ai';
 import { useNavigate } from 'react-router-dom';
-import api from '../../../utils/api';
+import api from '../../../config/api';
 import Pagination from 'components/pagination/pagination';
 import Layout from 'layouts/user';
 import Cookies from 'js-cookie';

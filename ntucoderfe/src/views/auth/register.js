@@ -26,7 +26,7 @@ import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import logo from '../../assets/img/ntu-coders.png';
-import api from 'utils/api';
+import api from 'config/api';
 import CustomToast from 'components/toast/CustomToast';
 const InputField = ({ label, type, value, onChange, error, placeholder }) => (
   <FormControl mb={8} animation={error ? 'shake 0.3s' : ''}>

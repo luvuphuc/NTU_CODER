@@ -19,7 +19,7 @@ import { AiFillHeart } from 'react-icons/ai';
 import moment from 'moment-timezone';
 import Layout from 'layouts/user';
 import { useMotionValue, animate } from 'framer-motion';
-import api from 'utils/api';
+import api from 'config/api';
 import { useParams } from 'react-router-dom';
 import { useAuth } from 'contexts/AuthContext';
 import { motion } from 'framer-motion';

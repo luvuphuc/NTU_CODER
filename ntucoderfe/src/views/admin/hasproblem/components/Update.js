@@ -18,7 +18,7 @@ import {
   NumberInput,
   NumberInputField,
 } from '@chakra-ui/react';
-import api from 'utils/api';
+import api from 'config/api';
 
 export default function UpdateHasProblemModal({
   isOpen,

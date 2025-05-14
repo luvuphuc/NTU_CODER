@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
-import api from 'utils/api';
+import api from 'config/api';
 import moment from 'moment-timezone';
 
 const HistorySubTab = ({ takepartId, onSubmissionSelect }) => {

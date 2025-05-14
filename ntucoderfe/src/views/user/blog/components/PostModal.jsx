@@ -29,7 +29,7 @@ import { TbSend2 } from 'react-icons/tb';
 import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import { BsThreeDots } from 'react-icons/bs';
 import ReactQuill from 'react-quill';
-import api from 'utils/api';
+import api from 'config/api';
 import 'react-quill/dist/quill.snow.css';
 import { formatTimeFromNow } from 'utils/formatTime';
 import CustomToast from 'components/toast/CustomToast';

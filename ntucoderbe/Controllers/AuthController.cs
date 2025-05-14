@@ -1,4 +1,5 @@
 ﻿using Firebase.Auth;
+using Google.Apis.Auth;
 using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -21,11 +22,13 @@ namespace ntucoderbe.Controllers
     {
         private readonly AuthService _authService;
         private readonly CoderRepository _coderRepository;
+        private readonly IConfiguration _configuration;
 
-        public AuthController(AuthService authService, CoderRepository coderRepository)
+        public AuthController(AuthService authService, CoderRepository coderRepository, IConfiguration configuration)
         {
             _authService = authService;
             _coderRepository = coderRepository;
+            _configuration = configuration;
         }
 
         [AllowAnonymous]
@@ -49,7 +52,7 @@ namespace ntucoderbe.Controllers
             }
             var cookieOptions = new CookieOptions
             {
-                HttpOnly = true, 
+                //HttpOnly = true, 
                 Secure = true,
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTime.UtcNow.AddMinutes(60)
@@ -105,6 +108,61 @@ namespace ntucoderbe.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Đã xảy ra lỗi." });
             }
         }
+        [AllowAnonymous]
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleDTO model)
+        {
+            if (string.IsNullOrEmpty(model.Token))
+                return BadRequest("Token không hợp lệ");
+
+            try
+            {
+                var clientId = _configuration["Authentication:Google:ClientId"];
+                var settings = new GoogleJsonWebSignature.ValidationSettings()
+                {
+                    Audience = new[] { clientId }
+                };
+
+                var payload = await GoogleJsonWebSignature.ValidateAsync(model.Token, settings);
+
+                CoderDTO coderDTO = await _coderRepository.GetCoderByEmailAsync(payload.Email);
+
+                Account account;
+
+                if (coderDTO == null)
+                {
+                    account = await _authService.CreateGoogleUserAsync(payload.Email, payload.Name, payload.Picture);
+                    coderDTO = await _coderRepository.GetCoderByIdAsync(account.AccountID);
+                }
+                else
+                {
+                    account = await _coderRepository.GetAccountByCoderIdAsync(coderDTO.CoderID);
+                }
+                var token = _authService.GenerateJwtToken(account);
+
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.UtcNow.AddMinutes(60)
+                };
+                Response.Cookies.Append("token", token, cookieOptions);
+
+                return Ok(new
+                {
+                    token,
+                    AccountID = account.AccountID,
+                    RoleID = account.RoleID,
+                    CoderName = coderDTO?.CoderName
+                });
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(new { message = "Xác thực Google thất bại", detail = ex.Message });
+            }
+        }
+
 
     }
 }

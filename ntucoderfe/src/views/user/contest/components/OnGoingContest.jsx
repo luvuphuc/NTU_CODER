@@ -13,7 +13,7 @@ import {
   SkeletonText,
 } from '@chakra-ui/react';
 import { FaUsers, FaCalendarAlt } from 'react-icons/fa';
-import api from 'utils/api';
+import api from 'config/api';
 
 export default function OnGoingContests() {
   const [contests, setContests] = useState([]);

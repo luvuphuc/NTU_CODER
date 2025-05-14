@@ -17,7 +17,7 @@ import {
   FormControl,
   FormLabel,
 } from '@chakra-ui/react';
-import api from '../../../utils/api';
+import api from '../../../config/api';
 import CategoryTable from './components/ColumnsTable';
 import ScrollToTop from 'components/scroll/ScrollToTop';
 import { MdAdd } from 'react-icons/md';
@@ -58,7 +58,7 @@ export default function CategoryIndex() {
           }))
         : [];
       setTableData(dataWithStatus);
-      setTotalPages(response.data.totalPages || 0); // Mặc định là 0 nếu không có
+      setTotalPages(response.data.totalPages || 0);
       setTotalRows(response.data.totalCount || 0);
     } catch (error) {
       console.error('Error fetching data:', error);

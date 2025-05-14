@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
 import moment from 'moment-timezone';
-import api from 'utils/api';
+import api from 'config/api';
 import { useNavigate } from 'react-router-dom';
 import { MdOutlineArrowBack, MdEdit } from 'react-icons/md';
 import FullPageSpinner from 'components/spinner/FullPageSpinner';

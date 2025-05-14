@@ -19,7 +19,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { MdOutlineArrowBack, MdEdit } from 'react-icons/md';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import api from 'utils/api';
+import api from 'config/api';
 import moment from 'moment-timezone';
 import FullPageSpinner from 'components/spinner/FullPageSpinner';
 

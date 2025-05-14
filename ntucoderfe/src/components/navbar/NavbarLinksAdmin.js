@@ -22,7 +22,7 @@ import { useEffect, useState } from 'react';
 import { MdNotificationsNone } from 'react-icons/md';
 import { IoMdMoon, IoMdSunny } from 'react-icons/io';
 import routes from 'routes';
-import api from 'utils/api';
+import api from 'config/api';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 export default function HeaderLinks(props) {
@@ -63,8 +63,7 @@ export default function HeaderLinks(props) {
       Cookies.remove('token');
       setUser(null);
       window.location.reload();
-    } catch (error) {
-    }
+    } catch (error) {}
   };
   return (
     <Flex

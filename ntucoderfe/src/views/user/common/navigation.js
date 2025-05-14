@@ -19,7 +19,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { SearchIcon, HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 import routes from 'routes.js';
 import { useState, useEffect } from 'react';
-import api from 'utils/api';
+import api from 'config/api';
 import SearchResultDropdown from './SearchResult';
 import { LuSearchCode } from 'react-icons/lu';
 export default function Navigation({ hideHeader }) {

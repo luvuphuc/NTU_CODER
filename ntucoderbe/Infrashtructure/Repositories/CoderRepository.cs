@@ -123,7 +123,6 @@ namespace ntucoderbe.Infrashtructure.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
-
         public async Task<CoderDTO> GetCoderByIdAsync(int id)
         {
             var coder = await _context.Coders
@@ -151,6 +150,17 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 UpdatedBy = coder.UpdatedBy,
                 RoleID = coder.Account.RoleID
             };
+        }
+        public async Task<Account> GetAccountByCoderIdAsync(int coderId)
+        {
+            var account = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountID == coderId);
+
+            if (account == null)
+            {
+                throw new KeyNotFoundException("Không tìm thấy tài khoản.");
+            }
+
+            return account;
         }
 
         public async Task<CoderDTO> UpdateCoderAsync(int id, CoderDTO dto)
@@ -234,6 +244,27 @@ namespace ntucoderbe.Infrashtructure.Repositories
         public async Task<bool> CheckEmailExist(string email)
         {
             return await _context.Coders.AnyAsync(c => c.CoderEmail == email);
+        }
+        public async Task<CoderDTO> GetCoderByEmailAsync(string email)
+        {
+            Coder existing = await _context.Coders.Include(c=>c.Account).Where(c => c.CoderEmail == email).FirstOrDefaultAsync();
+            if (existing != null)
+            {
+                return new CoderDTO
+                {
+                    CoderID = existing.CoderID,
+                    CoderName = existing.CoderName,
+                    Avatar = existing.Avatar,
+                    Description = existing.Description,
+                    DateOfBirth = existing.DateOfBirth,
+                    Gender = (int)(existing.Gender),
+                    PhoneNumber = existing.PhoneNumber,
+                    UpdatedAt = existing.UpdatedAt,
+                    UpdatedBy = existing.UpdatedBy,
+                    RoleID = existing.Account.RoleID,
+                };
+            }
+            return null;
         }
         public async Task<bool> CheckUserExist(string username)
         {

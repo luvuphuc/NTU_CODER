@@ -8,7 +8,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
-import api from 'utils/api';
+import api from 'config/api';
 
 const TestCasesComponent = ({ currentIndex }) => {
   const { id: problemId } = useParams();

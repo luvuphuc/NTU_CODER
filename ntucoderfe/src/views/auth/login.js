@@ -29,8 +29,10 @@ import { ArrowBackIcon } from '@chakra-ui/icons';
 import logo from '../../assets/img/ntu-coders.png';
 import { useState } from 'react';
 import Cookies from 'js-cookie';
-import api from 'utils/api';
+import api from 'config/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
+import jwtDecode from 'jwt-decode';
 function SignIn() {
   const [credentials, setCredentials] = useState({
     userName: '',
@@ -75,7 +77,9 @@ function SignIn() {
 
       if (response.status === 200) {
         Cookies.set('token', response.data.token);
-        const resUser = await api.get('/Auth/me');
+        const resUser = await api.get('/Auth/me', {
+          withCredentials: true,
+        });
         if (resUser.status === 200) {
           setCoder(resUser.data);
         }
@@ -266,26 +270,60 @@ function SignIn() {
               <Divider borderColor="gray.300" flex="1" />
             </Flex>
             <Flex justify="center" gap="10px">
-              <Button
-                variant="outline"
-                leftIcon={<Icon as={FcGoogle} boxSize={6} />}
-                size="lg"
-                px={6}
-                py={4}
-              />
-              <Button
-                variant="outline"
-                leftIcon={<Icon as={FaTwitter} color="blue.400" boxSize={6} />}
-                size="lg"
-                px={6}
-                py={4}
-              />
-              <Button
-                variant="outline"
-                leftIcon={<Icon as={FaGithub} boxSize={6} />}
-                size="lg"
-                px={6}
-                py={4}
+              <GoogleLogin
+                onSuccess={async (credentialResponse) => {
+                  try {
+                    const res = await api.post('/auth/google-login', {
+                      token: credentialResponse.credential,
+                    });
+
+                    if (res.status === 200) {
+                      Cookies.set('token', res.data.token);
+                      const resUser = await api.get('/Auth/me', {
+                        withCredentials: true,
+                      });
+                      if (resUser.status === 200) {
+                        setCoder(resUser.data);
+                      }
+
+                      toast({
+                        render: () => (
+                          <CustomToast
+                            success={true}
+                            messages="Đăng nhập Google thành công!"
+                          />
+                        ),
+                        position: 'top',
+                        duration: 5000,
+                      });
+
+                      navigate('/');
+                    }
+                  } catch (err) {
+                    toast({
+                      render: () => (
+                        <CustomToast
+                          success={false}
+                          messages="Đăng nhập Google thất bại. Vui lòng thử lại!"
+                        />
+                      ),
+                      position: 'top',
+                      duration: 5000,
+                    });
+                  }
+                }}
+                onError={() => {
+                  toast({
+                    render: () => (
+                      <CustomToast
+                        success={false}
+                        messages="Không thể đăng nhập bằng Google."
+                      />
+                    ),
+                    position: 'top',
+                    duration: 5000,
+                  });
+                }}
               />
             </Flex>
           </Box>

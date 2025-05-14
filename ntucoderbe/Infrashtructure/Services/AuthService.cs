@@ -36,7 +36,7 @@ namespace ntucoderbe.Infrashtructure.Services
             return (token, user);
         }
 
-        private string GenerateJwtToken(Account user)
+        public string GenerateJwtToken(Account user)
         {
             var key = Encoding.UTF8.GetBytes(_config["JwtConfig:SecretKey"]);
             var claims = new[]
@@ -56,11 +56,50 @@ namespace ntucoderbe.Infrashtructure.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
         public int GetUserIdFromToken()
         {
             var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return int.TryParse(userIdClaim, out int userId) ? userId : -1;
         }
+        public async Task<Account> CreateGoogleUserAsync(string email, string name, string pictureUrl)
+        {
+            if (await _context.Accounts.AnyAsync(a => a.UserName == email))
+            {
+                throw new InvalidOperationException("Email đã tồn tại.");
+            }
+
+            var account = new Account
+            {
+                UserName = email,
+                Password = "", 
+                SaltMD5 = "",
+                RoleID = 2, 
+            };
+
+            _context.Accounts.Add(account);
+            await _context.SaveChangesAsync();
+
+            var coder = new Coder
+            {
+                CoderID = account.AccountID,
+                CoderName = name,
+                CoderEmail = email,
+                PhoneNumber = null,
+                Gender = Enums.GenderEnum.Other,
+                Avatar = pictureUrl,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = "google",
+                UpdatedAt = DateTime.UtcNow,
+                UpdatedBy = "google"
+            };
+
+            _context.Coders.Add(coder);
+            await _context.SaveChangesAsync();
+
+            return account;
+        }
+
 
 
     }

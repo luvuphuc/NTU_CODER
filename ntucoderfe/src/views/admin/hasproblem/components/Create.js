@@ -19,7 +19,7 @@ import {
   NumberInputField,
 } from '@chakra-ui/react';
 import { Multiselect } from 'multiselect-react-dropdown';
-import api from 'utils/api';
+import api from 'config/api';
 
 export default function CreateHasProblemModal({
   isOpen,

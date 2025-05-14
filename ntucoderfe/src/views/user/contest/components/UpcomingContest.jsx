@@ -11,7 +11,7 @@ import {
   Icon,
 } from '@chakra-ui/react';
 import { CalendarIcon } from '@chakra-ui/icons';
-import api from 'utils/api';
+import api from 'config/api';
 import { LuClock } from 'react-icons/lu';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';

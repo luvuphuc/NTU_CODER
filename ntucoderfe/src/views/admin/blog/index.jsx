@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Button, Flex, useDisclosure } from '@chakra-ui/react';
-import api from '../../../utils/api';
+import api from '../../../config/api';
 import ScrollToTop from 'components/scroll/ScrollToTop';
 import { MdAdd } from 'react-icons/md';
 import { Link } from 'react-router-dom';

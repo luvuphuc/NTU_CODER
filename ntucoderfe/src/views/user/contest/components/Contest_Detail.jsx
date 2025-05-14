@@ -22,7 +22,7 @@ import { MdOutlineSportsEsports } from 'react-icons/md';
 import { FaCheck } from 'react-icons/fa';
 import { useNavigate, useParams, Link as RouterLink } from 'react-router-dom';
 import LayoutUser from 'layouts/user';
-import api from 'utils/api';
+import api from 'config/api';
 import { HiChevronLeft } from 'react-icons/hi';
 import AuthToast from '../../../auth/auth_toast.js';
 import Cookies from 'js-cookie';

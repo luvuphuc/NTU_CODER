@@ -16,7 +16,7 @@ import {
   Select,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import api from 'utils/api';
+import api from 'config/api';
 import { MdOutlineArrowBack } from 'react-icons/md';
 export default function CreateCoder() {
   const [userName, setUserName] = useState('');
@@ -37,7 +37,7 @@ export default function CreateCoder() {
       coderEmail,
       phoneNumber,
       password,
-      role: Number(roleID), // Ép roleID thành số
+      role: Number(roleID),
     };
 
     const newErrors = {};
@@ -49,35 +49,29 @@ export default function CreateCoder() {
       }
     });
 
-    // Kiểm tra email hợp lệ
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (coderEmail && !emailRegex.test(coderEmail)) {
       newErrors.coderEmail = 'Email không hợp lệ.';
     }
 
-    // Kiểm tra họ và tên (không chứa số)
     const nameRegex = /^[^\d]+$/;
     if (coderName && !nameRegex.test(coderName)) {
       newErrors.coderName = 'Họ và tên không được chứa số.';
     }
 
-    // Kiểm tra số điện thoại (phải có đúng 10 chữ số)
     const phoneRegex = /^\d{10}$/;
     if (phoneNumber && !phoneRegex.test(phoneNumber)) {
       newErrors.phoneNumber = 'Số điện thoại phải có đúng 10 chữ số.';
     }
 
-    // Kiểm tra độ dài mật khẩu
     if (password && password.length < 6) {
       newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự.';
     }
 
-    // Kiểm tra roleID
     if (!roleID || isNaN(roleID)) {
       newErrors.roleID = 'Vui lòng chọn vai trò.';
     }
 
-    // Nếu có lỗi, hiển thị và dừng lại
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;

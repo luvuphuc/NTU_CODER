@@ -21,16 +21,25 @@ import {
   ModalBody,
   ModalFooter,
   useDisclosure,
-  Switch
+  Switch,
 } from '@chakra-ui/react';
-import { BiSolidDetail } from "react-icons/bi";
+import { BiSolidDetail } from 'react-icons/bi';
 import { MdDelete } from 'react-icons/md';
 import { useNavigate, Link } from 'react-router-dom';
 import Card from 'components/card/Card';
-import api from 'utils/api';
-import { AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai";
+import api from 'config/api';
+import {
+  AiOutlineSortAscending,
+  AiOutlineSortDescending,
+} from 'react-icons/ai';
 
-export default function ProblemTable({ tableData, onSort, sortField, ascending, refetchData }) {
+export default function ProblemTable({
+  tableData,
+  onSort,
+  sortField,
+  ascending,
+  refetchData,
+}) {
   const { colorMode } = useColorMode();
   const textColor = colorMode === 'light' ? 'black' : 'white';
   const borderColor = colorMode === 'light' ? 'gray.200' : 'whiteAlpha.300';
@@ -47,39 +56,46 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
   const handleTogglePublished = async (problemID, currentValue) => {
     try {
       const newValue = currentValue === 0 ? 1 : 0;
-      const updatedTableData = tableData.map(problem =>
-        problem.problemID === problemID ? { ...problem, published: newValue } : problem
+      const updatedTableData = tableData.map((problem) =>
+        problem.problemID === problemID
+          ? { ...problem, published: newValue }
+          : problem,
       );
-    
+
       refetchData(updatedTableData);
 
-      const response = await api.put(`/Problem/${problemID}`, { published: newValue });
-    
+      const response = await api.put(`/Problem/${problemID}`, {
+        published: newValue,
+      });
+
       if (response.status === 200) {
         toast({
-          title: "Cập nhật thành công!",
+          title: 'Cập nhật thành công!',
           description: `Trạng thái đã được cập nhật.`,
-          status: "success",
+          status: 'success',
           duration: 5000,
           isClosable: true,
-          position: "top-right",
+          position: 'top-right',
         });
         refetchData();
       } else {
-        throw new Error("Có lỗi xảy ra khi cập nhật trạng thái.");
+        throw new Error('Có lỗi xảy ra khi cập nhật trạng thái.');
       }
     } catch (error) {
-      const revertedTableData = tableData.map(problem =>
-        problem.problemID === problemID ? { ...problem, published: currentValue } : problem);
+      const revertedTableData = tableData.map((problem) =>
+        problem.problemID === problemID
+          ? { ...problem, published: currentValue }
+          : problem,
+      );
       refetchData(revertedTableData);
-    
+
       toast({
-        title: "Lỗi",
-        description: error.message || "Có lỗi xảy ra khi cập nhật trạng thái.",
-        status: "error",
+        title: 'Lỗi',
+        description: error.message || 'Có lỗi xảy ra khi cập nhật trạng thái.',
+        status: 'error',
         duration: 5000,
         isClosable: true,
-        position: "top-right",
+        position: 'top-right',
       });
     }
   };
@@ -92,26 +108,26 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
       const response = await api.delete(`/Problem/${currentproblemID}`);
       if (response.status === 200) {
         toast({
-          title: "Xóa thành công!",
-          description: "Bài tập đã bị xóa.",
-          status: "success",
+          title: 'Xóa thành công!',
+          description: 'Bài tập đã bị xóa.',
+          status: 'success',
           duration: 5000,
           isClosable: true,
-          position: "top-right",
+          position: 'top-right',
         });
         onClose();
         refetchData();
       } else {
-        throw new Error("Có lỗi xảy ra khi xóa");
+        throw new Error('Có lỗi xảy ra khi xóa');
       }
     } catch (error) {
       toast({
-        title: "Lỗi",
-        description: error.message || "Có lỗi xảy ra khi xóa.",
-        status: "error",
+        title: 'Lỗi',
+        description: error.message || 'Có lỗi xảy ra khi xóa.',
+        status: 'error',
         duration: 5000,
         isClosable: true,
-        position: "top-right",
+        position: 'top-right',
       });
     } finally {
       setLoading(false);
@@ -122,12 +138,14 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
       try {
         const counts = {};
         for (const problem of tableData) {
-          const response = await api.get(`/TestCase/count?problemId=${problem.problemID}`);
+          const response = await api.get(
+            `/TestCase/count?problemId=${problem.problemID}`,
+          );
           counts[problem.problemID] = response.data.totalTestCases || 0;
         }
         setTestCaseCounts(counts);
       } catch (error) {
-        console.error("Lỗi khi lấy số lượng test case:", error);
+        console.error('Lỗi khi lấy số lượng test case:', error);
       }
     };
 
@@ -188,7 +206,7 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
             minW="auto"
             onClick={() => handleDetailClick(row.problemID)}
           >
-            <BiSolidDetail size="18" color="white"  />
+            <BiSolidDetail size="18" color="white" />
           </Button>
           <Button
             variant="solid"
@@ -225,28 +243,49 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
       </Box>
     );
   };
-  
 
   return (
     <>
-      <Card flexDirection="column" w="100%" px="0px" overflowX={{ sm: 'scroll', lg: 'hidden' }}>
+      <Card
+        flexDirection="column"
+        w="100%"
+        px="0px"
+        overflowX={{ sm: 'scroll', lg: 'hidden' }}
+      >
         <Box>
           {tableData.length === 0 ? (
             <Text fontSize="lg" color="gray.500" textAlign="center">
               Không có dữ liệu nào
             </Text>
           ) : (
-            <Table variant="simple" color="gray.500" mb="24px" mt="12px" tableLayout="fixed">
+            <Table
+              variant="simple"
+              color="gray.500"
+              mb="24px"
+              mt="12px"
+              tableLayout="fixed"
+            >
               <Thead>
                 <Tr>
                   {columnsData.map((column) => (
-                    <Th key={column.Header} borderColor={borderColor} width={column.width || 'auto'}>
+                    <Th
+                      key={column.Header}
+                      borderColor={borderColor}
+                      width={column.width || 'auto'}
+                    >
                       <Flex align="center" gap={2}>
-                        <Text fontSize={{ sm: '10px', lg: '12px' }} fontWeight="bold" color={textColor}>
+                        <Text
+                          fontSize={{ sm: '10px', lg: '12px' }}
+                          fontWeight="bold"
+                          color={textColor}
+                        >
                           {column.Header}
                         </Text>
                         {column.sortField && onSort && (
-                          <Box onClick={() => onSort(column.sortField)} cursor="pointer">
+                          <Box
+                            onClick={() => onSort(column.sortField)}
+                            cursor="pointer"
+                          >
                             {renderSortIcon(column.sortField)}
                           </Box>
                         )}
@@ -260,11 +299,22 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
                 {tableData.map((row, index) => (
                   <Tr key={index}>
                     {columnsData.map((column) => (
-                      <Td key={column.Header} fontSize={{ sm: '16px' }} width={column.width || 'auto'} borderColor="transparent">
+                      <Td
+                        key={column.Header}
+                        fontSize={{ sm: '16px' }}
+                        width={column.width || 'auto'}
+                        borderColor="transparent"
+                      >
                         {column.Cell ? (
-                          column.Cell({ value: row[column.accessor], rowIndex: index, row })
+                          column.Cell({
+                            value: row[column.accessor],
+                            rowIndex: index,
+                            row,
+                          })
                         ) : (
-                          <Text color={textColor}>{row[column.accessor] || 'N/A'}</Text>
+                          <Text color={textColor}>
+                            {row[column.accessor] || 'N/A'}
+                          </Text>
                         )}
                       </Td>
                     ))}
@@ -287,7 +337,12 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
             <Button colorScheme="gray" mr={3} onClick={onClose}>
               Hủy
             </Button>
-            <Button colorScheme="red" isLoading={loading} loadingText="Đang xóa..." onClick={handleDeleteClick}>
+            <Button
+              colorScheme="red"
+              isLoading={loading}
+              loadingText="Đang xóa..."
+              onClick={handleDeleteClick}
+            >
               Xóa
             </Button>
           </ModalFooter>
@@ -296,4 +351,3 @@ export default function ProblemTable({ tableData, onSort, sortField, ascending, 
     </>
   );
 }
-

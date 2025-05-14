@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
-import api from '../utils/api';
+import api from '../config/api';
 
 const AuthContext = createContext();
 
@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const fetchUserInfo = async () => {
       const token = Cookies.get('token');
+      console.log('Token:', token);
       if (!token) {
         setIsLoading(false);
         return;

@@ -11,7 +11,7 @@ import {
   Box,
 } from '@chakra-ui/react';
 import { FaMedal } from 'react-icons/fa';
-import api from 'utils/api';
+import api from 'config/api';
 import { useParams } from 'react-router-dom';
 
 const RankingTab = () => {
