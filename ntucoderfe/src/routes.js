@@ -28,6 +28,7 @@ import HasProblemIndex from 'views/admin/hasproblem';
 import ProfileCoder from 'views/user/profile';
 import BlogIndex from 'views/user/blog';
 import BlogIndexAdmin from 'views/admin/blog';
+import AnnouncementIndexAdmin from 'views/admin/announcement';
 const routes = [
   {
     name: 'Người dùng',
@@ -126,6 +127,14 @@ const routes = [
     component: <BlogIndexAdmin />,
   },
   {
+    name: 'Thông báo',
+    layout: '/admin',
+    path: '/announcement',
+    icon: <Icon as={BsPostcard} width="20px" height="20px" color="inherit" />,
+    secondary: true,
+    component: <AnnouncementIndexAdmin />,
+  },
+  {
     name: 'TRANG CHỦ',
     layout: '/user',
     path: '/',
@@ -179,7 +188,6 @@ const routes = [
     secondary: true,
     component: <SubmissionPage />,
   },
-
   {
     name: 'Người dùng',
     layout: '/user',

@@ -28,7 +28,8 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     AnnounceContent = a.AnnounceContent,
                     ContestID = a.ContestID,
                     ContestName = a.Contest.ContestName,
-                    AnnounceTime = a.AnnounceTime,
+                    AnnouncementTime = a.AnnounceTime,
+                    IsSent = a.IsSent,
                 });
             objQuery = ApplySorting(objQuery, sortField, ascending);
 
@@ -43,7 +44,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
         {
             return sortField?.ToLower() switch
             {
-                "announcetime" => ascending ? query.OrderBy(a => a.AnnounceTime) : query.OrderByDescending(a => a.AnnounceTime),
+                "announcetime" => ascending ? query.OrderBy(a => a.AnnouncementTime) : query.OrderByDescending(a => a.AnnouncementTime),
                 _ => query.OrderBy(a => a.AnnouncementID)
             };
         }
@@ -57,7 +58,8 @@ namespace ntucoderbe.Infrashtructure.Repositories
             {
                 AnnounceContent = dto.AnnounceContent ?? "",
                 ContestID = dto.ContestID.Value,
-                AnnounceTime = dto.AnnounceTime,
+                AnnounceTime = dto.AnnouncementTime,
+                IsSent = 0
             };
 
             _context.Announcements.Add(obj);
@@ -92,7 +94,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 AnnounceContent = obj.AnnounceContent,
                 ContestID = obj.ContestID,
                 ContestName = obj.Contest.ContestName,
-                AnnounceTime = obj.AnnounceTime,
+                AnnouncementTime = obj.AnnounceTime,
             };
         }
         public async Task<AnnouncementDTO> UpdateAnnouncementAsync(int id,AnnouncementDTO dto)
@@ -107,8 +109,8 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 obj.ContestID = dto.ContestID.Value;
             }
             obj.AnnounceContent = string.IsNullOrEmpty(dto.AnnounceContent) ? obj.AnnounceContent : dto.AnnounceContent;
-            obj.AnnounceTime = dto.AnnounceTime != default(DateTime)
-                ? dto.AnnounceTime.ToUniversalTime()
+            obj.AnnounceTime = dto.AnnouncementTime != default(DateTime)
+                ? dto.AnnouncementTime.ToUniversalTime()
                 : obj.AnnounceTime;
             await _context.SaveChangesAsync();
 
@@ -118,7 +120,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 AnnounceContent = obj.AnnounceContent,
                 ContestID = obj.ContestID,
                 ContestName =obj.Contest.ContestName,
-                AnnounceTime = obj.AnnounceTime,    
+                AnnouncementTime = obj.AnnounceTime,    
             };
         }
         public async Task SendPendingAnnouncementsAsync()
