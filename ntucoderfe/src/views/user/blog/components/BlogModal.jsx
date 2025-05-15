@@ -36,7 +36,7 @@ import CustomToast from 'components/toast/CustomToast';
 import { useAuth } from 'contexts/AuthContext';
 import CommentSection from './CommentSection';
 import AuthToast from 'views/auth/auth_toast';
-const PostModal = ({
+const BlogModal = ({
   isOpen,
   onClose,
   post,
@@ -158,7 +158,11 @@ const PostModal = ({
       <ModalOverlay />
       <ModalContent h="90vh" display="flex" flexDirection="column" pb={0}>
         <ModalHeader>
-          <Text>{isEditing ? 'Chỉnh sửa bài viết' : `Bài viết`}</Text>
+          <Text>
+            {isEditing
+              ? 'Chỉnh sửa bài viết'
+              : `Bài viết của ${post.coderName}`}
+          </Text>
         </ModalHeader>
         <ModalCloseButton />
         <Box px={4} pt={0} flex="1" overflowY="auto" sx={customScrollbarStyle}>
@@ -421,7 +425,7 @@ const PostModal = ({
   );
 };
 
-export default PostModal;
+export default BlogModal;
 
 const customScrollbarStyle = {
   '&::-webkit-scrollbar': {

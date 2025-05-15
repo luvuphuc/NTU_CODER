@@ -32,10 +32,10 @@ import { useEffect, useState, useRef } from 'react';
 import api from 'config/api';
 import { AiOutlineComment } from 'react-icons/ai';
 import LayoutUser from 'layouts/user';
-import PostInput from './components/PostInput';
+import BlogInput from './components/BlogInput';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiChevronsUp } from 'react-icons/fi';
-import PostModal from './components/PostModal';
+import BlogModal from './components/BlogModal';
 import PinHomeBlog from './components/PinHomeBlog';
 import { formatTimeFromNow } from 'utils/formatTime';
 import CustomToast from 'components/toast/CustomToast';
@@ -210,7 +210,7 @@ const PostCard = ({ post, onEdit }) => {
       </Box>
 
       {isModalOpen && (
-        <PostModal
+        <BlogModal
           isOpen={isModalOpen}
           onClose={() => {
             setIsModalOpen(false);
@@ -269,12 +269,12 @@ const BlogIndex = () => {
   const [hasMore, setHasMore] = useState(true);
   const pageSize = 5;
 
-  const openPostModal = (post) => {
+  const openBlogModal = (post) => {
     setSelectedPost(post);
     setIsModalOpen(true);
   };
 
-  const closePostModal = () => {
+  const closeBlogModal = () => {
     setSelectedPost(null);
     setIsModalOpen(false);
   };
@@ -333,7 +333,7 @@ const BlogIndex = () => {
         <Flex maxW="1200px" mx="auto" gap={8}>
           <Box flex="7">
             <VStack spacing={6}>
-              <PostInput
+              <BlogInput
                 onPostSuccess={() => fetchBlogs(1)}
                 isLoading={isLoading}
               />
@@ -388,11 +388,11 @@ const BlogIndex = () => {
             </VStack>
           </Box>
           <Box flex="3">
-            <PinHomeBlog onPostClick={openPostModal} />
+            <PinHomeBlog onPostClick={openBlogModal} />
             {selectedPost && (
-              <PostModal
+              <BlogModal
                 isOpen={isModalOpen}
-                onClose={closePostModal}
+                onClose={closeBlogModal}
                 post={selectedPost}
                 isEditing={false}
                 setIsEditing={() => {}}

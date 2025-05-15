@@ -22,7 +22,7 @@ import Cookies from 'js-cookie';
 import AuthToast from 'views/auth/auth_toast';
 const MotionBox = motion(Box);
 
-const PostInput = ({ onPostSuccess, isLoading }) => {
+const BlogInput = ({ onPostSuccess, isLoading }) => {
   const { coder } = useAuth();
   const [title, setTitle] = useState('');
   const [value, setValue] = useState('');
@@ -203,7 +203,7 @@ const PostInput = ({ onPostSuccess, isLoading }) => {
   );
 };
 
-export default PostInput;
+export default BlogInput;
 
 const customScrollbarStyle = {
   styles: `
