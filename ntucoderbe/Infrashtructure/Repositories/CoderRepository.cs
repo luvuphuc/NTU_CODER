@@ -327,6 +327,57 @@ namespace ntucoderbe.Infrashtructure.Repositories
             await _context.SaveChangesAsync();
             return avatarUrl;
         }
+        public async Task<List<RankingDTO>> GetRankingByTotalSolvedAsync()
+        {
+            var solvedCounts = await _context.Solved
+                .GroupBy(s => s.CoderID)
+                .Select(g => new
+                {
+                    CoderID = g.Key,
+                    SolvedCount = g.Count()
+                })
+                .ToListAsync();
 
+            var timeScores = await _context.Submissions
+                .Where(s => s.TestResult == "Accepted" && s.MaxTimeDuration != null && s.TakePartID == null)
+                .GroupBy(s => s.CoderID)
+                .Select(g => new
+                {
+                    CoderID = g.Key,
+                    TotalTime = g.Sum(s => s.MaxTimeDuration) ?? 0
+                })
+                .ToListAsync();
+
+            var result = await _context.Coders
+                .Where(c => solvedCounts.Select(sc => sc.CoderID).Contains(c.CoderID))
+                .Select(c => new
+                {
+                    c.CoderID,
+                    c.CoderName,
+                    c.Avatar
+                })
+                .ToListAsync();
+
+            var rankings = result
+                .Select(c => new RankingDTO
+                {
+                    CoderID = c.CoderID,
+                    CoderName = c.CoderName,
+                    Avatar = c.Avatar,
+                    SolvedCount = solvedCounts.FirstOrDefault(sc => sc.CoderID == c.CoderID)?.SolvedCount ?? 0,
+                    TimeScore = timeScores.FirstOrDefault(ts => ts.CoderID == c.CoderID)?.TotalTime ?? int.MaxValue
+                })
+                .OrderByDescending(r => r.SolvedCount)
+                .ThenBy(r => r.TimeScore)
+                .ToList();
+
+            int rank = 1;
+            foreach (var r in rankings)
+            {
+                r.Rank = rank++;
+            }
+
+            return rankings;
+        }
     }
 }

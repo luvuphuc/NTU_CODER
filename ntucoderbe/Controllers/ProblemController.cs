@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using ntucoderbe.DTOs;
 using ntucoderbe.Infrashtructure.Repositories;
 using ntucoderbe.Infrashtructure.Services;
+using ntucoderbe.Models.ERD;
 
 namespace ntucoderbe.Controllers
 {
@@ -196,7 +197,6 @@ namespace ntucoderbe.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
             }
-
         }
     }
 }
