@@ -39,6 +39,9 @@ import Multiselect from 'multiselect-react-dropdown';
 import { RiResetLeftFill } from 'react-icons/ri';
 import AuthToast from 'views/auth/auth_toast';
 import { RiUser3Fill } from 'react-icons/ri';
+import LeaderboardProblem from './components/LeaderboardProblem';
+import CustomToast from 'components/toast/CustomToast';
+import { render } from '@testing-library/react';
 export default function ProblemPage() {
   const [state, setState] = useState({
     problems: [],
@@ -84,13 +87,15 @@ export default function ProblemPage() {
       if (Cookies.get('token')) {
         try {
           const favouritesRes = await api.get('/Favourite/list');
+          const favouriteSet = new Set(
+            Array.isArray(favouritesRes.data)
+              ? favouritesRes.data.map((f) => f.problemID)
+              : [],
+          );
+          favouriteIdsRef.current = favouriteSet;
           setState((prev) => ({
             ...prev,
-            favouriteIds: new Set(
-              Array.isArray(favouritesRes.data)
-                ? favouritesRes.data.map((f) => f.problemID)
-                : [],
-            ),
+            favouriteIds: favouriteSet,
           }));
         } catch (error) {
           console.error('Error:', error);
@@ -157,7 +162,6 @@ export default function ProblemPage() {
     state.currentPage,
     state.pageSize,
     state.filterByFavourite,
-    state.favouriteIds,
     state.solvedProblem,
   ]);
 
@@ -181,20 +185,29 @@ export default function ProblemPage() {
       favouriteIdsRef.current = updatedSet;
       setState((prev) => ({ ...prev, favouriteIds: updatedSet }));
       toast({
-        title: res.data.isFavourite ? 'Đã thêm yêu thích' : 'Đã bỏ yêu thích',
-        description: res.data.message,
-        status: 'success',
-        position: 'top-right',
+        render: () => (
+          <CustomToast
+            success={true}
+            messages={
+              res.data.isFavourite
+                ? 'Đã thêm vào yêu thích!'
+                : 'Đã xóa khỏi yêu thích!'
+            }
+          />
+        ),
+        position: 'top',
         duration: 3000,
         isClosable: true,
       });
     } catch (error) {
       toast({
-        title: 'Lỗi',
-        description:
-          error.response?.data?.message || 'Lỗi khi thao tác với yêu thích.',
-        status: 'error',
-        position: 'top-right',
+        render: (
+          <CustomToast
+            success={false}
+            messages={error.response?.data?.message}
+          />
+        ),
+        position: 'top',
         duration: 5000,
         isClosable: true,
       });
@@ -380,143 +393,145 @@ export default function ProblemPage() {
             </Stack>
           )}
 
-          <Box
-            borderRadius="xl"
-            boxShadow="lg"
-            bg="white"
-            p={{ base: 4, md: 5 }}
-            border="1px solid"
-            borderColor="gray.200"
-          >
-            <Stack spacing={4}>
-              <Flex justify="space-between" align="center">
-                <Text
-                  fontSize="md"
-                  fontWeight="semibold"
-                  color="gray.500"
-                  mb={2}
-                >
-                  THỂ LOẠI
-                </Text>
-                {state.selectedCategories.length > 0 && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleCategoryChange([])}
-                    leftIcon={<RiResetLeftFill />}
-                    color="black"
+          <Stack>
+            <LeaderboardProblem />
+            <Box
+              borderRadius="xl"
+              boxShadow="lg"
+              bg="white"
+              p={{ base: 4, md: 5 }}
+              border="1px solid"
+              borderColor="gray.200"
+            >
+              <Stack spacing={4}>
+                <Flex justify="space-between" align="center">
+                  <Text
+                    fontSize="md"
+                    fontWeight="semibold"
+                    color="gray.500"
+                    mb={2}
                   >
-                    Tải lại
-                  </Button>
-                )}
-              </Flex>
+                    THỂ LOẠI
+                  </Text>
+                  {state.selectedCategories.length > 0 && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleCategoryChange([])}
+                      leftIcon={<RiResetLeftFill />}
+                      color="black"
+                    >
+                      Tải lại
+                    </Button>
+                  )}
+                </Flex>
 
-              {/* Filter dropdown */}
-              <Box mb={3}>
-                <Multiselect
-                  options={state.categories.map((cat) => ({
-                    name: cat.catName,
-                    id: cat.categoryID,
-                  }))}
-                  showCheckbox
-                  showArrow
-                  selectedValues={state.selectedCategories}
-                  onSelect={handleCategoryChange}
-                  onRemove={handleCategoryChange}
-                  displayValue="name"
-                  placeholder="Chọn thể loại"
-                  style={{
-                    chips: {
-                      background: '#0096fb',
-                      borderRadius: '5px',
-                      fontSize: '14px',
-                      padding: '5px 10px',
-                    },
-                    searchBox: {
-                      padding: '10px 14px',
-                      borderRadius: '8px',
-                      border: '1px solid #E2E8F0',
-                      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                      fontSize: '14px',
-                    },
-                    multiselectContainer: {
-                      color: '#2D3748',
-                    },
-                    optionContainer: {
-                      border: '1px solid #E2E8F0',
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-                    },
-                    option: {
-                      padding: '10px 14px',
-                    },
-                  }}
-                />
-              </Box>
+                <Box mb={3}>
+                  <Multiselect
+                    options={state.categories.map((cat) => ({
+                      name: cat.catName,
+                      id: cat.categoryID,
+                    }))}
+                    showCheckbox
+                    showArrow
+                    selectedValues={state.selectedCategories}
+                    onSelect={handleCategoryChange}
+                    onRemove={handleCategoryChange}
+                    displayValue="name"
+                    placeholder="Chọn thể loại"
+                    style={{
+                      chips: {
+                        background: '#0096fb',
+                        borderRadius: '5px',
+                        fontSize: '14px',
+                        padding: '5px 10px',
+                      },
+                      searchBox: {
+                        padding: '10px 14px',
+                        borderRadius: '8px',
+                        border: '1px solid #E2E8F0',
+                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                        fontSize: '14px',
+                      },
+                      multiselectContainer: {
+                        color: '#2D3748',
+                      },
+                      optionContainer: {
+                        border: '1px solid #E2E8F0',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+                      },
+                      option: {
+                        padding: '10px 14px',
+                      },
+                    }}
+                  />
+                </Box>
 
-              <Divider borderWidth="2px" borderColor="gray.200" />
-              <Box>
-                <Text
-                  fontSize="md"
-                  fontWeight="semibold"
-                  color="gray.500"
-                  mb={2}
-                >
-                  TRẠNG THÁI
-                </Text>
-                <Stack spacing={2}>
+                <Divider borderWidth="2px" borderColor="gray.200" />
+                <Box>
+                  <Text
+                    fontSize="md"
+                    fontWeight="semibold"
+                    color="gray.500"
+                    mb={2}
+                  >
+                    TRẠNG THÁI
+                  </Text>
+                  <Stack spacing={2}>
+                    <Checkbox
+                      isChecked={state.solvedProblem === true}
+                      onChange={(e) =>
+                        setState((prev) => ({
+                          ...prev,
+                          solvedProblem: e.target.checked ? true : null,
+                          currentPage: 1,
+                        }))
+                      }
+                    >
+                      Đã hoàn thành
+                    </Checkbox>
+                    <Checkbox
+                      isChecked={state.solvedProblem === false}
+                      onChange={(e) =>
+                        setState((prev) => ({
+                          ...prev,
+                          solvedProblem: e.target.checked ? false : null,
+                          currentPage: 1,
+                        }))
+                      }
+                    >
+                      Chưa hoàn thành
+                    </Checkbox>
+                  </Stack>
+                </Box>
+                <Divider borderWidth="2px" borderColor="gray.200" />
+                <Box>
+                  <Text
+                    fontSize="md"
+                    fontWeight="semibold"
+                    color="gray.500"
+                    mb={2}
+                  >
+                    YÊU THÍCH
+                  </Text>
                   <Checkbox
-                    isChecked={state.solvedProblem === true}
+                    colorScheme="purple"
+                    isChecked={state.filterByFavourite}
                     onChange={(e) =>
                       setState((prev) => ({
                         ...prev,
-                        solvedProblem: e.target.checked ? true : null,
+                        filterByFavourite: e.target.checked,
                         currentPage: 1,
                       }))
                     }
                   >
-                    Đã hoàn thành
+                    Danh sách yêu thích
                   </Checkbox>
-                  <Checkbox
-                    isChecked={state.solvedProblem === false}
-                    onChange={(e) =>
-                      setState((prev) => ({
-                        ...prev,
-                        solvedProblem: e.target.checked ? false : null,
-                        currentPage: 1,
-                      }))
-                    }
-                  >
-                    Chưa hoàn thành
-                  </Checkbox>
-                </Stack>
-              </Box>
-              <Divider borderWidth="2px" borderColor="gray.200" />
-              <Box>
-                <Text
-                  fontSize="md"
-                  fontWeight="semibold"
-                  color="gray.500"
-                  mb={2}
-                >
-                  YÊU THÍCH
-                </Text>
-                <Checkbox
-                  colorScheme="purple"
-                  isChecked={state.filterByFavourite}
-                  onChange={(e) =>
-                    setState((prev) => ({
-                      ...prev,
-                      filterByFavourite: e.target.checked,
-                      currentPage: 1,
-                    }))
-                  }
-                >
-                  Danh sách yêu thích
-                </Checkbox>
-              </Box>
-            </Stack>
-          </Box>
+                </Box>
+              </Stack>
+            </Box>
+          </Stack>
         </Grid>
       </Container>
 
