@@ -24,6 +24,5 @@ root.render(
         <AuthGate />
       </AuthProvider>
     </BrowserRouter>
-    ,
   </GoogleOAuthProvider>,
 );
