@@ -66,43 +66,60 @@ namespace ntucoderbe.Controllers
         }
 
         [HttpPost("try-run")]
-        public async Task<IActionResult> TryRunCode([FromBody]string sourceCode,string compilerExtension, int problemId)
+        public async Task<IActionResult> TryRunCode([FromBody] string sourceCode, string compilerExtension, int problemId)
         {
-            TestCaseDTO testcase = await _testCaseRepository.GetSampleTestByProblemIdAsync(problemId);
-            if(testcase == null)
-            {
-                return BadRequest(new
-                {
-                    Error = "Không tìm thấy test case mẫu cho bài toán này."
-                });
-            }
-            string input = testcase.Input;
-            string expectedOutput = testcase.Output;    
-            try
-            {
-                (string Result, string Output, string Error, int TimeDuration) result = await _codeExecutionService.TryRunCodeAsync(
-                    sourceCode,
-                    compilerExtension,
-                    input,
-                    expectedOutput
-                );
-                return Ok(new
-                {
-                    result.Result,
-                    result.Output,
-                    result.Error,
-                    result.TimeDuration
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new
-                {
-                    Error = ex.Message
-                });
-            }
-        }
+            List<TestCase> testcases = await _testCaseRepository.GetAllTestCaseByProblemId(problemId);
 
+            if (testcases == null || testcases.Count == 0)
+            {
+                return BadRequest(new
+                {
+                    Error = "Không tìm thấy test case cho bài toán này."
+                });
+            }
+
+            foreach (var testcase in testcases)
+            {
+                string input = testcase.Input;
+                string expectedOutput = testcase.Output;
+
+                try
+                {
+                    var result = await _codeExecutionService.TryRunCodeAsync(
+                        sourceCode,
+                        compilerExtension,
+                        input,
+                        expectedOutput
+                    );
+                    if (result.Result != "Accepted")
+                    {
+                        return Ok(new
+                        {
+                            Result = result.Result,
+                            Output = result.Output,
+                            Error = result.Error,
+                            TimeDuration = result.TimeDuration,
+                            FailedTestCase = new
+                            {
+                                Input = input,
+                                ExpectedOutput = expectedOutput
+                            }
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(new
+                    {
+                        Error = ex.Message
+                    });
+                }
+            }
+            return Ok(new
+            {
+                Result = "Accepted"
+            });
+        }
 
     }
 }

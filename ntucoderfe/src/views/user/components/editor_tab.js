@@ -293,10 +293,30 @@ const EditorTab = ({ takepart, submissionCode, currentIndex }) => {
         showModal(
           'Kết quả chạy thử',
           <>
-            <b>Kết quả:</b> {resultData.result} <br />
+            <b>Kết quả:</b>{' '}
+            <span
+              style={{
+                color: resultData.result === 'Accepted' ? 'green' : 'red',
+                fontWeight: 'bold',
+              }}
+            >
+              {resultData.result}
+            </span>{' '}
+            <br />
+            {resultData.failedTestCase?.input !== undefined && (
+              <>
+                <b>Input:</b> {resultData.failedTestCase.input || ''} <br />
+              </>
+            )}
             {resultData.output && (
               <>
                 <b>Output:</b> {resultData.output} <br />
+              </>
+            )}
+            {resultData.failedTestCase?.expectedOutput !== undefined && (
+              <>
+                <b>Expected Output:</b>{' '}
+                {resultData.failedTestCase.expectedOutput || '(empty)'} <br />
               </>
             )}
             {resultData.error && (

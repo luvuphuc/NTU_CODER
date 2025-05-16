@@ -41,7 +41,13 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
             return obj;
         }
-
+        public async Task<List<TestCase>> GetAllTestCaseByProblemId(int problemID)
+        {
+            return await _context.TestCases
+                .Where(tc => tc.ProblemID == problemID)
+                .OrderBy(tc => tc.TestCaseOrder)
+                .ToListAsync();
+        }
 
         public IQueryable<TestCaseDTO> ApplySorting(IQueryable<TestCaseDTO> query, string? sortField, bool ascending)
         {
