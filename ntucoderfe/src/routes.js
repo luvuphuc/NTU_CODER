@@ -30,7 +30,15 @@ import BlogIndex from 'views/user/blog';
 import BlogIndexAdmin from 'views/admin/blog';
 import AnnouncementIndexAdmin from 'views/admin/announcement';
 import { GrAnnounce } from 'react-icons/gr';
+import AdminDashboard from 'views/admin/dashboard';
 const routes = [
+  {
+    name: 'Dashboard',
+    layout: '/admin',
+    icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
+    path: '/default',
+    component: <AdminDashboard />,
+  },
   {
     name: 'Người dùng',
     layout: '/admin',

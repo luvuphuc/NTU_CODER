@@ -57,6 +57,7 @@ builder.Services.AddScoped<ParticipationRepository>();
 builder.Services.AddScoped<HasProblemRepository>();
 builder.Services.AddScoped<SearchRepository>();
 builder.Services.AddScoped<TakePartsRepository>();
+builder.Services.AddScoped<StatisticRepository>();
 builder.Services.AddTransient<EmailHelper>();
 builder.Services.AddScoped<AnnouncementRepository>();
 builder.Services.AddHostedService<ContestNotificationService>();
