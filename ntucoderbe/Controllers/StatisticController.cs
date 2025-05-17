@@ -33,16 +33,16 @@ namespace ntucoderbe.Controllers
             var data = await _statisticRepository.GetUserGrowthOverTimeAsync();
             return Ok(data);
         }
-        [HttpGet("submission-activity")]
-        public async Task<ActionResult<List<SubmissionActivityDTO>>> GetSubmissionActivity()
-        {
-            var data = await _statisticRepository.GetSubmissionActivityOverTimeAsync();
-            return Ok(data);
-        }
         [HttpGet("top-problems")]
         public async Task<ActionResult<List<TopProblemDTO>>> GetTopProblems([FromQuery] int top = 5)
         {
             var data = await _statisticRepository.GetTopProblemsBySubmissionAsync(top);
+            return Ok(data);
+        }
+        [HttpGet("top-contests")]
+        public async Task<ActionResult<List<TopContestParticipationDTO>>> GetTopContest([FromQuery] int top = 5)
+        {
+            var data = await _statisticRepository.GetTopContestsByParticipationAsync(top);
             return Ok(data);
         }
     }

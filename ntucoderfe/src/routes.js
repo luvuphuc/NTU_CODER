@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Icon, layout } from '@chakra-ui/react';
 import { MdPerson, MdOutlineShoppingCart, MdAssignment } from 'react-icons/md';
-import { BiCategory } from 'react-icons/bi';
+import { BiCategory, BiHome } from 'react-icons/bi';
 import { GiProcessor } from 'react-icons/gi';
 import { FaTrophy } from 'react-icons/fa';
 import CoderIndex from 'views/admin/coder/index';
@@ -31,11 +31,12 @@ import BlogIndexAdmin from 'views/admin/blog';
 import AnnouncementIndexAdmin from 'views/admin/announcement';
 import { GrAnnounce } from 'react-icons/gr';
 import AdminDashboard from 'views/admin/dashboard';
+import { BiHomeHeart } from 'react-icons/bi';
 const routes = [
   {
-    name: 'Dashboard',
+    name: 'Trang chủ',
     layout: '/admin',
-    icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={BiHomeHeart} width="20px" height="20px" color="inherit" />,
     path: '/default',
     component: <AdminDashboard />,
   },

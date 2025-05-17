@@ -85,26 +85,33 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
             return data;
         }
-        public async Task<List<SubmissionActivityDTO>> GetSubmissionActivityOverTimeAsync()
+        public async Task<List<TopContestParticipationDTO>> GetTopContestsByParticipationAsync(int top = 5)
         {
-            DateTime thirtyDaysAgo = DateTime.UtcNow.Date.AddDays(-29);
-
-            List<SubmissionActivityDTO> data = await _context.Submissions
-                .Where(s => s.SubmitTime >= thirtyDaysAgo)
-                .GroupBy(s => new { s.SubmitTime.Year, s.SubmitTime.Month, s.SubmitTime.Day })
-                .Select(g => new SubmissionActivityDTO
+            List<TopContestParticipationDTO> data = await _context.Participations
+                .GroupBy(cp => cp.ContestID)
+                .Select(g => new TopContestParticipationDTO
                 {
-                    Year = g.Key.Year,
-                    Month = g.Key.Month,
-                    Day = g.Key.Day,
-                    SubmissionCount = g.Count()
+                    ContestId = g.Key,
+                    ParticipationCount = g.Count()
                 })
-                .OrderBy(x => x.Year)
-                .ThenBy(x => x.Month)
-                .ThenBy(x => x.Day)
+                .OrderByDescending(x => x.ParticipationCount)
+                .Take(top)
                 .ToListAsync();
+
+            List<int> contestIds = data.Select(d => d.ContestId).ToList();
+
+            Dictionary<int,string> contestNames = await _context.Contest
+                .Where(c => contestIds.Contains(c.ContestID))
+                .ToDictionaryAsync(c => c.ContestID, c => c.ContestName);
+
+            foreach (var d in data)
+            {
+                d.ContestName = contestNames.ContainsKey(d.ContestId) ? contestNames[d.ContestId] : "Unknown";
+            }
 
             return data;
         }
+
+
     }
 }

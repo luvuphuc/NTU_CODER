@@ -45,7 +45,7 @@ export default function AdminNavbar(props) {
     ? currentItem.name
     : currentRoute
     ? currentRoute.name
-    : 'Dashboard';
+    : 'Trang chủ';
 
   // Here are all the props that may change depending on navbar's type or state.(secondary, variant, scrolled)
   let mainText = useColorModeValue('navy.700', 'white');

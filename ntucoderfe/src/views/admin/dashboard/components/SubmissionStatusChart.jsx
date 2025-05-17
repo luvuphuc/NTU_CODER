@@ -107,7 +107,7 @@ const renderActiveShape = (props) => {
         textAnchor={textAnchor}
         fill={fill}
         fontWeight="bold"
-        fontSize={12}
+        fontSize={16}
         dominantBaseline="central"
       >
         {`${labelText}: ${(percent * 100).toFixed(1)}%`}
@@ -142,7 +142,7 @@ const renderLabel = ({
       textAnchor={x > cx ? 'start' : 'end'}
       dominantBaseline="central"
       fontWeight="bold"
-      fontSize={12}
+      fontSize={16}
     >
       {`${labelText}: ${(percent * 100).toFixed(1)}%`}
     </text>
@@ -193,8 +193,8 @@ export default function SubmissionStatusChart() {
       maxW="600px"
       mx="auto"
       p={4}
-      boxShadow="md"
-      borderRadius="md"
+      borderRadius="2xl"
+      boxShadow="0 0 15px 5px rgba(165, 160, 160, 0.3)"
       bg={bgColor}
     >
       <Text fontSize="md" fontWeight="semibold" textAlign="center" mb={1}>
@@ -214,8 +214,8 @@ export default function SubmissionStatusChart() {
             nameKey="name"
             cx="50%"
             cy="50%"
-            innerRadius={40}
-            outerRadius={70}
+            innerRadius={35}
+            outerRadius={65}
             startAngle={90}
             endAngle={-270}
             isAnimationActive
