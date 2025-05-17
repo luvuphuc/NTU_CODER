@@ -27,6 +27,7 @@ import { MdBarChart } from 'react-icons/md';
 import { FaMedal } from 'react-icons/fa';
 import api from 'config/api';
 import { CiMedal } from 'react-icons/ci';
+import LeaderboardProblemModal from './LeaderboardProblemModal';
 const LeaderboardProblem = () => {
   const [ranking, setRanking] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -145,68 +146,11 @@ const LeaderboardProblem = () => {
       </Flex>
 
       {/* Modal chi tiết */}
-      <Modal isOpen={isOpen} onClose={onClose} size="4xl">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader fontWeight="bold">
-            <HStack spacing={2}>
-              <CiMedal size={22} color="#FBBF24" />
-              <Text>Bảng xếp hạng chi tiết</Text>
-            </HStack>
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody
-            maxHeight="600px"
-            overflowY="auto"
-            sx={customScrollbarStyle}
-          >
-            <Table variant="striped" size="sm" colorScheme="orange">
-              <Thead>
-                <Tr>
-                  <Th textAlign="center">#</Th>
-                  <Th>Coder</Th>
-                  <Th isNumeric>Số bài đã giải</Th>
-                  <Th isNumeric>Thời gian (ms)</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {ranking.map((user) => (
-                  <Tr key={user.coderID}>
-                    <Td textAlign="center">
-                      {user.rank <= 3 ? getMedal(user.rank) : user.rank}
-                    </Td>
-                    <Td>
-                      <HStack spacing={3}>
-                        <Avatar
-                          size="sm"
-                          src={user.avatar}
-                          name={user.coderName}
-                        />
-                        <Text fontWeight="medium">{user.coderName}</Text>
-                        {user.rank <= 10 && (
-                          <Badge colorScheme="orange" ml={2}>
-                            Top {user.rank}
-                          </Badge>
-                        )}
-                      </HStack>
-                    </Td>
-                    <Td isNumeric>{user.solvedCount}</Td>
-                    <Td isNumeric>{user.timeScore}</Td>
-                  </Tr>
-                ))}
-              </Tbody>
-              <Tfoot>
-                <Tr>
-                  <Th textAlign="center">#</Th>
-                  <Th>Coder</Th>
-                  <Th isNumeric>Số bài đã giải</Th>
-                  <Th isNumeric>Thời gian (ms)</Th>
-                </Tr>
-              </Tfoot>
-            </Table>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+      <LeaderboardProblemModal
+        isOpen={isOpen}
+        onClose={onClose}
+        ranking={ranking}
+      />
     </Box>
   );
 };

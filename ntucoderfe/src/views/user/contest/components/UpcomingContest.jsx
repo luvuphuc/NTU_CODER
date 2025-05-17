@@ -69,7 +69,7 @@ const UpcomingContests = () => {
         <Flex direction="column" justify="center" align="center" minH="300px">
           <Icon as={FaSadTear} boxSize={12} color="white" mb={4} />
           <Text fontSize="lg" fontWeight="bold" color="white">
-            Hiện tại chưa có cuộc thi nào sắp bắt đầu
+            Hiện tại chưa có cuộc thi nào sắp diễn ra
           </Text>
         </Flex>
       ) : (

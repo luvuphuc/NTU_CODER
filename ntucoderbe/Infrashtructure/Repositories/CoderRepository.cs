@@ -292,9 +292,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 .Distinct()
                 .Count();
 
-            int countFavourites = submissions
-                .GroupBy(s => s.ProblemID)
-                .Count();
+            int countFavourites = await _context.Favourites.CountAsync(c => c.CoderID == coderID);
 
             Coder coder = await _context.Coders.Where(c=>c.CoderID == coderID).FirstOrDefaultAsync();
 
@@ -329,27 +327,14 @@ namespace ntucoderbe.Infrashtructure.Repositories
         }
         public async Task<List<RankingDTO>> GetRankingByTotalSolvedAsync()
         {
-            var solvedCounts = await _context.Solved
-                .GroupBy(s => s.CoderID)
-                .Select(g => new
-                {
-                    CoderID = g.Key,
-                    SolvedCount = g.Count()
-                })
-                .ToListAsync();
-
-            var timeScores = await _context.Submissions
+            List<int> coderIds = await _context.Submissions
                 .Where(s => s.TestResult == "Accepted" && s.MaxTimeDuration != null && s.TakePartID == null)
-                .GroupBy(s => s.CoderID)
-                .Select(g => new
-                {
-                    CoderID = g.Key,
-                    TotalTime = g.Sum(s => s.MaxTimeDuration) ?? 0
-                })
+                .Select(s => s.CoderID)
+                .Distinct()
                 .ToListAsync();
 
-            var result = await _context.Coders
-                .Where(c => solvedCounts.Select(sc => sc.CoderID).Contains(c.CoderID))
+            var coders = await _context.Coders
+                .Where(c => coderIds.Contains(c.CoderID))
                 .Select(c => new
                 {
                     c.CoderID,
@@ -358,14 +343,34 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 })
                 .ToListAsync();
 
-            var rankings = result
+            var timeScores = await _context.Submissions
+                .Where(s => coderIds.Contains(s.CoderID) && s.TestResult == "Accepted" && s.MaxTimeDuration != null && s.TakePartID == null)
+                .GroupBy(s => s.CoderID)
+                .Select(g => new
+                {
+                    CoderID = g.Key,
+                    TotalTime = g.Sum(s => s.MaxTimeDuration ?? 0)
+                })
+                .ToListAsync();
+
+            var solvedCounts = await _context.Solved
+                .Where(s => coderIds.Contains(s.CoderID))
+                .GroupBy(s => s.CoderID)
+                .Select(g => new
+                {
+                    CoderID = g.Key,
+                    SolvedCount = g.Count()
+                })
+                .ToListAsync();
+
+            var rankings = coders
                 .Select(c => new RankingDTO
                 {
                     CoderID = c.CoderID,
                     CoderName = c.CoderName,
                     Avatar = c.Avatar,
-                    SolvedCount = solvedCounts.FirstOrDefault(sc => sc.CoderID == c.CoderID)?.SolvedCount ?? 0,
-                    TimeScore = timeScores.FirstOrDefault(ts => ts.CoderID == c.CoderID)?.TotalTime ?? int.MaxValue
+                    TimeScore = timeScores.FirstOrDefault(ts => ts.CoderID == c.CoderID)?.TotalTime ?? int.MaxValue,
+                    SolvedCount = solvedCounts.FirstOrDefault(sc => sc.CoderID == c.CoderID)?.SolvedCount ?? 0
                 })
                 .OrderByDescending(r => r.SolvedCount)
                 .ThenBy(r => r.TimeScore)
@@ -379,5 +384,8 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
             return rankings;
         }
+
+
+
     }
 }

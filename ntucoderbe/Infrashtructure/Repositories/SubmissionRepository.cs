@@ -103,7 +103,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             };
 
             _context.Submissions.Add(obj);
-            if (!(await IsSolved(dto.ProblemID, dto.CoderID)))
+            if (dto.TakePartID == null && !(await IsSolved(dto.ProblemID, dto.CoderID)))
             {
                 var solved = new Solved
                 {
@@ -111,8 +111,8 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     CoderID = dto.CoderID,
                 };
                 _context.Solved.Add(solved);
-
             }
+
             await _context.SaveChangesAsync();
             dto.SubmissionID = obj.SubmissionID;
             return dto;

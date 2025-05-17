@@ -11,18 +11,11 @@ import {
   Flex,
   Grid,
   IconButton,
-  Spinner,
   Badge,
   Wrap,
   WrapItem,
   Skeleton,
   SkeletonText,
-  Modal,
-  ModalBody,
-  ModalHeader,
-  ModalFooter,
-  ModalOverlay,
-  ModalContent,
   Divider,
   Checkbox,
   useDisclosure,
@@ -41,7 +34,6 @@ import AuthToast from 'views/auth/auth_toast';
 import { RiUser3Fill } from 'react-icons/ri';
 import LeaderboardProblem from './components/LeaderboardProblem';
 import CustomToast from 'components/toast/CustomToast';
-import { render } from '@testing-library/react';
 export default function ProblemPage() {
   const [state, setState] = useState({
     problems: [],
@@ -57,7 +49,6 @@ export default function ProblemPage() {
     filterByFavourite: false,
     solvedProblem: null,
   });
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const navigate = useNavigate();
   const favouriteIdsRef = useRef(new Set());
@@ -125,6 +116,8 @@ export default function ProblemPage() {
             ...(state.solvedProblem !== null && {
               isSolved: state.solvedProblem,
             }),
+            sortField: 'ProblemID',
+            ascending: false,
           },
           paramsSerializer: { indexes: null },
         });
@@ -534,29 +527,6 @@ export default function ProblemPage() {
           </Stack>
         </Grid>
       </Container>
-
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Yêu cầu đăng nhập</ModalHeader>
-          <ModalBody>
-            <Text>Bạn cần đăng nhập để thực hiện hành động.</Text>
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              colorScheme="blue"
-              mr={3}
-              borderRadius="md"
-              onClick={() => navigate('/login')}
-            >
-              Đăng nhập
-            </Button>
-            <Button borderRadius="md" onClick={onClose}>
-              Hủy
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </Layout>
   );
 }

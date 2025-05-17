@@ -98,6 +98,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             {
                 "problemcode" => ascending ? query.OrderBy(p => p.ProblemCode) : query.OrderByDescending(p => p.ProblemCode),
                 "problemname" => ascending ? query.OrderBy(p => p.ProblemName) : query.OrderByDescending(p => p.ProblemName),
+                "problemid" => ascending ? query.OrderBy(p=>p.ProblemID) : query.OrderByDescending(p=>p.ProblemID),
                 _ => query.OrderBy(p => p.ProblemID),
             };
         }

@@ -3,11 +3,11 @@ import { Box, Container, Flex, Spinner, Stack } from '@chakra-ui/react';
 import LayoutUser from 'layouts/user';
 import ContestSection from './components/contest_section';
 import api from 'config/api';
-
+import { motion } from 'framer-motion';
 export default function HeroContestSection() {
   const [contests, setContests] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const MotionBox = motion(Box);
   useEffect(() => {
     const fetchContests = async () => {
       try {
@@ -34,7 +34,16 @@ export default function HeroContestSection() {
           </Flex>
         ) : (
           <Stack spacing={8}>
-            <ContestSection title="Sắp diễn ra" contests={filterContests(2)} />
+            <MotionBox
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
+            >
+              <ContestSection
+                title="Sắp diễn ra"
+                contests={filterContests(2)}
+              />
+            </MotionBox>
           </Stack>
         )}
       </Container>

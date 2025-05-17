@@ -23,9 +23,10 @@ import {
   Th,
   Td,
   Tfoot,
+  Link as ChakraLink,
 } from '@chakra-ui/react';
 import api from 'config/api';
-
+import { Link as RouterLink } from 'react-router-dom';
 const Leaderboard = ({ contest }) => {
   const [ranking, setRanking] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -181,14 +182,23 @@ const Leaderboard = ({ contest }) => {
                             src={user.avatar}
                             name={user.coderName}
                           />
-                          <Text
-                            maxWidth="300px"
-                            whiteSpace="nowrap"
-                            overflow="hidden"
-                            textOverflow="ellipsis"
+                          <ChakraLink
+                            as={RouterLink}
+                            to={`/user/${user.coderID}`}
+                            textDecoration="none"
+                            _hover={{ textDecoration: 'underline' }}
+                            display="flex"
+                            alignItems="center"
                           >
-                            {user.coderName}
-                          </Text>
+                            <Text
+                              maxWidth="300px"
+                              whiteSpace="nowrap"
+                              overflow="hidden"
+                              textOverflow="ellipsis"
+                            >
+                              {user.coderName}
+                            </Text>
+                          </ChakraLink>
                         </HStack>
                       </Td>
                       {[...Array(maxQuestionCount)].map((_, idx) => (
