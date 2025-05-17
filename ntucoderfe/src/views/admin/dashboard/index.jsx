@@ -1,8 +1,10 @@
 import React from 'react';
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Stack } from '@chakra-ui/react';
 import ScrollToTop from 'components/scroll/ScrollToTop';
 import CardStatistic from './components/CardStatistic';
 import SubmissionStatusChart from './components/SubmissionStatusChart';
+import UserGrowthChart from './components/UserGrowthChart';
+
 export default function AdminDashboard() {
   return (
     <ScrollToTop>
@@ -11,17 +13,20 @@ export default function AdminDashboard() {
         px={{ base: 4, md: 10 }}
       >
         <CardStatistic />
-        <SubmissionStatusChart />
-        <Text
-          fontSize="lg"
-          color="gray.600"
-          maxW="3xl"
-          mx="auto"
-          textAlign="center"
+        <Stack
+          direction={{ base: 'column', md: 'row' }}
+          spacing={6}
+          mt={2}
+          justify="center"
+          align="stretch"
         >
-          Ở đây bạn sẽ hiện các biểu đồ, bảng thống kê hoặc các thông tin cần
-          thiết.
-        </Text>
+          <Box flex="1" minW={{ md: '300px' }} height="250px">
+            <UserGrowthChart />
+          </Box>
+          <Box flex="1" minW={{ md: '300px' }} height="250px">
+            <SubmissionStatusChart />
+          </Box>
+        </Stack>
       </Box>
     </ScrollToTop>
   );

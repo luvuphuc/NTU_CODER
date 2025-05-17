@@ -73,13 +73,13 @@ export default function CardStatistic() {
 
   if (error)
     return (
-      <Center py={10}>
+      <Center py={5}>
         <Text color="red.500">Error: {error}</Text>
       </Center>
     );
 
   return (
-    <SimpleGrid columns={{ base: 1, md: 4 }} spacing={8} mb={12}>
+    <SimpleGrid columns={{ base: 1, md: 4 }} spacing={8} mb={6}>
       {stats.map(({ label, value, icon, iconBgColor }) => (
         <Box
           key={label}

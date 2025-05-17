@@ -189,7 +189,8 @@ export default function SubmissionStatusChart() {
 
   return (
     <Box
-      maxW="480px"
+      height="100%"
+      maxW="600px"
       mx="auto"
       p={4}
       boxShadow="md"
@@ -200,7 +201,7 @@ export default function SubmissionStatusChart() {
         Trạng thái gửi bài
       </Text>
 
-      <ResponsiveContainer width="100%" height={210}>
+      <ResponsiveContainer width="100%" height={160}>
         <PieChart>
           <Pie
             activeIndex={activeIndex}
@@ -214,7 +215,7 @@ export default function SubmissionStatusChart() {
             cx="50%"
             cy="50%"
             innerRadius={40}
-            outerRadius={80}
+            outerRadius={70}
             startAngle={90}
             endAngle={-270}
             isAnimationActive
