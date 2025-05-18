@@ -62,7 +62,7 @@ builder.Services.AddTransient<EmailHelper>();
 builder.Services.AddScoped<AnnouncementRepository>();
 builder.Services.AddHostedService<ContestNotificationService>();
 
-var allowedOrigins = builder.Configuration["CorsSettings:AllowedOrigins"]?.Split(",") ?? new[] { "http://localhost:3000" };
+var allowedOrigins = builder.Configuration["CorsSettings:AllowedOrigins"]?.Split(",") ?? new[] { "http://localhost:3000", "http://192.168.1.10:8081" };
 
 builder.Services.AddCors(options =>
 {

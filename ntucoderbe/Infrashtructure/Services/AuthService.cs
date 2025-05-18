@@ -16,17 +16,23 @@ namespace ntucoderbe.Infrashtructure.Services
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _config;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly EmailHelper _emailHelper;
 
-        public AuthService(ApplicationDbContext context, IConfiguration config, IHttpContextAccessor httpContextAccessor)
+        public AuthService(ApplicationDbContext context, IConfiguration config, IHttpContextAccessor httpContextAccessor, EmailHelper emailHelper)
         {
             _context = context;
             _config = config;
             _httpContextAccessor = httpContextAccessor;
+            _emailHelper = emailHelper;
         }
 
         public async Task<(string?, Account?)> AuthenticateAsync(string username, string password)
         {
-            var user = await _context.Accounts.FirstOrDefaultAsync(u => u.UserName == username);
+            var user = await _context.Accounts
+                .Include(a => a.Coder).FirstOrDefaultAsync(a =>
+            a.UserName == username ||
+            (a.Coder != null && a.Coder.CoderEmail == username)
+        );
             if (user == null || !PasswordHelper.VerifyPassword(password, user.Password, user.SaltMD5))
             {
                 return (null, null);
@@ -100,6 +106,34 @@ namespace ntucoderbe.Infrashtructure.Services
             return account;
         }
 
+        public async Task<string?> HandleForgotPasswordAsync(string email)
+        {
+            var account = await _context.Accounts
+                .Include(a => a.Coder)
+                .FirstOrDefaultAsync(a => a.Coder.CoderEmail == email);
+
+            if (account == null)
+                return null;
+
+            var resetCode = Guid.NewGuid().ToString();
+            account.PwdResetCode = resetCode;
+            account.PwdResetDate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            var resetLink = $"{_config["ClientApp:BaseUrl"]}/reset-password?code={resetCode}";
+            var subject = "Yêu cầu đặt lại mật khẩu";
+            var body = $@"
+            <p>Bạn đã yêu cầu đặt lại mật khẩu.</p>
+            <p>Vui lòng click vào link bên dưới để tiếp tục:</p>
+            <a href='{resetLink}'>{resetLink}</a>
+            <p>Link có hiệu lực trong 30 phút.</p>
+        ";
+
+            await _emailHelper.SendEmailAsync(email, subject, body);
+
+            return "Link đặt lại mật khẩu đã được gửi đến email.";
+        }
 
 
     }

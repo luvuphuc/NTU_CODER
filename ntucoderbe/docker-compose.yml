@@ -1,0 +1,38 @@
+﻿services:
+  app:
+    image: luvuphuc382003/ntucoder:1.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DatabaseConnection=server=db;database=ntucoder;user=root;password=12345;port=3306; 
+    depends_on:
+      - db
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345
+      MYSQL_DATABASE: ntucoder
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-storage:/var/lib/mysql
+  frontend:
+    image: luvuphuc382003/ntucoderfe:1.1
+    build:
+      context: ../ntucoderfe
+      dockerfile: Dockerfile
+    ports:
+      - "8081:80"
+    environment:
+      - REACT_APP_API_BASE_URL=http://192.168.1.3:8080/api
+    depends_on:
+      - app
+    volumes:
+      - ../ntucoderfe/build:/usr/share/nginx/html
+volumes:
+  db-storage:

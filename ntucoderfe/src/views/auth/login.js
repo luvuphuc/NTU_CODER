@@ -32,13 +32,14 @@ import Cookies from 'js-cookie';
 import api from 'config/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
-import jwtDecode from 'jwt-decode';
+import ForgotPasswordModal from './forgot_password';
 function SignIn() {
   const [credentials, setCredentials] = useState({
     userName: '',
     password: '',
   });
   const { setCoder } = useAuth();
+  const [isForgotOpen, setIsForgotOpen] = useState(false);
   const shake = keyframes`
   0%, 100% { transform: translateX(0); }
   25%, 75% { transform: translateX(-5px); }
@@ -237,9 +238,14 @@ function SignIn() {
 
             <Flex justifyContent="space-between" alignItems="center" mb="20px">
               <Checkbox>Ghi nhớ đăng nhập</Checkbox>
-              <NavLink to="/forgot-password">
-                <Text color="blue.500">Quên mật khẩu?</Text>
-              </NavLink>
+              <Text
+                color="blue.500"
+                onClick={() => setIsForgotOpen(true)}
+                cursor="pointer"
+                _hover={{ textDecoration: 'underline' }}
+              >
+                Quên mật khẩu?
+              </Text>
             </Flex>
             <Button
               w="100%"
@@ -412,6 +418,10 @@ function SignIn() {
           </Text>
         </Box>
       </Flex>
+      <ForgotPasswordModal
+        isOpen={isForgotOpen}
+        onClose={() => setIsForgotOpen(false)}
+      />
     </Flex>
   );
 }

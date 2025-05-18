@@ -195,10 +195,21 @@ export default function HeaderLinks(props) {
               fontWeight="700"
               color={textColor}
             >
-              👋&nbsp; Hey, {user ? user.coderName : 'Guest'}
+              👋&nbsp; Xin chào, {user ? user.coderName : 'Guest'}
             </Text>
           </Flex>
           <Flex flexDirection="column" p="10px">
+            <MenuItem
+              _hover={{ bg: 'none' }}
+              _focus={{ bg: 'none' }}
+              color="blue.400"
+              borderRadius="8px"
+              px="14px"
+              onClick={() => navigate('/')}
+            >
+              <Text fontSize="sm">Quay lại trang chủ</Text>
+            </MenuItem>
+
             <MenuItem
               _hover={{ bg: 'none' }}
               _focus={{ bg: 'none' }}
@@ -207,7 +218,7 @@ export default function HeaderLinks(props) {
               px="14px"
               onClick={handleLogout}
             >
-              <Text fontSize="sm">Log out</Text>
+              <Text fontSize="sm">Đăng xuất</Text>
             </MenuItem>
           </Flex>
         </MenuList>

@@ -16,7 +16,7 @@ import {
   HStack,
   Divider,
   Icon,
-  Avatar,
+  Image,
   Flex,
   Select,
   useToast,
@@ -692,7 +692,15 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
                   !isLoading && document.getElementById('avatarInput')?.click()
                 }
               >
-                <Avatar size="3xl" src={formValues.avatar} />
+                <Box boxSize="300px" borderRadius="full" overflow="hidden">
+                  <Image
+                    src={formValues.avatar}
+                    alt="Avatar"
+                    width="100%"
+                    height="100%"
+                    objectFit="cover"
+                  />
+                </Box>
 
                 <Box
                   position="absolute"
@@ -705,9 +713,15 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
                   alignItems="center"
                   justifyContent="center"
                   borderRadius="full"
+                  opacity={0}
+                  _groupHover={{ opacity: 1 }}
                   transition="opacity 0.3s ease"
-                  opacity={isLoading ? 1 : 0}
                   pointerEvents="none"
+                  flexDirection="column"
+                  color="white"
+                  fontWeight="semibold"
+                  fontSize="md"
+                  textAlign="center"
                 >
                   {isLoading ? (
                     <Spinner
@@ -718,12 +732,10 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
                       size="xl"
                     />
                   ) : (
-                    <Icon
-                      as={MdAddPhotoAlternate}
-                      w={10}
-                      h={10}
-                      color="white"
-                    />
+                    <>
+                      <Icon as={MdAddPhotoAlternate} w={10} h={10} />
+                      <Text mt={2}>Nhấn để thay đổi ảnh</Text>
+                    </>
                   )}
                 </Box>
 

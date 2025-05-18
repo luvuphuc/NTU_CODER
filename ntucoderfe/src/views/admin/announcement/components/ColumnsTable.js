@@ -47,52 +47,42 @@ export default function AnnouncementTable({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(false);
   const [currentannouncementID, setCurrentannouncementID] = useState(null);
-  const handleToggleStatus = async (announcementID, field, currentValue) => {
+  const handleSendNowClick = async (announcementID) => {
     try {
-      const newValue = currentValue === 0 ? 1 : 0;
-      const updatedTableData = tableData.map((announcement) =>
-        announcement.announcementID === announcementID
-          ? { ...announcement, [field]: newValue }
-          : announcement,
+      setLoading(true);
+      const response = await api.post(
+        `/Announcement/${announcementID}/send-now`,
       );
-      refetchData(updatedTableData);
-
-      const response = await api.put(`/Announcement/${announcementID}`, {
-        [field]: newValue,
-      });
-
       if (response.status === 200) {
         toast({
-          title: 'Cập nhật thành công!',
-          description: `Trạng thái đã được cập nhật.`,
+          title: 'Gửi thông báo thành công!',
+          description: response.data.message || 'Thông báo đã được gửi.',
           status: 'success',
           duration: 3000,
           isClosable: true,
           position: 'top-right',
         });
-
         refetchData();
       } else {
-        throw new Error('Có lỗi xảy ra khi cập nhật trạng thái.');
+        throw new Error('Có lỗi xảy ra khi gửi thông báo.');
       }
     } catch (error) {
-      const revertedTableData = tableData.map((announcement) =>
-        announcement.announcementID === announcementID
-          ? { ...announcement, [field]: currentValue }
-          : announcement,
-      );
-      refetchData(revertedTableData);
-
       toast({
         title: 'Lỗi',
-        description: error.message || 'Có lỗi xảy ra khi cập nhật trạng thái.',
+        description:
+          error.response?.data?.message ||
+          error.message ||
+          'Có lỗi xảy ra khi gửi thông báo.',
         status: 'error',
         duration: 5000,
         isClosable: true,
         position: 'top-right',
       });
+    } finally {
+      setLoading(false);
     }
   };
+
   const handleDetailClick = (announcementID) => {
     if (onOpenDetailModal) {
       onOpenDetailModal(announcementID);
@@ -153,20 +143,24 @@ export default function AnnouncementTable({
     {
       Header: 'Trạng thái gửi',
       accessor: 'isSent',
-      Cell: ({ row }) => (
-        <Switch
-          isChecked={row.isSent === 1}
-          onChange={() =>
-            handleToggleStatus(row.announcementID, 'isSent', row.isSent)
-          }
-        />
-      ),
+      Cell: ({ row }) => <Switch isChecked={row.isSent === 1} />,
     },
     {
       Header: '',
       accessor: 'action',
       Cell: ({ row }) => (
         <Flex gap={4} justify="center" align="center">
+          <Button
+            variant="solid"
+            size="sm"
+            colorScheme="green"
+            borderRadius="md"
+            minW="auto"
+            onClick={() => handleSendNowClick(row.announcementID)}
+            isLoading={loading && currentannouncementID === row.announcementID}
+          >
+            Gửi ngay
+          </Button>
           <Button
             variant="solid"
             size="sm"
