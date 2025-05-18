@@ -13,9 +13,8 @@ import {
   CardBody,
   CardHeader,
 } from '@chakra-ui/react';
-import { useParams } from 'react-router-dom';
 import api from 'config/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { MdOutlineArrowBack, MdEdit } from 'react-icons/md';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';

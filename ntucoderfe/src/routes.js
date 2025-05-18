@@ -32,6 +32,9 @@ import AnnouncementIndexAdmin from 'views/admin/announcement';
 import { GrAnnounce } from 'react-icons/gr';
 import AdminDashboard from 'views/admin/dashboard';
 import { BiHomeHeart } from 'react-icons/bi';
+import SubmissionIndex from 'views/admin/submission';
+import DetailSubmissionPage from 'views/admin/submission/components/Detail';
+import { BsJournalCode } from 'react-icons/bs';
 const routes = [
   {
     name: 'Trang chủ',
@@ -83,6 +86,22 @@ const routes = [
         name: 'Chi tiết bài tập',
         path: '/detail/:id',
         component: <ProblemDetail />,
+      },
+    ],
+  },
+  {
+    name: 'Bài nộp',
+    layout: '/admin',
+    path: '/submission',
+    icon: (
+      <Icon as={BsJournalCode} width="20px" height="20px" color="inherit" />
+    ),
+    component: <SubmissionIndex />,
+    items: [
+      {
+        name: 'Chi tiết bài nộp',
+        path: '/detail/:id',
+        component: <DetailSubmissionPage />,
       },
     ],
   },
