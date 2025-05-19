@@ -86,34 +86,27 @@ export default function Header({ hideHeader }) {
                 </>
               ) : (
                 <>
+                  <ChakraLink
+                    as={Link}
+                    to="/login"
+                    fontSize="md"
+                    fontWeight={500}
+                    color="gray.600"
+                    _hover={{ color: 'blue.500' }}
+                  >
+                    Đăng nhập
+                  </ChakraLink>
                   <Button
                     as={Link}
                     to="/register"
-                    fontSize="15px"
-                    height="32px"
+                    fontSize="md"
                     fontWeight={600}
                     color="white"
-                    bg="#05a6e9"
+                    bg="#0186bd"
                     _hover={{ bg: 'blue.700' }}
                     borderRadius="md"
-                    border="1px solid purple"
                   >
                     Đăng ký
-                  </Button>
-
-                  <Button
-                    as={Link}
-                    to="/login"
-                    fontSize="15px"
-                    height="32px"
-                    fontWeight={500}
-                    color="gray.600"
-                    backgroundColor="#f2f0fc"
-                    _hover={{ color: 'blue.500' }}
-                    border="1px solid purple"
-                    borderRadius="md"
-                  >
-                    Đăng nhập
                   </Button>
                 </>
               )}

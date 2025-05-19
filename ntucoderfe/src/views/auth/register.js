@@ -22,12 +22,16 @@ import {
 import { FcGoogle } from 'react-icons/fc';
 import { useToast } from '@chakra-ui/react';
 import { FaGithub, FaTwitter } from 'react-icons/fa';
+import Cookies from 'js-cookie';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import logo from '../../assets/img/ntu-coders.png';
 import api from 'config/api';
 import CustomToast from 'components/toast/CustomToast';
+import { GoogleLogin } from '@react-oauth/google';
+import { useAuth } from 'contexts/AuthContext';
+import ForgotPasswordModal from './forgot_password';
 const InputField = ({ label, type, value, onChange, error, placeholder }) => (
   <FormControl mb={8} animation={error ? 'shake 0.3s' : ''}>
     <FormLabel>{label}</FormLabel>
@@ -60,13 +64,14 @@ function Register() {
     coderEmail: '',
     phoneNumber: '',
   });
+  const { setCoder } = useAuth();
   const [error, setError] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
   const textColor = useColorModeValue('navy.700', 'white');
-
+  const [isForgotOpen, setIsForgotOpen] = useState(false);
   const handleChange = (field) => (e) => {
     setCredentials((prev) => ({ ...prev, [field]: e.target.value }));
     setError((prev) => ({ ...prev, [field]: false }));
@@ -121,7 +126,6 @@ function Register() {
       const errorMessages = error.response?.data?.errors || [];
 
       if (errorMessages.length > 0) {
-        // Assuming the first error in the array is the one we need
         const errorMessage = errorMessages[0];
 
         if (
@@ -299,9 +303,14 @@ function Register() {
               </GridItem>
             </Grid>
             <Flex justifyContent="space-between" alignItems="center" mb="15px">
-              <NavLink to="/forgot-password">
-                <Text color="blue.500">Quên mật khẩu?</Text>
-              </NavLink>
+              <Text
+                color="blue.500"
+                onClick={() => setIsForgotOpen(true)}
+                cursor="pointer"
+                _hover={{ textDecoration: 'underline' }}
+              >
+                Quên mật khẩu?
+              </Text>
             </Flex>
             <Button
               w="100%"
@@ -330,31 +339,69 @@ function Register() {
               <Divider borderColor="gray.300" flex="1" />
             </Flex>
             <Flex justify="center" gap="10px">
-              <Button
-                variant="outline"
-                leftIcon={<Icon as={FcGoogle} boxSize={6} />}
-                size="lg"
-                px={6}
-                py={4}
-              />
-              <Button
-                variant="outline"
-                leftIcon={<Icon as={FaTwitter} color="blue.400" boxSize={6} />}
-                size="lg"
-                px={6}
-                py={4}
-              />
-              <Button
-                variant="outline"
-                leftIcon={<Icon as={FaGithub} boxSize={6} />}
-                size="lg"
-                px={6}
-                py={4}
+              <GoogleLogin
+                onSuccess={async (credentialResponse) => {
+                  try {
+                    const res = await api.post('/auth/google-login', {
+                      token: credentialResponse.credential,
+                    });
+
+                    if (res.status === 200) {
+                      Cookies.set('token', res.data.token);
+                      const resUser = await api.get('/Auth/me', {
+                        withCredentials: true,
+                      });
+                      if (resUser.status === 200) {
+                        setCoder(resUser.data);
+                      }
+
+                      toast({
+                        render: () => (
+                          <CustomToast
+                            success={true}
+                            messages="Đăng nhập Google thành công!"
+                          />
+                        ),
+                        position: 'top',
+                        duration: 5000,
+                      });
+
+                      navigate('/');
+                    }
+                  } catch (err) {
+                    toast({
+                      render: () => (
+                        <CustomToast
+                          success={false}
+                          messages="Đăng nhập Google thất bại. Vui lòng thử lại!"
+                        />
+                      ),
+                      position: 'top',
+                      duration: 5000,
+                    });
+                  }
+                }}
+                onError={() => {
+                  toast({
+                    render: () => (
+                      <CustomToast
+                        success={false}
+                        messages="Không thể đăng nhập bằng Google."
+                      />
+                    ),
+                    position: 'top',
+                    duration: 5000,
+                  });
+                }}
               />
             </Flex>
           </Box>
         </Flex>
       </Flex>
+      <ForgotPasswordModal
+        isOpen={isForgotOpen}
+        onClose={() => setIsForgotOpen(false)}
+      />
     </Flex>
   );
 }

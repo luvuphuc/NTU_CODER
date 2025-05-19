@@ -162,6 +162,53 @@ namespace ntucoderbe.Controllers
                 return Unauthorized(new { message = "Xác thực Google thất bại", detail = ex.Message });
             }
         }
+        [AllowAnonymous]
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] string email)
+        {
+            var message = await _authService.HandleForgotPasswordAsync(email);
+            if (message == null)
+                return NotFound(new { message = "Không tìm thấy tài khoản với email này." });
+
+            return Ok(message);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("verify-reset-code")]
+        public async Task<IActionResult> VerifyResetCode([FromBody] ResetPasswordDTO dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Code))
+            return BadRequest(new { message = "Thiếu email hoặc mã xác nhận." });
+
+            bool isValid = await _authService.VerifyResetCodeAsync(dto.Email, dto.Code);
+            if (!isValid)
+                return BadRequest(new { message = "Mã xác nhận không hợp lệ hoặc đã hết hạn." });
+            
+
+            return Ok();
+        }
+        [AllowAnonymous]
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Email) ||
+                string.IsNullOrWhiteSpace(dto.Code) ||
+                string.IsNullOrWhiteSpace(dto.NewPassword))
+            {
+                return BadRequest(new { message = "Thiếu thông tin cần thiết." });
+            }
+            bool isValid = await _authService.VerifyResetCodeAsync(dto.Email, dto.Code);
+            if (!isValid)
+               
+                return BadRequest(new { message = "Mã xác nhận không hợp lệ hoặc đã hết hạn." });
+
+            bool result = await _coderRepository.ChangePwdWhenForgotPwdAsync(dto.Email, dto.NewPassword);
+            if (!result)
+                
+            return BadRequest(new { message = "Không thể cập nhật mật khẩu." });
+
+            return Ok();
+        }
 
 
     }

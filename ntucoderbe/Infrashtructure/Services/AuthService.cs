@@ -115,24 +115,39 @@ namespace ntucoderbe.Infrashtructure.Services
             if (account == null)
                 return null;
 
-            var resetCode = Guid.NewGuid().ToString();
+            var resetCode = new Random().Next(100000, 999999).ToString(); 
             account.PwdResetCode = resetCode;
             account.PwdResetDate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
-            var resetLink = $"{_config["ClientApp:BaseUrl"]}/reset-password?code={resetCode}";
-            var subject = "Yêu cầu đặt lại mật khẩu";
+            var subject = "Mã xác nhận đặt lại mật khẩu";
             var body = $@"
-            <p>Bạn đã yêu cầu đặt lại mật khẩu.</p>
-            <p>Vui lòng click vào link bên dưới để tiếp tục:</p>
-            <a href='{resetLink}'>{resetLink}</a>
-            <p>Link có hiệu lực trong 30 phút.</p>
-        ";
+                <p>Bạn đã yêu cầu đặt lại mật khẩu.</p>
+                <p>Mã xác nhận của bạn là: <b>{resetCode}</b></p>
+                <p>Mã có hiệu lực trong 30 phút.</p>
+            ";
 
             await _emailHelper.SendEmailAsync(email, subject, body);
 
-            return "Link đặt lại mật khẩu đã được gửi đến email.";
+            return "Mã xác nhận đã được gửi đến email.";
+        }
+
+
+        public async Task<bool> VerifyResetCodeAsync(string email, string code)
+        {
+            Account account = await _context.Accounts
+                .Include(a => a.Coder)
+                .FirstOrDefaultAsync(a => a.Coder.CoderEmail == email);
+
+            if (account == null || account.PwdResetCode != code)
+                return false;
+
+            if (account.PwdResetDate == null ||
+                (DateTime.UtcNow - account.PwdResetDate.Value).TotalMinutes > 30)
+                return false;
+
+            return true;
         }
 
 

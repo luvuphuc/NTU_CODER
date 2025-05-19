@@ -384,6 +384,26 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
             return rankings;
         }
+        public async Task<bool> ChangePwdWhenForgotPwdAsync(string email, string newPassword)
+        {
+            var coder = await _context.Coders
+                .Include(c => c.Account)
+                .FirstOrDefaultAsync(c => c.CoderEmail == email);
+
+            if (coder == null || coder.Account == null)
+                return false;
+
+            string salt = PasswordHelper.GenerateSalt();
+            string hashedPassword = HashPassword(newPassword, salt);
+
+            coder.Account.Password = hashedPassword;
+            coder.Account.SaltMD5 = salt;
+            coder.Account.PwdResetCode = null;
+            coder.Account.PwdResetDate = null;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
 
 
 
