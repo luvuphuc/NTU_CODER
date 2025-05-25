@@ -175,7 +175,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             {
                 existing.CoderName = dto.CoderName;
             }
-            if (dto.CoderEmail != null)
+            if (dto.CoderEmail != null && existing.CoderEmail !=dto.CoderEmail)
             {
                 if (await CheckEmailExist(dto.CoderEmail!))
                 {

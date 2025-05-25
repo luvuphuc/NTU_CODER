@@ -8,8 +8,10 @@ import { SidebarContext } from 'contexts/SidebarContext';
 import React, { useState } from 'react';
 import { Navigate, Route, Routes, Outlet } from 'react-router-dom';
 import routes from 'routes.js';
+import { useAuth } from 'contexts/AuthContext';
 // Custom Chakra theme
 export default function Dashboard(props) {
+  const coder = useAuth();
   const { ...rest } = props;
   // states and functions
   const [fixed] = useState(false);
@@ -88,24 +90,32 @@ export default function Dashboard(props) {
   };
   const getRoutes = (routes) => {
     return routes.flatMap((route, key) => {
-      if (route.layout === '/admin') {
-        let mainRoute = (
-          <Route path={route.path} element={route.component} key={key} />
-        );
+      if (route.layout !== '/admin') return [];
 
-        let subRoutes = route.items
-          ? route.items.map((subRoute, subKey) => (
+      if (route.allowRoles && !route.allowRoles.includes(coder?.RoleID))
+        return [];
+
+      let mainRoute = (
+        <Route path={route.path} element={route.component} key={key} />
+      );
+
+      let subRoutes = route.items
+        ? route.items
+            .filter(
+              (subRoute) =>
+                !subRoute.allowRoles ||
+                subRoute.allowRoles.includes(coder?.RoleID),
+            )
+            .map((subRoute, subKey) => (
               <Route
                 key={`${key}-${subKey}`}
-                path={`${route.path}${subRoute.path}`} // Đảm bảo đúng đường dẫn
+                path={`${route.path}${subRoute.path}`}
                 element={subRoute.component}
               />
             ))
-          : [];
+        : [];
 
-        return [mainRoute, ...subRoutes].filter(Boolean);
-      }
-      return [];
+      return [mainRoute, ...subRoutes];
     });
   };
 

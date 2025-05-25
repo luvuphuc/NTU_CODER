@@ -10,8 +10,30 @@ const typeColors = [
   'pink.600',
 ];
 
-export default function SearchResultDropdown({ searchResults }) {
-  if (!searchResults.length) return null;
+export default function SearchResultDropdown({ searchResults, searchString }) {
+  if (!searchString.trim()) return null;
+  if (!searchResults.length) {
+    return (
+      <Box
+        position="absolute"
+        top="calc(100% + 8px)"
+        left="0"
+        width="250px"
+        bg="white"
+        boxShadow="xl"
+        borderRadius="md"
+        zIndex="20"
+        maxH="320px"
+        pt={4}
+        pb={4}
+        textAlign="center"
+      >
+        <Text fontSize="sm" color="gray.500">
+          Không tìm thấy
+        </Text>
+      </Box>
+    );
+  }
 
   const grouped = Object.entries(
     searchResults.reduce((groups, item) => {

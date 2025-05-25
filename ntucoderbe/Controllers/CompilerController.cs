@@ -44,7 +44,7 @@ namespace ntucoderbe.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCoder([FromBody] CompilerDTO dto)
+        public async Task<IActionResult> CreateCompiler([FromBody] CompilerDTO dto)
         {
             if (dto == null)
             {
@@ -53,7 +53,7 @@ namespace ntucoderbe.Controllers
             try
             {
                 var result = await _compilerRepository.CreateCompilerAsync(dto);
-                return CreatedAtAction(nameof(CreateCoder), new { id = result.CompilerID }, result);
+                return CreatedAtAction(nameof(CreateCompiler), new { id = result.CompilerID }, result);
             }
             catch (ValidationException ex)
             {

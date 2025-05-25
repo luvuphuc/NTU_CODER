@@ -71,7 +71,7 @@ namespace ntucoderbe.Controllers
             Response.Cookies.Delete("token");
             return Ok(new { message = "Đăng xuất thành công" });
         }
-        [Authorize(Roles = "1")]
+        [Authorize(Roles = "1,3")]
         [HttpGet("protected-route")]
         public IActionResult ProtectedRoute()
         {

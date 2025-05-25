@@ -41,6 +41,7 @@ const routes = [
     layout: '/admin',
     icon: <Icon as={BiHomeHeart} width="20px" height="20px" color="inherit" />,
     path: '/default',
+    allowRoles: [1],
     component: <AdminDashboard />,
   },
   {
@@ -48,17 +49,21 @@ const routes = [
     layout: '/admin',
     icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
     path: '/coder',
+    allowRoles: [1],
     component: <CoderIndex />,
     items: [
       {
         name: 'Tạo người dùng',
         path: '/create',
+
         component: <CreateCoder />,
+        allowRoles: [1],
       },
       {
         name: 'Chi tiết người dùng',
         path: '/detail/:id',
         component: <CoderDetail />,
+        allowRoles: [1],
       },
     ],
   },

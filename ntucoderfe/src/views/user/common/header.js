@@ -60,18 +60,19 @@ export default function Header({ hideHeader }) {
                       {coder.coderName}
                     </ChakraLink>
                   </Text>
-                  {coder.roleID === 1 && (
-                    <ChakraLink
-                      as={Link}
-                      to="/admin"
-                      fontSize="md"
-                      fontWeight={600}
-                      color="blue.500"
-                      _hover={{ textDecoration: 'underline' }}
-                    >
-                      Trang quản trị
-                    </ChakraLink>
-                  )}
+                  {coder.roleID === 1 ||
+                    (coder.roleID === 3 && (
+                      <ChakraLink
+                        as={Link}
+                        to="/admin"
+                        fontSize="md"
+                        fontWeight={600}
+                        color="blue.500"
+                        _hover={{ textDecoration: 'underline' }}
+                      >
+                        Trang quản trị
+                      </ChakraLink>
+                    ))}
                   <Button
                     onClick={logout}
                     fontSize="md"

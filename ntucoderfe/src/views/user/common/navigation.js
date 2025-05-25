@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, LayoutGroup } from 'framer-motion';
 import {
   Box,
   Flex,
@@ -86,37 +86,62 @@ export default function Navigation({ hideHeader }) {
             />
 
             {/* Desktop Navigation */}
-            <Stack
-              direction="row"
-              spacing={4}
-              display={{ base: 'none', md: 'flex' }}
-            >
-              {routes
-                .filter((route) => route.layout === '/user' && !route.hidden)
-                .map((route) => {
-                  const isActive =
-                    route.path === '/'
-                      ? location.pathname === '/'
-                      : location.pathname.startsWith(route.path);
-                  return (
-                    <Link to={route.path} key={route.path}>
-                      <Button
-                        variant="link"
-                        fontWeight="500"
-                        fontSize="md"
-                        px={4}
-                        py={2}
-                        _hover={{ textDecoration: 'none' }}
-                        color={isActive ? '#0186bd' : 'white'}
-                        bg={isActive ? 'white' : 'transparent'}
-                        borderRadius="10"
-                      >
-                        {route.icon} {route.name}
-                      </Button>
-                    </Link>
-                  );
-                })}
-            </Stack>
+            <Box pos="relative" display={{ base: 'none', md: 'flex' }}>
+              <LayoutGroup>
+                <Stack direction="row" spacing={4} position="relative">
+                  {routes
+                    .filter(
+                      (route) => route.layout === '/user' && !route.hidden,
+                    )
+                    .map((route) => {
+                      const isActive =
+                        route.path === '/'
+                          ? location.pathname === '/'
+                          : location.pathname.startsWith(route.path);
+
+                      return (
+                        <Link to={route.path} key={route.path}>
+                          <Box position="relative">
+                            {isActive && (
+                              <motion.div
+                                layoutId="nav-indicator"
+                                style={{
+                                  position: 'absolute',
+                                  top: 0,
+                                  left: 0,
+                                  right: 0,
+                                  bottom: 0,
+                                  borderRadius: 10,
+                                  backgroundColor: 'white',
+                                  zIndex: 0,
+                                }}
+                                transition={{
+                                  type: 'spring',
+                                  stiffness: 500,
+                                  damping: 30,
+                                }}
+                              />
+                            )}
+                            <Button
+                              variant="ghost"
+                              fontWeight="500"
+                              fontSize="md"
+                              px={4}
+                              py={2}
+                              position="relative"
+                              zIndex={1}
+                              color={isActive ? '#0186bd' : 'white'}
+                              _hover={{ bg: 'transparent' }}
+                            >
+                              {route.icon} {route.name}
+                            </Button>
+                          </Box>
+                        </Link>
+                      );
+                    })}
+                </Stack>
+              </LayoutGroup>
+            </Box>
 
             <Box position="relative">
               <InputGroup w="250px">
@@ -131,7 +156,10 @@ export default function Navigation({ hideHeader }) {
                   <LuSearchCode color="gray.500" />
                 </InputRightElement>
               </InputGroup>
-              <SearchResultDropdown searchResults={searchResults} />
+              <SearchResultDropdown
+                searchResults={searchResults}
+                searchString={searchString}
+              />
             </Box>
           </Flex>
         </Box>
@@ -178,7 +206,6 @@ export default function Navigation({ hideHeader }) {
                         fontWeight="500"
                         color="gray.700"
                         bg="gray.100"
-                        _hover={{ bg: 'gray.200', transform: 'scale(1.05)' }}
                         transition="all 0.2s ease-in-out"
                         p={4}
                         borderRadius="lg"
