@@ -181,6 +181,17 @@ export default function ContestTable({
       ),
     },
     {
+      Header: 'Người tham gia',
+      accessor: 'participationCount',
+      Cell: ({ row }) => (
+        <Link to={`/admin/participation/${row.contestID}`}>
+          <Text color="blue">
+            {row.participationCount + ' người' ?? 'Đang tải...'}
+          </Text>
+        </Link>
+      ),
+    },
+    {
       Header: 'Trạng thái',
       accessor: 'status',
       Cell: ({ row }) => {

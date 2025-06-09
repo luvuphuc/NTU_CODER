@@ -1,13 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Flex } from '@chakra-ui/react';
+import { Box, Button, Flex, useToast } from '@chakra-ui/react';
 import api from '../../../config/api';
 import ScrollToTop from 'components/scroll/ScrollToTop';
 import { MdAdd } from 'react-icons/md';
-import { Link } from 'react-router-dom';
 import Pagination from 'components/pagination/pagination';
-import ContestTable from './components/ColumnsTable';
+import { useParams } from 'react-router-dom';
+import ParticipationTable from './components/ColumnsTable';
 
-export default function ContestIndex() {
+export default function ParticipationIndex() {
+  const { contestID } = useParams();
+  const toast = useToast();
+
   const [tableData, setTableData] = useState([]);
   const [sortField, setSortField] = useState('');
   const [ascending, setAscending] = useState(true);
@@ -15,37 +18,53 @@ export default function ContestIndex() {
   const [pageSize, setPageSize] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRows, setTotalRows] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchData = useCallback(async () => {
+    if (!contestID) return;
     try {
-      const response = await api.get('/Contest/all', {
+      const response = await api.get('/Participation/all', {
         params: {
+          contestID,
+          ascending,
           Page: currentPage,
           PageSize: pageSize,
-          ascending: ascending,
-          sortField: sortField,
+          sortField,
         },
       });
-      const dataWithStatus = Array.isArray(response.data.data)
-        ? response.data.data.map((item) => ({
-            ...item,
-          }))
-        : [];
+
+      const dataWithStatus = response.data.data.map((item) => ({
+        ...item,
+        status: true,
+      }));
+
       setTableData(dataWithStatus);
       setTotalPages(response.data.totalPages || 0);
       setTotalRows(response.data.totalCount || 0);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Lỗi khi lấy dữ liệu:', error);
+      toast({
+        title: 'Lỗi',
+        description: 'Không thể tải dữ liệu',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+        position: 'top-right',
+      });
     }
-  }, [sortField, ascending, currentPage, pageSize]);
+  }, [contestID, sortField, ascending, currentPage, pageSize, toast]);
 
   useEffect(() => {
     fetchData();
-  }, [sortField, ascending, currentPage, pageSize]);
+  }, [contestID, sortField, ascending, currentPage, pageSize]);
 
   const handleSort = (field) => {
-    setSortField(field);
-    setAscending((prev) => (prev && sortField === field ? !ascending : true));
+    if (sortField === field) {
+      setAscending(!ascending);
+    } else {
+      setSortField(field);
+      setAscending(true);
+    }
   };
 
   const refetchData = () => {
@@ -70,18 +89,17 @@ export default function ContestIndex() {
     <ScrollToTop>
       <Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
         <Flex mb="20px" justifyContent="end" align="end" px="25px">
-          <Link to="create">
-            <Button
-              variant="solid"
-              size="lg"
-              colorScheme="green"
-              borderRadius="md"
-            >
-              Thêm <MdAdd size="25" />
-            </Button>
-          </Link>
+          <Button
+            variant="solid"
+            size="lg"
+            colorScheme="green"
+            borderRadius="md"
+            onClick={() => setIsModalOpen(true)}
+          >
+            Thêm <MdAdd size="25" />
+          </Button>
         </Flex>
-        <ContestTable
+        <ParticipationTable
           tableData={tableData}
           onSort={handleSort}
           sortField={sortField}

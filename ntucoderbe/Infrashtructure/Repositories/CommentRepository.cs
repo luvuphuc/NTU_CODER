@@ -74,7 +74,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             return sortField?.ToLower() switch
             {
                 "commenttime" => ascending ? query.OrderBy(p => p.CommentTime) : query.OrderByDescending(p => p.CommentTime),
-                _ => query.OrderBy(p => p.CommentID),
+                _ => query.OrderByDescending(p => p.CommentID),
             };
         }
         public async Task<CommentDTO> GetCommentByIdAsync(int id)

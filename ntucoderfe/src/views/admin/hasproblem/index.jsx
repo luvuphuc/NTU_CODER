@@ -6,7 +6,6 @@ import ScrollToTop from 'components/scroll/ScrollToTop';
 import { MdAdd } from 'react-icons/md';
 import Pagination from 'components/pagination/pagination';
 import { useParams } from 'react-router-dom';
-import CreateTestCaseModal from './components/Create';
 
 export default function HasProblemIndex() {
   const { contestID } = useParams();
@@ -114,12 +113,6 @@ export default function HasProblemIndex() {
           onPageChange={handlePageChange}
           pageSize={pageSize}
           onPageSizeChange={handlePageSizeChange}
-        />
-        <CreateTestCaseModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          refetchData={refetchData}
-          contestID={contestID}
         />
       </Box>
     </ScrollToTop>

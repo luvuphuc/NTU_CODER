@@ -23,11 +23,11 @@ namespace ntucoderbe.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllParticipations([FromQuery] QueryObject query, string? sortField = null, bool ascending = true)
+        public async Task<IActionResult> GetAllParticipations([FromQuery] QueryObject query,int contestID, string? sortField = null, bool ascending = true)
         {
             try
             {
-                var result = await _repository.GetAllParticipationsAsync(query, sortField, ascending);
+                var result = await _repository.GetAllParticipationsAsync(query,contestID, sortField, ascending);
                 return Ok(result);
             }
             catch (Exception ex)

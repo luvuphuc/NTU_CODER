@@ -23,6 +23,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
         {
             await UpdateContestStatusesAsync();
             var contestQuery = _context.Contest
+                .Include(c=>c.Participations)
                 .Include(c => c.Coder)
                 .Select(c => new ContestDTO
                 {
@@ -36,6 +37,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     Duration = c.Duration,
                     CoderName = c.Coder.CoderName,
                     ContestDescription = c.ContestDescription,
+                    ParticipationCount = c.Participations.Count()
                 });
             if (published)
             {
@@ -63,7 +65,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 "status" => ascending
                     ? query.OrderBy(c => c.Status == 2 ? 0 : c.Status == 0 ? 1 : c.Status == 1 ? 2 : 3)
                     : query.OrderByDescending(c => c.Status == 2 ? 0 : c.Status == 0 ? 1 : c.Status == 1 ? 2 : 3),
-                _ => query.OrderBy(c => c.ContestID),
+                _ => query.OrderByDescending(c => c.ContestID),
             };
         }
         public async Task<ContestDTO> CreateContestAsync(ContestDTO dto)

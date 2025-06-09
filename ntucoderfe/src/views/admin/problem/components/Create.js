@@ -9,14 +9,11 @@ import {
   Input,
   Text,
   useToast,
-  VStack,
   FormErrorMessage,
   Grid,
   GridItem,
   Select,
-  Checkbox,
-  SimpleGrid,
-  Textarea,
+  Switch,
 } from '@chakra-ui/react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -40,6 +37,7 @@ export default function ProblemCreate() {
   const [testCode, settestCode] = useState('');
   const [problemContent, setProblemContent] = useState('');
   const [problemExplanation, setProblemExplanation] = useState('');
+  const [published, setPublished] = useState(0);
   const toast = useToast();
   const navigate = useNavigate();
   useEffect(() => {
@@ -110,6 +108,7 @@ export default function ProblemCreate() {
         testCompilerID,
         selectedCategoryIDs,
         note,
+        published,
       });
 
       toast({
@@ -423,8 +422,18 @@ export default function ProblemCreate() {
                   }}
                 />
               </Box>
-
               <FormErrorMessage>{errors.selectedCategoryIDs}</FormErrorMessage>
+            </FormControl>
+            <FormControl display="flex" alignItems="center" mt={10}>
+              <FormLabel htmlFor="status-switch" mb="0" fontWeight="bold">
+                Công khai
+              </FormLabel>
+              <Switch
+                id="status-switch"
+                isChecked={published === 1}
+                onChange={(e) => setPublished(e.target.checked ? 1 : 0)}
+                colorScheme="blue"
+              />
             </FormControl>
           </GridItem>
         </Grid>

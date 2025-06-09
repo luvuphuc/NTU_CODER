@@ -125,11 +125,11 @@ export function BlogSection() {
                       <Text fontSize="xl" fontWeight="bold" color="blue.500">
                         {post.title}
                       </Text>
-                      <Text fontSize="sm" color={textColor} noOfLines={3}>
-                        {post.description ||
-                          post.content?.replace(/<[^>]+>/g, '').slice(0, 120) +
-                            '...'}
-                      </Text>
+                      <Box
+                        fontSize="sm"
+                        noOfLines={3}
+                        dangerouslySetInnerHTML={{ __html: post.content }}
+                      />
                     </Stack>
                   </CardBody>
                 </MotionCard>

@@ -92,7 +92,7 @@ export default function Dashboard(props) {
     return routes.flatMap((route, key) => {
       if (route.layout !== '/admin') return [];
 
-      if (route.allowRoles && !route.allowRoles.includes(coder?.RoleID))
+      if (route.allowRoles && !route.allowRoles.includes(coder?.coder?.roleID))
         return [];
 
       let mainRoute = (
@@ -104,7 +104,7 @@ export default function Dashboard(props) {
             .filter(
               (subRoute) =>
                 !subRoute.allowRoles ||
-                subRoute.allowRoles.includes(coder?.RoleID),
+                subRoute.allowRoles.includes(coder?.coder?.roleID),
             )
             .map((subRoute, subKey) => (
               <Route

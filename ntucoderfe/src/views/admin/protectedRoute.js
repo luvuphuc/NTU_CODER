@@ -22,7 +22,7 @@ const ProtectedRoute = ({ children }) => {
         setIsAuthorized(true);
       } catch (error) {
         setIsAuthorized(false);
-        Cookies.remove('token'); // Xóa token nếu hết hạn
+        Cookies.remove('token');
       }
     };
 

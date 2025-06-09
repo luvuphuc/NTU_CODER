@@ -37,7 +37,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             return sortField?.ToLower() switch
             {
                 "catorder" => ascending ? query.OrderBy(a => a.CatOrder) : query.OrderByDescending(a => a.CatOrder),
-                _ => query.OrderBy(a => a.CategoryID)
+                _ => query.OrderByDescending(a => a.CategoryID)
             };
         }
 

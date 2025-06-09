@@ -99,7 +99,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 "problemcode" => ascending ? query.OrderBy(p => p.ProblemCode) : query.OrderByDescending(p => p.ProblemCode),
                 "problemname" => ascending ? query.OrderBy(p => p.ProblemName) : query.OrderByDescending(p => p.ProblemName),
                 "problemid" => ascending ? query.OrderBy(p=>p.ProblemID) : query.OrderByDescending(p=>p.ProblemID),
-                _ => query.OrderBy(p => p.ProblemID),
+                _ => query.OrderByDescending(p => p.ProblemID),
             };
         }
 
@@ -120,7 +120,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 TestType = dto.TestType!,
                 TestCode = dto.TestCode!,
                 CoderID = (int)dto.CoderID!,
-                Published = 0,
+                Published = dto.Published ?? 0,
                 TestCompilerID = dto.TestCompilerID ?? 1!,
                 TestProgCompile = dto.TestProgCompile
             };

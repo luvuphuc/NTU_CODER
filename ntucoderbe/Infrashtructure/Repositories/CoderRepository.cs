@@ -46,7 +46,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             return sortField?.ToLower() switch
             {
                 "codername" => ascending ? query.OrderBy(a => a.UserName) : query.OrderByDescending(a => a.UserName),
-                _ => query.OrderBy(a => a.CoderID)
+                _ => query.OrderByDescending(a => a.CoderID)
             };
         }
         public static string HashPassword(string password, string salt)

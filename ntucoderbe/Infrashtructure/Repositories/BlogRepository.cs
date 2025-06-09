@@ -94,7 +94,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
             {
                 "title" => ascending ? query.OrderBy(p => p.Title) : query.OrderByDescending(p => p.Title),
                 "blogdate" => ascending ? query.OrderBy(p=>p.BlogDate) : query.OrderByDescending(p=>p.BlogDate),
-                _ => query.OrderBy(p => p.BlogID),
+                _ => query.OrderByDescending(p => p.BlogID),
             };
         }
         public async Task<BlogDTO> GetBlogByIdAsync(int id)

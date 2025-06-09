@@ -73,7 +73,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 "problemname" => ascending ? query.OrderBy(a => a.ProblemName) : query.OrderByDescending(a => a.ProblemName),
                 "submittime" => ascending ? query.OrderBy(a => a.SubmitTime) : query.OrderByDescending(a => a.SubmitTime),
                 "maxtimeduration" => ascending ? query.OrderBy(a => a.MaxTimeDuration) : query.OrderByDescending(a => a.MaxTimeDuration),
-                _ => query.OrderBy(a => a.SubmissionID)
+                _ => query.OrderByDescending(a => a.SubmissionID)
             };
         }
 

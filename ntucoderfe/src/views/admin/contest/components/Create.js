@@ -45,8 +45,8 @@ export default function CreateContest() {
     const inputs = {
       contestName,
       contestDescription,
-      startTime,
-      endTime,
+      startTime: new Date(startTime).toISOString(),
+      endTime: new Date(endTime).toISOString(),
       ruleType,
       failedPenalty,
       published,

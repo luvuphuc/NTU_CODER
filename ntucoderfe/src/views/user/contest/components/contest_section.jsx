@@ -15,24 +15,21 @@ import { motion } from 'framer-motion';
 
 const MotionBox = motion(Box);
 
-function ContestSection({ title, contests }) {
+export default function ContestSection({ title, contests }) {
   const bg = useColorModeValue('white', 'gray.800');
   const border = useColorModeValue('gray.200', 'gray.600');
   const iconColor = useColorModeValue('gray.400', 'gray.500');
-  const headingColor = useColorModeValue('gray.600', 'gray.300');
+  const headingColor = useColorModeValue('gray.700', 'gray.200');
   const textColor = useColorModeValue('gray.500', 'gray.400');
 
   return (
     <MotionBox
-      position="relative"
-      mt={6}
-      mb={10}
       initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.8, ease: 'easeOut' }}
     >
-      <Heading size="lg" mb={4}>
+      <Heading fontSize="2xl" color={headingColor} mb={6}>
         {title}
       </Heading>
 
@@ -41,10 +38,10 @@ function ContestSection({ title, contests }) {
           direction="column"
           align="center"
           justify="center"
-          p={8}
+          p={10}
           bg={bg}
-          borderRadius="xl"
-          border="1px solid"
+          borderRadius="2xl"
+          border="1px dashed"
           borderColor={border}
           minH="300px"
           textAlign="center"
@@ -53,17 +50,17 @@ function ContestSection({ title, contests }) {
             <LuCalendarX />
           </Box>
           <Heading fontSize="lg" color={headingColor} mb={2}>
-            Hiện chưa có cuộc thi nào sắp diễn ra
+            Không có cuộc thi nào sắp diễn ra
           </Heading>
           <Text color={textColor} fontSize="md" mb={4}>
-            Hãy quay lại sau hoặc khám phá các bài tập luyện tập nhé!
+            Quay lại sau hoặc luyện tập ngay để nâng cao kỹ năng!
           </Text>
           <Button
             as={Link}
             to="/problem"
             colorScheme="blue"
             size="md"
-            borderRadius="md"
+            borderRadius="lg"
             _hover={{ bg: 'blue.600' }}
           >
             Luyện tập ngay
@@ -93,28 +90,28 @@ function ContestCard({ contest }) {
     <Box
       bg={bg}
       borderRadius="2xl"
-      boxShadow="lg"
+      boxShadow="md"
       p={6}
       w="full"
       border="1px solid"
       borderColor={border}
       _hover={{
-        boxShadow: '2xl',
+        boxShadow: 'lg',
         transform: 'translateY(-4px)',
         transition: 'all 0.3s ease',
       }}
     >
-      <Flex justify="space-between" align="flex-start" mb={4}>
-        <Box maxW="70%">
+      <Flex justify="space-between" align="start" mb={4} gap={4}>
+        <Box maxW="75%">
           <Heading
             fontSize="xl"
-            mb={4}
+            mb={2}
             color={useColorModeValue('blue.600', 'blue.300')}
           >
             {contest.contestName}
           </Heading>
           <Box
-            color={useColorModeValue('gray.700', 'gray.300')}
+            color={useColorModeValue('gray.600', 'gray.300')}
             fontSize="sm"
             noOfLines={3}
             dangerouslySetInnerHTML={{
@@ -122,19 +119,19 @@ function ContestCard({ contest }) {
             }}
           />
         </Box>
-        <VStack align="flex-end" spacing={2}>
+        <VStack align="end" spacing={2}>
           <Badge
             colorScheme={getBadgeColor(contest.status)}
-            fontSize="0.8em"
+            fontSize="0.75rem"
             px={3}
             py={1}
-            borderRadius="md"
+            borderRadius="full"
           >
             {getStatusLabel(contest.status)}
           </Badge>
           <Text
             fontSize="sm"
-            fontWeight="bold"
+            fontWeight="medium"
             color={useColorModeValue('gray.600', 'gray.400')}
           >
             {getDisplayTimeLabel(contest.status, displayTime)}
@@ -147,11 +144,11 @@ function ContestCard({ contest }) {
           as={Link}
           to={`/contest/${contest.contestID}`}
           colorScheme="blue"
-          size="md"
+          size="sm"
           borderRadius="md"
           _hover={{
-            transform: 'translateY(-3px)',
-            boxShadow: 'lg',
+            transform: 'translateY(-2px)',
+            boxShadow: 'md',
             transition: 'transform 0.2s ease',
           }}
         >
@@ -193,12 +190,10 @@ function formatDateTime(dateTime) {
 
 function getDisplayTimeLabel(status, displayTime) {
   if (status === 0) {
-    return `Đã kết thúc vào ngày ${displayTime}`;
+    return `Đã kết thúc: ${displayTime}`;
   }
   if (status === 1) {
-    return `Kết thúc vào ngày ${displayTime}`;
+    return `Kết thúc: ${displayTime}`;
   }
-  return `Bắt đầu vào ngày ${displayTime}`;
+  return `Bắt đầu: ${displayTime}`;
 }
-
-export default ContestSection;

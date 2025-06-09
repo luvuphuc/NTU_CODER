@@ -7,17 +7,13 @@ const ProblemTab = ({ problem }) => {
       <Heading size="lg" maxWidth="100%">
         {problem.problemName}
       </Heading>
-      <Text>
-        <strong>Mã bài toán:</strong> {problem.problemCode}
-      </Text>
       <Text fontWeight="bold">Nội dung bài toán:</Text>
       <Box
         maxWidth="100%"
-        p={3}
+        p={6}
         bg="gray.200"
         borderRadius="md"
         boxShadow="sm"
-        overflowX="hidden"
         style={{
           wordWrap: 'break-word',
           wordBreak: 'break-word',

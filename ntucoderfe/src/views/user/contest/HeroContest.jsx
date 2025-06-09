@@ -1,13 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Flex, Spinner, Stack } from '@chakra-ui/react';
-import LayoutUser from 'layouts/user';
+import {
+  Box,
+  Container,
+  Flex,
+  Spinner,
+  Stack,
+  Heading,
+} from '@chakra-ui/react';
+import { motion } from 'framer-motion';
 import ContestSection from './components/contest_section';
 import api from 'config/api';
-import { motion } from 'framer-motion';
+
+const MotionBox = motion(Box);
+
 export default function HeroContestSection() {
   const [contests, setContests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const MotionBox = motion(Box);
+
   useEffect(() => {
     const fetchContests = async () => {
       try {
@@ -27,20 +36,20 @@ export default function HeroContestSection() {
 
   return (
     <Box>
-      <Container maxW="7xl" py={8} px={0}>
+      <Container maxW="7xl" py={10}>
         {loading ? (
           <Flex justify="center" align="center" minH="300px">
             <Spinner size="xl" color="blue.500" />
           </Flex>
         ) : (
-          <Stack spacing={8}>
+          <Stack spacing={10}>
             <MotionBox
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: 'easeOut' }}
             >
               <ContestSection
-                title="Sắp diễn ra"
+                title="Các cuộc thi sắp diễn ra"
                 contests={filterContests(2)}
               />
             </MotionBox>

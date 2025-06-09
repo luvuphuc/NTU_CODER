@@ -55,7 +55,7 @@ export default function AnimatedSplitText({
       </Tag>
       <style>{`
         .split-word, .split-char {
-          display: inline-block;
+          display: inline;
           will-change: transform, opacity;
         }
       `}</style>

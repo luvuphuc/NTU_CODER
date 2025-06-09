@@ -16,11 +16,12 @@ namespace ntucoderbe.Infrashtructure.Repositories
         {
             _context = context;
         }
-        public async Task<PagedResponse<ParticipationDTO>> GetAllParticipationsAsync(QueryObject query, string? sortField = null, bool ascending = true)
+        public async Task<PagedResponse<ParticipationDTO>> GetAllParticipationsAsync(QueryObject query,int contestID, string? sortField = null, bool ascending = true)
         {
             var objQuery = _context.Participations
                 .Include(c => c.Contest)
                 .Include(c=>c.Coder)
+                .Where(c=>c.ContestID == contestID)
                .Select(c => new ParticipationDTO
                {
                    ParticipationID = c.ParticipationID,

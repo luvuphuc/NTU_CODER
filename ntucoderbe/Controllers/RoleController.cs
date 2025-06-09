@@ -6,6 +6,7 @@ using ntucoderbe.Infrashtructure.Services;
 
 namespace ntucoderbe.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
     public class RoleController : ControllerBase
     {
