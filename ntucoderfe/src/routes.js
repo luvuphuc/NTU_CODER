@@ -35,6 +35,7 @@ import { BiHomeHeart } from 'react-icons/bi';
 import SubmissionIndex from 'views/admin/submission';
 import DetailSubmissionPage from 'views/admin/submission/components/Detail';
 import { BsJournalCode } from 'react-icons/bs';
+import ParticipationIndex from 'views/admin/participation';
 const routes = [
   {
     name: 'Trang chủ',
@@ -143,6 +144,13 @@ const routes = [
     path: 'hasproblem/:contestID',
     hidden: true,
     component: <HasProblemIndex />,
+  },
+  {
+    name: 'Người dự thi',
+    layout: '/admin',
+    path: 'participation/:contestID',
+    hidden: true,
+    component: <ParticipationIndex />,
   },
   {
     name: 'Trình biên dịch',
