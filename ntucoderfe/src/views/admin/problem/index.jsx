@@ -9,7 +9,7 @@ import Pagination from 'components/pagination/pagination';
 
 export default function ProblemIndex() {
   const [tableData, setTableData] = useState([]);
-  const [sortField, setSortField] = useState('problemCode');
+  const [sortField, setSortField] = useState('');
   const [ascending, setAscending] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
