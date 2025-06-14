@@ -1,6 +1,7 @@
 ﻿using AddressManagementSystem.Infrashtructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 using ntucoderbe.DTOs;
+using ntucoderbe.Infrashtructure.Moderators;
 using ntucoderbe.Models;
 using ntucoderbe.Models.ERD;
 
@@ -9,24 +10,33 @@ namespace ntucoderbe.Infrashtructure.Repositories
     public class CommentRepository
     {
         private readonly ApplicationDbContext _context;
+        private readonly PerspectiveModerator _moderator;
 
-        public CommentRepository(ApplicationDbContext context)
+        public CommentRepository(ApplicationDbContext context, PerspectiveModerator moderator)
         {
             _context = context;
+            _moderator = moderator;
         }
+
         public async Task<CommentDTO> CreateCommentAsync(CommentDTO dto)
         {
-            Comment obj = new Comment
+            (bool allowed, string? reason) result = await _moderator.ModerateAsync(dto.Content!);
+            if (!result.allowed)
+            {
+                throw new ArgumentException(result.reason);
+            }
+
+            Comment comment = new Comment
             {
                 Content = dto.Content!,
                 CommentTime = DateTime.UtcNow,
                 CoderID = dto.CoderID ?? 0,
-                BlogID = dto.BlogID?? 0,
-
+                BlogID = dto.BlogID ?? 0
             };
 
-            _context.Comments.Add(obj);
+            _context.Comments.Add(comment);
             await _context.SaveChangesAsync();
+
             return dto;
         }
         public async Task<bool> DeleteCommentAsync(int id)

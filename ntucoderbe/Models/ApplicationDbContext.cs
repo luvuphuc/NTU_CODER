@@ -60,7 +60,7 @@ namespace ntucoderbe.Models
                 entity.HasOne(a => a.Coder)
                     .WithOne(c => c.Account)
                     .HasForeignKey<Coder>(c => c.CoderID)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Restrict);
             });
             //announcement
             modelBuilder.Entity<Announcement>(entity =>
@@ -111,7 +111,7 @@ namespace ntucoderbe.Models
                 .HasMany(b => b.Comments)
                 .WithOne(c => c.Blog)
                 .HasForeignKey(c => c.BlogID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             //coder
             modelBuilder.Entity<Coder>(entity =>
@@ -155,7 +155,7 @@ namespace ntucoderbe.Models
                 entity.HasOne(c => c.Account)
                       .WithOne(a => a.Coder)
                       .HasForeignKey<Coder>(c => c.CoderID)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasMany(c => c.Blogs)
                       .WithOne(b => b.Coder)
@@ -185,7 +185,7 @@ namespace ntucoderbe.Models
                 entity.HasMany(c => c.Favourites)
                       .WithOne(f => f.Coder)
                       .HasForeignKey(f => f.CoderID)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasMany(c => c.Participations)
                       .WithOne(p => p.Coder)
@@ -205,13 +205,13 @@ namespace ntucoderbe.Models
                 .HasOne(c => c.Blog)
                 .WithMany(b => b.Comments)
                 .HasForeignKey(c => c.BlogID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Comment>()
                 .HasOne(c => c.Coder)
                 .WithMany()
                 .HasForeignKey(c => c.CoderID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             //compiler
             modelBuilder.Entity<Compiler>(entity =>
@@ -315,7 +315,7 @@ namespace ntucoderbe.Models
                 entity.HasOne(c => c.Account)
                       .WithOne(a => a.Coder) 
                       .HasForeignKey<Coder>(c => c.CoderID)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasMany(c => c.Blogs)
                       .WithOne(b => b.Coder)
@@ -345,7 +345,7 @@ namespace ntucoderbe.Models
                 entity.HasMany(c => c.Favourites)
                       .WithOne(f => f.Coder)
                       .HasForeignKey(f => f.CoderID)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasMany(c => c.Participations)
                       .WithOne(p => p.Coder)
@@ -455,19 +455,19 @@ namespace ntucoderbe.Models
                 .HasOne(p => p.Coder)
                 .WithMany(c => c.Participations)
                 .HasForeignKey(p => p.CoderID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Participation>()
                 .HasOne(p => p.Contest)
                 .WithMany(c => c.Participations)
                 .HasForeignKey(p => p.ContestID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Participation>()
                 .HasMany(p => p.TakeParts)
                 .WithOne(tp => tp.Participation)
                 .HasForeignKey(tp => tp.ParticipationID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
             //problem
             modelBuilder.Entity<Problem>()
         .HasKey(p => p.ProblemID);
@@ -476,55 +476,55 @@ namespace ntucoderbe.Models
                 .HasOne(p => p.Coder)
                 .WithMany(c => c.Problems)
                 .HasForeignKey(p => p.CoderID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Problem>()
                 .HasOne(p => p.Compiler)
                 .WithMany(c => c.Problems)
                 .HasForeignKey(p => p.TestCompilerID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Problem>()
                 .HasMany(p => p.TestCases)
                 .WithOne(tc => tc.Problem)
                 .HasForeignKey(tc => tc.ProblemID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Problem>()
                 .HasMany(p => p.Solveds)
                 .WithOne(s => s.Problem)
                 .HasForeignKey(s => s.ProblemID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Problem>()
                 .HasMany(p => p.ProblemCategories)
                 .WithOne(pc => pc.Problem)
                 .HasForeignKey(pc => pc.ProblemID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Problem>()
                 .HasMany(p => p.Submissions)
                 .WithOne(s => s.Problem)
                 .HasForeignKey(s => s.ProblemID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Problem>()
                 .HasMany(p => p.TakeParts)
                 .WithOne(tp => tp.Problem)
                 .HasForeignKey(tp => tp.ProblemID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Problem>()
                 .HasMany(p => p.Favourites)
                 .WithOne(f => f.Problem)
                 .HasForeignKey(f => f.ProblemID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Problem>()
                 .HasMany(p => p.HasProblems)
                 .WithOne(hp => hp.Problem)
                 .HasForeignKey(hp => hp.ProblemID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             //problemcategory
             modelBuilder.Entity<ProblemCategory>()
@@ -534,13 +534,13 @@ namespace ntucoderbe.Models
                 .HasOne(pc => pc.Problem)
                 .WithMany(p => p.ProblemCategories)
                 .HasForeignKey(pc => pc.ProblemID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ProblemCategory>()
                 .HasOne(pc => pc.Category)
                 .WithMany(c => c.ProblemCategories)
                 .HasForeignKey(pc => pc.CategoryID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
             //role
             modelBuilder.Entity<Role>()
                 .HasKey(r => r.RoleID);
@@ -548,7 +548,7 @@ namespace ntucoderbe.Models
                 .HasMany(r => r.Accounts)
                 .WithOne(a => a.Role)
                 .HasForeignKey(a => a.RoleID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Role>().HasData(
             Enum.GetValues(typeof(RoleEnum))
                 .Cast<RoleEnum>()

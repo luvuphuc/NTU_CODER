@@ -107,7 +107,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
         {
             if (await CheckProblemCodeExist(dto.ProblemCode!))
             {
-                throw new ValidationException("Mã bài tập đã tồn tại.");
+                throw new InvalidOperationException("Mã bài tập đã tồn tại.");
             }
             var problem = new Problem
             {

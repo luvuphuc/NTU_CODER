@@ -69,7 +69,7 @@ namespace ntucoderbe.Controllers
         public async Task<IActionResult> TryRunCode([FromBody] string sourceCode, string compilerExtension, int problemId)
         {
             List<TestCase> testcases = await _testCaseRepository.GetAllTestCaseByProblemId(problemId);
-
+            int totalDuration = 0;
             if (testcases == null || testcases.Count == 0)
             {
                 return BadRequest(new
@@ -91,6 +91,7 @@ namespace ntucoderbe.Controllers
                         input,
                         expectedOutput
                     );
+                    totalDuration += result.TimeDuration;
                     if (result.Result != "Accepted")
                     {
                         return Ok(new
@@ -117,7 +118,8 @@ namespace ntucoderbe.Controllers
             }
             return Ok(new
             {
-                Result = "Accepted"
+                Result = "Accepted",
+                TimeDuration = totalDuration
             });
         }
 

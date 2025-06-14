@@ -274,22 +274,34 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
             return queryDTO.ToList();
         }
-        public async Task<List<SubmissionDTO>> GetListSubmissionByCoderId(int coderId)
+        public async Task<PagedResponse<SubmissionDTO>> GetListSubmissionByCoderId(QueryObject query,int coderId)
         {
-            return await _context.Submissions
-                .Include(c=> c.Problem)
-                .Where(c => c.CoderID == coderId) 
-                .OrderByDescending(c => c.SubmissionID)
-                .Select(c => new SubmissionDTO
+            IQueryable<SubmissionDTO>? objQuery = _context.Submissions
+                .Include(s => s.Problem)
+                .Include(s => s.Compiler)
+                .Where(s => s.CoderID == coderId)
+                .OrderByDescending(s => s.SubmissionID)
+                .Select(s => new SubmissionDTO
                 {
-                    SubmissionID = c.SubmissionID,
-                    ProblemName = c.Problem.ProblemName,
-                    SubmissionStatus = c.SubmissionStatus,
-                    SubmitTime = c.SubmitTime,
-                    TestResult = c.TestResult,
+                    SubmissionID = s.SubmissionID,
+                    ProblemID = s.ProblemID,
+                    ProblemName = s.Problem.ProblemName,
+                    CoderID = s.CoderID,
+                    CoderName = s.Coder.CoderName,
+                    CompilerName = s.Compiler.CompilerName,
+                    TestResult = s.TestResult,
+                    MaxTimeDuration = s.MaxTimeDuration,
+                    SubmitTime = s.SubmitTime,
+                    SubmissionStatus = s.SubmissionStatus,
+                });
 
-                })
-        .ToListAsync();
+            PagedResponse<SubmissionDTO> result = await PagedResponse<SubmissionDTO>.CreateAsync(
+                objQuery,
+                query.Page,
+                query.PageSize);
+
+            return result;
         }
+
     }
 }

@@ -163,11 +163,11 @@ namespace ntucoderbe.Controllers
             return Ok(list);
         }
         [HttpGet("profile")]
-        public async Task<IActionResult> GetListProblemByCoderId(int coderID)
+        public async Task<IActionResult> GetListProblemByCoderId([FromQuery] QueryObject query, int coderID)
         {
             try
             { 
-                List<SubmissionDTO> list = await _submissionRepository.GetListSubmissionByCoderId(coderID);
+                PagedResponse<SubmissionDTO> list = await _submissionRepository.GetListSubmissionByCoderId(query,coderID);
                 return Ok(list);
             }
             catch (Exception ex)
