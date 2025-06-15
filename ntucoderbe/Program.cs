@@ -10,6 +10,7 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using ntucoderbe.Infrashtructure.Middlewares;
 using ntucoderbe.Infrashtructure.Helpers;
+using ntucoderbe.Infrashtructure.Moderators;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -61,7 +62,9 @@ builder.Services.AddScoped<StatisticRepository>();
 builder.Services.AddTransient<EmailHelper>();
 builder.Services.AddScoped<AnnouncementRepository>();
 builder.Services.AddHostedService<ContestNotificationService>();
-
+builder.Services.AddHttpClient<PerspectiveModerator>();
+builder.Services.AddSingleton<SubmissionExecutionQueueService>();
+builder.Services.AddHostedService(provider => provider.GetRequiredService<SubmissionExecutionQueueService>());
 var allowedOrigins = builder.Configuration["CorsSettings:AllowedOrigins"]?.Split(",") ?? new[] { "http://localhost:3000", "http://192.168.1.10:8081" };
 
 builder.Services.AddCors(options =>

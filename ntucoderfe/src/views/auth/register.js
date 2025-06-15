@@ -32,6 +32,7 @@ import CustomToast from 'components/toast/CustomToast';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from 'contexts/AuthContext';
 import ForgotPasswordModal from './forgot_password';
+import ReCAPTCHA from 'react-google-recaptcha';
 const InputField = ({ label, type, value, onChange, error, placeholder }) => (
   <FormControl mb={8} animation={error ? 'shake 0.3s' : ''}>
     <FormLabel>{label}</FormLabel>
@@ -56,6 +57,7 @@ const InputField = ({ label, type, value, onChange, error, placeholder }) => (
 );
 
 function Register() {
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
   const [credentials, setCredentials] = useState({
     userName: '',
     password: '',
@@ -111,7 +113,17 @@ function Register() {
       setLoading(false);
       return;
     }
-
+    // if (!recaptchaToken) {
+    //   toast({
+    //     render: () => (
+    //       <CustomToast success={false} messages="Vui lòng xác nhận CAPTCHA!" />
+    //     ),
+    //     position: 'top',
+    //     duration: 5000,
+    //   });
+    //   setLoading(false);
+    //   return;
+    // }
     try {
       await api.post('/Coder/create', { ...credentials, role: 2 });
       toast({
@@ -323,6 +335,7 @@ function Register() {
             >
               Đăng ký
             </Button>
+
             <Flex justifyContent="space-between" mx={2} mt="10px">
               <Text mr="5px">Đã có tài khoản?</Text>
               <NavLink to="/login">

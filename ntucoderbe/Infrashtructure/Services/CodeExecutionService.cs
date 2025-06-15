@@ -34,8 +34,6 @@ namespace ntucoderbe.Infrashtructure.Services
 
             var testRunTasks = testCases.Select(testCase => ExecuteTestCase(submission, testCase));
             var testRuns = await Task.WhenAll(testRunTasks);
-
-            //await _context.TestRuns.AddRangeAsync(testRuns);
             await _context.SaveChangesAsync();
             var submissionRepo = new SubmissionRepository(_context);
             await submissionRepo.UpdateSubmissionAfterTestRunAsync(submissionId);
@@ -74,7 +72,12 @@ namespace ntucoderbe.Infrashtructure.Services
             await using var _context = _contextFactory.CreateDbContext();
             var existingTestRun = await _context.TestRuns
                 .FirstOrDefaultAsync(tr => tr.SubmissionID == submission.SubmissionID && tr.TestCaseID == testCase.TestCaseID);
-
+            int timeLimit = 5000;
+            Problem problem = await _context.Problems.Where(p => p.ProblemID == submission.ProblemID).FirstOrDefaultAsync();
+            if (problem != null)
+            {
+                timeLimit = (int)(problem.TimeLimit * 1000);
+            }
             (string dockerCommand, string containerName) = GetDockerCommand(submission.Compiler, submission.SubmissionCode, testCase.Input);
            
             var stopwatch = Stopwatch.StartNew();
@@ -83,7 +86,7 @@ namespace ntucoderbe.Infrashtructure.Services
             (bool isSuccess, string output, string error) result;
             try
             {
-                result = await RunProcessAsync(dockerCommand,containerName);
+                result = await RunProcessAsync(dockerCommand,containerName,timeLimit);
             }
             finally
             {

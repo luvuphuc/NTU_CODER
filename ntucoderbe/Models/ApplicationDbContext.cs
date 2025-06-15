@@ -32,13 +32,13 @@ namespace ntucoderbe.Models
             //Account
             modelBuilder.Entity<Account>(entity =>
             {
-                entity.HasKey(a =>a.AccountID);
+                entity.HasKey(a => a.AccountID);
 
                 entity.Property(a => a.UserName)
                       .IsRequired()
                       .HasMaxLength(30);
 
-                entity.Property(a=> a.Password)
+                entity.Property(a => a.Password)
                       .IsRequired();
 
                 entity.Property(c => c.SaltMD5)
@@ -151,6 +151,8 @@ namespace ntucoderbe.Models
 
                 entity.Property(c => c.Gender)
                       .HasConversion<int>();
+                entity.Property(c => c.IsDeleted)
+                      .HasDefaultValue(0);
 
                 entity.HasOne(c => c.Account)
                       .WithOne(a => a.Coder)
@@ -238,24 +240,24 @@ namespace ntucoderbe.Models
                 entity.HasData(
                       new Compiler
                       {
-                         CompilerID = 1,
-                         CompilerName = "GCC",
-                         CompilerOption = 0,
-                         CompilerExtension = ".cpp"
+                          CompilerID = 1,
+                          CompilerName = "GCC",
+                          CompilerOption = 0,
+                          CompilerExtension = ".cpp"
                       },
                       new Compiler
                       {
-                         CompilerID = 2,
-                         CompilerName = "Java",
-                         CompilerOption = 0,
-                         CompilerExtension = ".java"
+                          CompilerID = 2,
+                          CompilerName = "Java",
+                          CompilerOption = 0,
+                          CompilerExtension = ".java"
                       },
                       new Compiler
                       {
-                         CompilerID = 3,
-                         CompilerName = "Python",
-                         CompilerOption = 0,
-                         CompilerExtension = ".py"
+                          CompilerID = 3,
+                          CompilerName = "Python",
+                          CompilerOption = 0,
+                          CompilerExtension = ".py"
                       }
                 );
             });
@@ -313,7 +315,7 @@ namespace ntucoderbe.Models
                       .HasMaxLength(100);
 
                 entity.HasOne(c => c.Account)
-                      .WithOne(a => a.Coder) 
+                      .WithOne(a => a.Coder)
                       .HasForeignKey<Coder>(c => c.CoderID)
                       .OnDelete(DeleteBehavior.Restrict);
 
@@ -387,7 +389,7 @@ namespace ntucoderbe.Models
                       .HasMaxLength(255);
 
                 entity.HasOne(c => c.Coder)
-                      .WithMany(c =>c.Contests)
+                      .WithMany(c => c.Contests)
                       .HasForeignKey(c => c.CoderID)
                       .OnDelete(DeleteBehavior.Restrict);
 
@@ -410,7 +412,7 @@ namespace ntucoderbe.Models
                 entity.HasKey(f => new { f.CoderID, f.ProblemID });
 
                 entity.HasOne(f => f.Coder)
-                      .WithMany(c=> c.Favourites)
+                      .WithMany(c => c.Favourites)
                       .HasForeignKey(f => f.CoderID)
                       .OnDelete(DeleteBehavior.Restrict);
 
@@ -435,7 +437,7 @@ namespace ntucoderbe.Models
                 .WithMany(p => p.HasProblems)
                 .HasForeignKey(hp => hp.ProblemID)
                 .IsRequired();
-      
+
             modelBuilder.Entity<HasProblem>()
                 .Property(hp => hp.ProblemOrder)
                 .IsRequired();
@@ -621,7 +623,7 @@ namespace ntucoderbe.Models
                 .HasForeignKey(s => s.TakePartID);
             //testcase
             modelBuilder.Entity<TestCase>()
-        .       HasKey(tc => tc.TestCaseID);
+        .HasKey(tc => tc.TestCaseID);
 
             modelBuilder.Entity<TestCase>()
                 .HasOne(tc => tc.Problem)

@@ -39,7 +39,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                     Name = c.ContestName
                 }).ToListAsync();
             List<SearchResultDTO> users = await _context.Coders
-                .Where(c => c.CoderName.ToLower().Contains(searchString))
+                .Where(c => c.CoderName.ToLower().Contains(searchString) && c.IsDeleted == 0)
                 .Select(c => new SearchResultDTO
                 {
                     Type = "Coder",

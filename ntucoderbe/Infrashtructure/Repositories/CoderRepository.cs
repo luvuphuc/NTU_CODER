@@ -25,7 +25,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
         public async Task<PagedResponse<CoderDTO>> GetAllCoderAsync(QueryObject query, string? sortField = null, bool ascending = true)
         {
             var coderQuery = _context.Accounts
-                .Include(a => a.Coder)
+                .Include(a => a.Coder).Where(a => a.Coder.IsDeleted == 0)
                 .Select(a => new CoderDTO
                 {
                     CoderID = a.Coder.CoderID,
@@ -115,11 +115,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 var firebaseStorageService = new FirebaseStorageService();
                 await firebaseStorageService.DeleteImageAsync(coder.Avatar);
             }
-            _context.Coders.Remove(coder);
-            if (coder.Account != null)
-            {
-                _context.Accounts.Remove(coder.Account);
-            }
+            coder.IsDeleted = 1;
             await _context.SaveChangesAsync();
             return true;
         }
@@ -127,7 +123,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
         {
             var coder = await _context.Coders
                         .Include(c => c.Account)
-                        .FirstOrDefaultAsync(c => c.CoderID == id);
+                        .FirstOrDefaultAsync(c => c.CoderID == id && c.IsDeleted == 0);
             if (coder == null)
             {
                 throw new KeyNotFoundException("Không tìm thấy");
@@ -153,7 +149,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
         }
         public async Task<Account> GetAccountByCoderIdAsync(int coderId)
         {
-            var account = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountID == coderId);
+            var account = await _context.Accounts.Include(a=>a.Coder).FirstOrDefaultAsync(a => a.AccountID == coderId && a.Coder.IsDeleted ==0);
 
             if (account == null)
             {
@@ -166,7 +162,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
         public async Task<CoderDTO> UpdateCoderAsync(int id, CoderDTO dto)
         {
 
-            Coder existing = await _context.Coders.Include(c => c.Account).FirstOrDefaultAsync(c => c.CoderID == id);
+            Coder existing = await _context.Coders.Include(c => c.Account).FirstOrDefaultAsync(c => c.CoderID == id && c.IsDeleted == 0);
             if (existing == null)
             {
                 throw new KeyNotFoundException("Không tìm thấy.");
@@ -294,7 +290,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
 
             int countFavourites = await _context.Favourites.CountAsync(c => c.CoderID == coderID);
 
-            Coder coder = await _context.Coders.Where(c=>c.CoderID == coderID).FirstOrDefaultAsync();
+            Coder coder = await _context.Coders.Where(c=>c.CoderID == coderID && c.IsDeleted == 0).FirstOrDefaultAsync();
 
             if (coder == null) return null;
 
@@ -313,7 +309,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
         }
         public async Task<string> UpdateAvatarAsync(int coderId, AvatarUploadDTO dto)
         {
-            Coder coder = await _context.Coders.FirstOrDefaultAsync(c=>c.CoderID == coderId);
+            Coder coder = await _context.Coders.FirstOrDefaultAsync(c=>c.CoderID == coderId && c.IsDeleted ==0);
             if(coder == null)
             {
                 throw new Exception("Không tìm thấy coder");
@@ -334,7 +330,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
                 .ToListAsync();
 
             var coders = await _context.Coders
-                .Where(c => coderIds.Contains(c.CoderID))
+                .Where(c => coderIds.Contains(c.CoderID) &&c.IsDeleted ==0) 
                 .Select(c => new
                 {
                     c.CoderID,
@@ -388,7 +384,7 @@ namespace ntucoderbe.Infrashtructure.Repositories
         {
             var coder = await _context.Coders
                 .Include(c => c.Account)
-                .FirstOrDefaultAsync(c => c.CoderEmail == email);
+                .FirstOrDefaultAsync(c => c.CoderEmail == email && c.IsDeleted ==0);
 
             if (coder == null || coder.Account == null)
                 return false;

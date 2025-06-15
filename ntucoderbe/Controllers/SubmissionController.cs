@@ -17,13 +17,15 @@ namespace ntucoderbe.Controllers
         private readonly CodeExecutionService _codeExecutionService;
         private readonly AuthService _authService;
         private readonly TakePartsRepository _takePartsRepository;
+        private readonly SubmissionExecutionQueueService _submissionExecutionQueue;
 
-        public SubmissionController(SubmissionRepository submissionRepository, CodeExecutionService codeExecutionService, AuthService authService, TakePartsRepository takePartsRepository)
+        public SubmissionController(SubmissionRepository submissionRepository, CodeExecutionService codeExecutionService, AuthService authService, TakePartsRepository takePartsRepository, SubmissionExecutionQueueService submissionExecutionQueue)
         {
             _submissionRepository = submissionRepository;
             _codeExecutionService = codeExecutionService;
             _authService = authService;
             _takePartsRepository = takePartsRepository;
+            _submissionExecutionQueue = submissionExecutionQueue;
         }
 
         [HttpGet("all")]
@@ -54,7 +56,8 @@ namespace ntucoderbe.Controllers
                 dto.CoderID = coderID;
 
                 var result = await _submissionRepository.CreateSubmissionAsync(dto);
-                var testRunResults = await _codeExecutionService.ExecuteSubmissionAsync(result.SubmissionID);
+                //var testRunResults = await _codeExecutionService.ExecuteSubmissionAsync(result.SubmissionID);
+                _submissionExecutionQueue.Enqueue(result.SubmissionID);
                 if (dto.TakePartID.HasValue)
                 {
                     await _takePartsRepository.UpdateTakePartAsync(dto.TakePartID.Value);
@@ -62,7 +65,7 @@ namespace ntucoderbe.Controllers
                 return Ok(new
                 {
                     Submission = result,
-                    TestRuns = testRunResults
+                    Message = "Submission đã được đưa vào hàng đợi xử lý."
                 });
             }
             catch (InvalidOperationException ex)

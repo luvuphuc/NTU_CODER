@@ -142,14 +142,6 @@ export default function CompilerTable({
       sortField: 'compilerName',
     },
     {
-      Header: 'Đường dẫn',
-      accessor: 'compilerPath',
-    },
-    {
-      Header: 'Kiểu',
-      accessor: 'compilerOption',
-    },
-    {
       Header: 'Đuôi mở rộng',
       accessor: 'compilerExtension',
     },

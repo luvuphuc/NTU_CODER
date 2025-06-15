@@ -122,7 +122,7 @@ const ContestTableUser = React.memo(
 
           <Flex mb={4} justify="space-between" align="center">
             <Input
-              placeholder="Tìm kiếm contest..."
+              placeholder="Tìm kiếm cuộc thi..."
               value={searchTerm}
               onChange={handleSearchChange}
               maxW="300px"

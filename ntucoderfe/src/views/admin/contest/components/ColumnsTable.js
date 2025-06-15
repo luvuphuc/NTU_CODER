@@ -128,9 +128,10 @@ export default function ContestTable({
         throw new Error('Có lỗi xảy ra khi xóa');
       }
     } catch (error) {
+      console.log(error);
       toast({
         title: 'Lỗi',
-        description: error.message || 'Có lỗi xảy ra khi xóa.',
+        description: error.message.error || 'Có lỗi xảy ra khi xóa.',
         status: 'error',
         duration: 5000,
         isClosable: true,

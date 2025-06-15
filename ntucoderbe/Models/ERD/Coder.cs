@@ -25,6 +25,7 @@ namespace ntucoderbe.Models.ERD
         public DateTime? UpdatedAt { get; set; } = null;
 
         public string? UpdatedBy { get; set; }
+        public int? IsDeleted { get; set; }
 
         public virtual Account Account { get; set; }
 

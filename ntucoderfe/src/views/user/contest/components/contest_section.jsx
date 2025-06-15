@@ -12,7 +12,7 @@ import {
 import { Link } from 'react-router-dom';
 import { LuCalendarX } from 'react-icons/lu';
 import { motion } from 'framer-motion';
-
+import moment from 'moment-timezone';
 const MotionBox = motion(Box);
 
 export default function ContestSection({ title, contests }) {
@@ -176,16 +176,10 @@ function getStatusLabel(status) {
 }
 
 function formatDateTime(dateTime) {
-  const date = new Date(dateTime);
-  return `${date.toLocaleDateString('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  })} - ${date.toLocaleTimeString('vi-VN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  })}`;
+  return moment
+    .utc(dateTime)
+    .tz('Asia/Ho_Chi_Minh')
+    .format('DD-MM-YYYY - HH:mm');
 }
 
 function getDisplayTimeLabel(status, displayTime) {

@@ -159,7 +159,7 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
       }
 
       case 'gender':
-        updatedData.gender = formValues.gender;
+        updatedData.gender = parseInt(formValues.gender);
         break;
 
       case 'description':
@@ -354,6 +354,10 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
         );
 
       case 'dateOfBirth':
+        const getDaysInMonth = (month, year) => {
+          if (!month || !year) return 31;
+          return moment(`${year}-${month}`, 'YYYY-MM').daysInMonth();
+        };
         return (
           <Box
             key={field.key}
@@ -383,7 +387,14 @@ export default function DetailUserModal({ isOpen, onClose, coderProfile }) {
                         width="110px"
                       >
                         {part === 'day'
-                          ? [...Array(31).keys()].map((i) => (
+                          ? [
+                              ...Array(
+                                getDaysInMonth(
+                                  dateOfBirth.month,
+                                  dateOfBirth.year,
+                                ),
+                              ).keys(),
+                            ].map((i) => (
                               <option
                                 key={i}
                                 value={String(i + 1).padStart(2, '0')}

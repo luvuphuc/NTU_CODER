@@ -31,7 +31,7 @@ namespace ntucoderbe.Infrashtructure.Services
             var user = await _context.Accounts
                 .Include(a => a.Coder).FirstOrDefaultAsync(a =>
             a.UserName == username ||
-            (a.Coder != null && a.Coder.CoderEmail == username)
+            (a.Coder != null && a.Coder.CoderEmail == username && a.Coder.IsDeleted ==0)
         );
             if (user == null || !PasswordHelper.VerifyPassword(password, user.Password, user.SaltMD5))
             {

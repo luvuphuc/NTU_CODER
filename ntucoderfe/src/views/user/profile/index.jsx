@@ -19,6 +19,7 @@ import { AiFillHeart } from 'react-icons/ai';
 import moment from 'moment-timezone';
 import Layout from 'layouts/user';
 import { useMotionValue, animate } from 'framer-motion';
+import Pagination from 'components/pagination/pagination';
 import api from 'config/api';
 import { useParams } from 'react-router-dom';
 import { useAuth } from 'contexts/AuthContext';
@@ -35,6 +36,21 @@ const ProfileCoder = () => {
   const [participations, setParticipations] = useState([]);
   const [coderProfile, setCoderProfile] = useState(null);
   const [totalProblems, setTotalProblems] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (size) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  };
+  useEffect(() => {
+    fetchProfileData();
+  }, [currentPage, pageSize]);
+
   const percentage = coderProfile
     ? (coderProfile.countProblemSolved / totalProblems) * 100
     : 0;
@@ -42,12 +58,15 @@ const ProfileCoder = () => {
     try {
       const [submissionRes, contestRes, coderRes, problemRes] =
         await Promise.all([
-          api.get(`/Submission/profile?coderID=${id}`),
+          api.get(
+            `/Submission/profile?coderID=${id}&page=${currentPage}&pageSize=${pageSize}`,
+          ),
           api.get(`/Participation/profile?coderID=${id}`),
           api.get(`/Coder/profile/?coderID=${id}`),
           api.get('/Problem/count'),
         ]);
-      setSubmissions(submissionRes.data || []);
+      setSubmissions(submissionRes.data.data || []);
+      setTotalPages(submissionRes.data.totalPages || 1);
       setParticipations(contestRes.data || []);
       setCoderProfile(coderRes.data || null);
       setTotalProblems(problemRes.data);
@@ -276,7 +295,9 @@ const ProfileCoder = () => {
 
               <Box mt={4} textAlign="center">
                 <Text color="white" fontSize="md" fontWeight="medium">
-                  Chúc mừng bạn đã giải quyết{' '}
+                  Chúc mừng
+                  {coderProfile?.coderName ? ` ${coderProfile.coderName}` : ''}{' '}
+                  đã giải quyết{' '}
                   <Text as="span" color="yellow" fontWeight="bold">
                     {coderProfile?.countProblemSolved || 0} bài tập!
                   </Text>
@@ -406,6 +427,12 @@ const ProfileCoder = () => {
                 </Box>
               ))}
             </Box>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
+            />
           </Box>
         </Flex>
       </Container>
